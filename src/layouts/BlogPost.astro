@@ -1,0 +1,40 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import FormattedDate from '../components/FormattedDate.astro';
+import StellarShell from './StellarShell.astro';
+import * as styles from './BlogPost.css';
+
+type Props = CollectionEntry<'blog'>['data'];
+
+const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+---
+
+<StellarShell title={title} description={description} mainClass={styles.main}>
+	<article class={styles.article}>
+		{
+			heroImage && (
+				<div class={styles.heroWrap}>
+					<Image class={styles.heroImage} width={1020} height={510} src={heroImage} alt="" />
+				</div>
+			)
+		}
+		<div class={styles.prose}>
+			<div class={styles.titleBlock}>
+				<div class={styles.meta}>
+					<FormattedDate date={pubDate} />
+					{
+						updatedDate && (
+							<div class={styles.updated}>
+								Last updated on <FormattedDate date={updatedDate} />
+							</div>
+						)
+					}
+				</div>
+				<h1 class={styles.title}>{title}</h1>
+				<hr />
+			</div>
+			<slot />
+		</div>
+	</article>
+</StellarShell>

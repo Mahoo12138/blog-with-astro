@@ -1,0 +1,43 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import FormattedDate from './FormattedDate.astro';
+import * as styles from './StellarPostCard.css';
+
+interface Props {
+	post: CollectionEntry<'blog'>;
+	variant?: 'default' | 'photo';
+}
+
+const { post, variant = 'default' } = Astro.props;
+const href = `/blog/${post.id}/`;
+const excerpt = post.data.description || '';
+---
+
+<div class={styles.wrap}>
+	<a class:list={[styles.card, styles.cardVariant[variant]]} href={href}>
+		{
+			variant === 'photo' && post.data.heroImage ? (
+				<>
+					<Image class={styles.photoMedia} src={post.data.heroImage} width={1280} height={640} alt={post.data.title} />
+					<div class={styles.photoOverlay}></div>
+					<div class={styles.photoBody}>
+						<h2 class={styles.photoTitle}>{post.data.title}</h2>
+					</div>
+				</>
+			) : (
+				<article class={styles.textBody}>
+					<h2 class={styles.title}>{post.data.title}</h2>
+					{excerpt && <p class={styles.excerpt}>{excerpt}</p>}
+					<div class={styles.meta}>
+						<svg class={styles.metaIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+							<rect x="3" y="5" width="18" height="16" rx="2"></rect>
+							<path d="M8 3v4M16 3v4M3 11h18"></path>
+						</svg>
+						<FormattedDate date={post.data.pubDate} />
+					</div>
+				</article>
+			)
+		}
+	</a>
+</div>

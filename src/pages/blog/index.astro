@@ -1,0 +1,28 @@
+---
+import { getCollection } from 'astro:content';
+import StellarNavTabs from '../../components/StellarNavTabs.astro';
+import StellarPostCard from '../../components/StellarPostCard.astro';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
+import StellarShell from '../../layouts/StellarShell.astro';
+import * as styles from '../../styles/homeFeed.css';
+
+const posts = (await getCollection('blog')).sort(
+	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+const photoIndex = posts.findIndex((post, index) => index > 1 && post.data.heroImage);
+---
+
+<StellarShell title={SITE_TITLE} description={SITE_DESCRIPTION} mainClass={styles.main}>
+	<header class={styles.header}>
+		<StellarNavTabs active="home" />
+	</header>
+	<ul class={styles.list}>
+		{
+			posts.map((post, index) => (
+				<li class={styles.item}>
+					<StellarPostCard post={post} variant={index === photoIndex ? 'photo' : 'default'} />
+				</li>
+			))
+		}
+	</ul>
+</StellarShell>

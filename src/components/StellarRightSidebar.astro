@@ -1,0 +1,61 @@
+---
+import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import FormattedDate from './FormattedDate.astro';
+import * as styles from './StellarRightSidebar.css';
+
+const recentPosts = (await getCollection('blog'))
+	.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+	.slice(0, 3);
+
+const featuredPost = recentPosts.find((post) => post.data.heroImage) ?? recentPosts[0];
+---
+
+<div class={styles.root}>
+	<section class={styles.card}>
+		<h2 class={styles.cardTitle}>欢迎，旅行者</h2>
+		<p class={styles.intro}>您已来到世界边缘，喜欢的话欢迎停留交流。</p>
+		<div class={styles.quote}>博客是一处长期写作与整理的静态栖居地。</div>
+		<div class={styles.actionList}>
+			<a class={styles.actionLink} href="/about">
+				<svg class={styles.actionIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+					<path d="M12 8.5a2 2 0 1 0 0-4a2 2 0 0 0 0 4Zm-4 8.5a4 4 0 0 1 8 0"></path>
+				</svg>
+				<span>查看作者页</span>
+			</a>
+			<a class={styles.actionLink} href="/blog">
+				<svg class={styles.actionIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+					<path d="M4 6.5h16M4 12h16M4 17.5h10"></path>
+				</svg>
+				<span>传送到文章区</span>
+			</a>
+		</div>
+	</section>
+
+	<section class={styles.card}>
+		<h2 class={styles.cardTitle}>近期动态</h2>
+		<div class={styles.timeline}>
+			{
+				recentPosts.map((post) => (
+					<div class={styles.timelineItem}>
+						<div class={styles.timelineTime}>
+							<FormattedDate date={post.data.pubDate} />
+						</div>
+						<a class={styles.timelineLink} href={`/blog/${post.id}/`}>
+							{post.data.title}
+						</a>
+					</div>
+				))
+			}
+		</div>
+	</section>
+
+	{
+		featuredPost?.data.heroImage && (
+			<section class:list={[styles.card, styles.mediaCard]}>
+				<Image class={styles.mediaImage} src={featuredPost.data.heroImage} width={320} height={210} alt={featuredPost.data.title} />
+				<p class={styles.mediaCaption}>{featuredPost.data.title}</p>
+			</section>
+		)
+	}
+</div>

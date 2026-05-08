@@ -1,0 +1,54 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import StellarLeftSidebar from '../components/StellarLeftSidebar.astro';
+import StellarRightSidebar from '../components/StellarRightSidebar.astro';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import * as styles from './StellarShell.css';
+
+interface Props {
+	title: string;
+	description: string;
+	lang?: string;
+	mainClass?: string;
+}
+
+const { title, description, lang = 'en', mainClass } = Astro.props;
+const hasLead = Astro.slots.has('lead');
+const hasLeftbar = Astro.slots.has('leftbar');
+const hasRightbar = Astro.slots.has('rightbar');
+---
+
+<!doctype html>
+<html lang={lang}>
+	<head>
+		<BaseHead title={title} description={description} />
+	</head>
+	<body class={styles.body}>
+		<div class={styles.background} aria-hidden="true">
+			<div class={styles.glowLeft}></div>
+			<div class={styles.glowRight}></div>
+		</div>
+		<div class={styles.shell}>
+			<aside class={styles.left}>
+				<StellarLeftSidebar />
+				{hasLeftbar && <slot name="leftbar" />}
+			</aside>
+			<main class={styles.mainArea}>
+				<div class={styles.mobileBrand}>
+					<div>
+						<p class={styles.mobileTitle}>{SITE_TITLE}</p>
+						<p class={styles.mobileSubtitle}>{SITE_DESCRIPTION}</p>
+					</div>
+				</div>
+				<div class:list={[styles.mainContent, mainClass]}>
+					{hasLead && <div class={styles.lead}><slot name="lead" /></div>}
+					<slot />
+				</div>
+			</main>
+			<aside class={styles.right}>
+				<StellarRightSidebar />
+				{hasRightbar && <slot name="rightbar" />}
+			</aside>
+		</div>
+	</body>
+</html>

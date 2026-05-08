@@ -1,0 +1,47 @@
+---
+import { getCollection } from 'astro:content';
+import FormattedDate from '../components/FormattedDate.astro';
+import StellarNavTabs from '../components/StellarNavTabs.astro';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import StellarShell from '../layouts/StellarShell.astro';
+import * as styles from '../styles/homeFeed.css';
+
+const posts = (await getCollection('blog')).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+const archives = posts.reduce<Map<number, typeof posts>>((map, post) => {
+	const year = post.data.pubDate.getFullYear();
+	const bucket = map.get(year) ?? [];
+	bucket.push(post);
+	map.set(year, bucket);
+	return map;
+}, new Map());
+
+const groups = Array.from(archives.entries()).sort((a, b) => b[0] - a[0]);
+---
+
+<StellarShell title={`Archives · ${SITE_TITLE}`} description={SITE_DESCRIPTION} mainClass={styles.archiveMain}>
+	<header class={styles.header}>
+		<StellarNavTabs active="archives" />
+	</header>
+	{
+		groups.map(([year, yearPosts]) => (
+			<section class={styles.archiveSection}>
+				<h2 class={styles.archiveYear}>{year}</h2>
+				<ul class={styles.archiveList}>
+					{
+						yearPosts.map((post) => (
+							<li>
+								<a class={styles.archiveLink} href={`/blog/${post.id}/`}>
+									<span class={styles.archiveDate}>
+										<FormattedDate date={post.data.pubDate} />
+									</span>
+									<span class={styles.archiveTitle}>{post.data.title}</span>
+								</a>
+							</li>
+						))
+					}
+				</ul>
+			</section>
+		))
+	}
+</StellarShell>

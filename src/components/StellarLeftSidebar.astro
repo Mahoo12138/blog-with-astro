@@ -1,0 +1,105 @@
+---
+import { getCollection } from 'astro:content';
+import AvatarImage from '../assets/blog-placeholder-about.jpg';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import * as styles from './StellarLeftSidebar.css';
+
+const recentPosts = (await getCollection('blog'))
+	.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+	.slice(0, 8);
+
+const pathname = Astro.url.pathname;
+
+const navItems = [
+	{
+		label: 'Home',
+		href: '/',
+		icon: 'M3 4.5h18v15H3z M7 2h10',
+	},
+	{
+		label: 'Blog',
+		href: '/blog',
+		icon: 'M5 5.5h14M5 10.5h14M5 15.5h10',
+	},
+	{
+		label: 'About',
+		href: '/about',
+		icon: 'M12 8.5a2 2 0 1 0 0-4a2 2 0 0 0 0 4Zm-4 8.5a4 4 0 0 1 8 0',
+	},
+	{
+		label: 'RSS',
+		href: '/rss.xml',
+		icon: 'M6 17a1.5 1.5 0 1 0 0 3a1.5 1.5 0 0 0 0-3Zm0-7a8 8 0 0 1 8 8M6 10a15 15 0 0 1 15 15',
+	},
+];
+
+function isActive(href: string) {
+	if (href === '/') {
+		return pathname === '/';
+	}
+	return pathname === href || pathname.startsWith(`${href}/`);
+}
+---
+
+<div class={styles.root}>
+	{/* sidebg: 背景色层 + 底部光晕 —— 对应 .sidebg */}
+	<div class={styles.sidebg} aria-hidden="true">
+		<div class={styles.glow}></div>
+	</div>
+
+	{/* leftbar-container: 固定高度 + overflow:hidden + ::before 玻璃+mask */}
+	<div class={styles.container}>
+
+		{/* 不滚动区域：logo（头像+标题）+ 菜单 + 搜索 */}
+		<header class={styles.profile}>
+			<img class={styles.avatar} src={AvatarImage.src} alt={SITE_TITLE} />
+			<div class={styles.titleWrap}>
+				<a class={styles.title} href="/">{SITE_TITLE}</a>
+				<p class={styles.subtitle}>{SITE_DESCRIPTION}</p>
+			</div>
+		</header>
+
+		<nav class={styles.menuGrid} aria-label="Primary">
+			{
+				navItems.map((item) => (
+					<a class:list={[styles.menuLink, isActive(item.href) && styles.menuActive]} href={item.href} title={item.label}>
+						<svg class={styles.menuIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+							<path d={item.icon}></path>
+						</svg>
+					</a>
+				))
+			}
+		</nav>
+
+		<a class={styles.search} href="/blog">
+			<svg class={styles.searchIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+				<circle cx="11" cy="11" r="7"></circle>
+				<path d="m20 20-3.5-3.5"></path>
+			</svg>
+			<span class={styles.searchLabel}>站内搜索</span>
+		</a>
+
+		{/* 可滚动 widgets 区域，底部 mask 渐隐 —— 对应 >.widgets */}
+		<div class={styles.inner}>
+			<div class={styles.widgets}>
+				<section class={styles.widget}>
+					<div class={styles.widgetTitle}>
+						<span>最近更新</span>
+						<a class={styles.widgetLink} href="/rss.xml" aria-label="RSS">RSS</a>
+					</div>
+					<div class={styles.recentList}>
+						{
+							recentPosts.map((post) => (
+								<a class={styles.recentItem} href={`/blog/${post.id}/`}>
+									{post.data.title}
+								</a>
+							))
+						}
+					</div>
+				</section>
+			</div>
+		</div>
+
+		<footer class={styles.footer}>Static Astro build · Inspired by Stellar</footer>
+	</div>
+</div>

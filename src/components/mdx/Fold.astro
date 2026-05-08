@@ -1,0 +1,18 @@
+---
+import * as styles from './blocks.css';
+
+interface Props {
+	title: string;
+	open?: boolean;
+	tone?: keyof typeof styles.foldTone;
+}
+
+const { title, open = false, tone = 'info' } = Astro.props;
+---
+
+<details class:list={[styles.fold, styles.foldTone[tone]]} open={open}>
+	<summary class:list={[styles.foldSummary, styles.foldSummaryTone[tone]]}>{title}</summary>
+	<div class={styles.foldBody}>
+		<slot />
+	</div>
+</details>

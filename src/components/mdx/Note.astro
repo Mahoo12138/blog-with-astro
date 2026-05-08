@@ -1,0 +1,17 @@
+---
+import * as styles from './blocks.css';
+
+interface Props {
+	title?: string;
+	tone?: keyof typeof styles.noteTone;
+}
+
+const { title = 'Note', tone = 'info' } = Astro.props;
+---
+
+<aside class:list={[styles.note, styles.noteTone[tone]]}>
+	<strong class={styles.noteTitle}>{title}</strong>
+	<div class={styles.noteBody}>
+		<slot />
+	</div>
+</aside>

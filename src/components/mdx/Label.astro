@@ -1,0 +1,13 @@
+---
+import * as styles from './blocks.css';
+
+interface Props {
+	tone?: keyof typeof styles.labelTone;
+}
+
+const { tone = 'info' } = Astro.props;
+---
+
+<span class:list={[styles.label, styles.labelTone[tone]]}>
+	<slot />
+</span>

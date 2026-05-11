@@ -1,14 +1,28 @@
 import { globalStyle, style } from '@vanilla-extract/css';
 import { vars } from '../styles/theme.css';
 
-/* 侧栏高度 = 100vh - gap-margin*2 - leftbar-bottom-margin(96px) */
-const sidebarHeight = 'calc(100vh - 32px - 96px)';
+const gapMargin = '16px';
+const gapPadding = '16px';
+const gapMax = '32px';
+const sideContentWidth = '224px';
+const borderCardLarge = '24px';
+const borderCardSmall = '12px';
+const borderBar = '8px';
+const sidebarHeight = `calc(100vh - ${gapMargin} * 2 - 96px)`;
+const bgA20 = 'rgba(255, 255, 255, 0.2)';
+const bgA50 = 'rgba(255, 255, 255, 0.5)';
+const bgA100 = 'rgba(255, 255, 255, 1)';
+const textP1 = 'rgba(18, 25, 38, 0.8)';
+const textP2 = 'rgba(18, 25, 38, 0.7)';
+const textP3 = 'rgba(18, 25, 38, 0.5)';
+const sidebarBackgroundImage = 'url(https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.13/image/sidebar-bg1@small.jpg)';
 
 /* root: 照抄 .l_left margin + border-radius，position:sticky 在 StellarShell 里管 */
 export const root = style({
 	position: 'relative',
-	borderRadius: vars.radius.xl,
-	margin: `${vars.space.xl} ${vars.space.md}`,
+	borderRadius: borderCardLarge,
+	margin: 0,
+	maxHeight: sidebarHeight,
 	overflow: 'visible', /* 允许 sidebg blur 溢出裁切在 leftbar-container 内 */
 });
 
@@ -16,12 +30,15 @@ export const root = style({
 export const sidebg = style({
 	pointerEvents: 'none',
 	position: 'absolute',
-	top: 0,
-	bottom: 0,
-	left: 0,
-	right: 0,
-	borderRadius: vars.radius.xl,
-	background: 'linear-gradient(160deg, #e4f5ff 0%, #fff2e8 55%, #ffe9bf 100%)',
+	top: '32px',
+	bottom: '32px',
+	left: '32px',
+	right: '32px',
+	borderRadius: borderCardLarge,
+	backgroundImage: sidebarBackgroundImage,
+	backgroundPosition: 'center',
+	backgroundSize: 'cover',
+	filter: 'saturate(400%) blur(100px) opacity(0.8)',
 });
 
 /* container: 照抄 .leftbar-container —— 固定高度 + overflow:hidden + flex列 */
@@ -31,7 +48,8 @@ export const container = style({
 	display: 'flex',
 	flexDirection: 'column',
 	wordBreak: 'break-all',
-	borderRadius: vars.radius.xl,
+	textAlign: 'justify',
+	borderRadius: borderCardLarge,
 	overflow: 'hidden',
 	/* ::before — 玻璃效果 + mask 渐变淡出 (核心灵魂) */
 	'::before': {
@@ -39,7 +57,7 @@ export const container = style({
 		position: 'absolute',
 		pointerEvents: 'none',
 		top: 0, bottom: 0, left: 0, right: 0,
-		borderRadius: vars.radius.xl,
+		borderRadius: borderCardLarge,
 		background: 'rgba(255,255,255,0.05)',
 		boxShadow: 'inset 0 0 32px 1px rgba(255,255,255,0.5)',
 		backdropFilter: 'saturate(300%)',
@@ -52,45 +70,42 @@ export const container = style({
 
 /* 底部径向光晕，放在 sidebg 层 */
 export const glow = style({
-	position: 'absolute',
-	left: '-12%',
-	right: '-10%',
-	bottom: '-18%',
-	height: '17rem',
-	background: 'radial-gradient(circle, rgba(255,188,83,0.82), rgba(255,188,83,0.14) 52%, transparent 74%)',
-	filter: 'blur(22px)',
-	pointerEvents: 'none',
-	zIndex: 0,
+	display: 'none',
 });
 
 /* inner: 内容滚动区，照抄 >.widgets mask 淡出 */
 export const inner = style({
 	position: 'relative',
 	flexGrow: 1,
-	overflowY: 'auto',
-	overflowX: 'hidden',
-	paddingBottom: vars.space.xl,
+	overflow: 'scroll',
+	margin: `0 ${gapMargin}`,
 	scrollbarWidth: 'none',
 	zIndex: 1,
-	mask: 'linear-gradient(white 90%, transparent)',
-	WebkitMask: 'linear-gradient(white 90%, transparent)',
+	lineHeight: 1.2,
+	borderRadius: borderBar,
+	mask: 'linear-gradient(white, white 90%, transparent)',
+	WebkitMask: 'linear-gradient(white, white 90%, transparent)',
 });
 
 export const profile = style({
 	position: 'relative',
 	display: 'flex',
 	alignItems: 'center',
-	gap: vars.space.lg,
-	padding: `${vars.space.xl} ${vars.space.xl} ${vars.space.lg}`,
+	minHeight: '48px',
+	margin: `${gapMax} ${gapMargin} 0`,
+	padding: 0,
+	overflow: 'hidden',
 	zIndex: 1,
 });
 
 export const avatar = style({
-	width: '3.25rem',
-	height: '3.25rem',
-	borderRadius: vars.radius.pill,
-	border: '2px solid rgba(255, 255, 255, 0.84)',
-	boxShadow: '0 12px 28px rgba(15, 23, 42, 0.14)',
+	width: '48px',
+	height: '48px',
+	marginRight: '1rem',
+	padding: '2px',
+	borderRadius: '48px',
+	background: 'rgba(255, 255, 255, 0.35)',
+	boxShadow: 'none',
 	objectFit: 'cover',
 	flexShrink: 0,
 });
@@ -102,43 +117,59 @@ export const titleWrap = style({
 export const title = style({
 	display: 'block',
 	margin: 0,
-	fontSize: '1.35rem',
+	fontSize: '1.5rem',
 	fontWeight: 900,
-	lineHeight: 1,
+	lineHeight: 1.2,
 	color: vars.color.textStrong,
-	letterSpacing: '0.02em',
-	textShadow: '0 1px 0 rgba(255, 255, 255, 0.5)',
+	letterSpacing: 0,
+	textShadow: 'none',
 });
 
 export const subtitle = style({
-	margin: `${vars.space.xs} 0 0`,
-	fontSize: '0.9rem',
-	color: vars.color.textMuted,
+	margin: 0,
+	fontSize: '0.78rem',
+	lineHeight: 1.2,
+	whiteSpace: 'nowrap',
+	color: textP1,
+});
+
+export const navArea = style({
+	position: 'relative',
+	margin: `1rem ${gapMargin} 0`,
+	zIndex: 1,
 });
 
 export const menuGrid = style({
 	position: 'relative',
 	display: 'grid',
-	gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
-	gap: vars.space.sm,
-	padding: `0 ${vars.space.xl} ${vars.space.lg}`,
+	width: '100%',
+	gridTemplateColumns: 'repeat(var(--menubar-columns), minmax(0, 1fr))',
+	gap: '8px',
+	margin: '8px 0',
+	padding: 0,
 	zIndex: 1,
 });
 
 export const menuLink = style({
 	display: 'flex',
+	flexDirection: 'column',
 	alignItems: 'center',
 	justifyContent: 'center',
-	height: '3rem',
-	borderRadius: vars.radius.md,
-	background: 'rgba(255, 255, 255, 0.58)',
-	color: vars.color.textMuted,
-	boxShadow: 'inset 0 0 0 1px rgba(255, 255, 255, 0.48)',
-	backdropFilter: 'blur(14px)',
+	boxSizing: 'border-box',
+	width: '100%',
+	minHeight: '40px',
+	borderRadius: borderBar,
+	background: bgA50,
+	color: textP3,
+	fontSize: '15px',
+	fontWeight: 500,
+	lineHeight: 1.2,
+	textAlign: 'center',
+	position: 'relative',
 	selectors: {
 		'&:hover': {
-			color: vars.color.textStrong,
-			background: 'rgba(255, 255, 255, 0.78)',
+			color: textP1,
+			background: bgA100,
 		},
 		'&:focus-visible': {
 			outline: 'none',
@@ -148,73 +179,202 @@ export const menuLink = style({
 });
 
 export const menuActive = style({
-	color: vars.color.accentStrong,
-	background: 'rgba(255, 255, 255, 0.92)',
-	boxShadow: 'inset 0 0 0 1px rgba(255, 255, 255, 0.72), 0 10px 20px rgba(15, 23, 42, 0.08)',
-});
-
-export const menuIcon = style({
-	width: '1.2rem',
-	height: '1.2rem',
-});
-
-export const search = style({
-	position: 'relative',
-	display: 'flex',
-	alignItems: 'center',
-	gap: vars.space.sm,
-	padding: `${vars.space.sm} ${vars.space.xl} ${vars.space.md}`,
-	marginBottom: vars.space.xl,
-	color: vars.color.text,
-	zIndex: 1,
+	color: 'var(--menu-theme, #2196f3)',
+	background: bgA100,
+	boxShadow: 'none',
 	selectors: {
 		'&::after': {
 			content: '',
 			position: 'absolute',
-			left: 0,
-			right: 0,
-			bottom: 0,
+			width: '16px',
 			height: '2px',
-			borderRadius: vars.radius.pill,
-			background: 'rgba(255, 255, 255, 0.58)',
+			left: '50%',
+			bottom: '2px',
+			transform: 'translateX(-50%)',
+			borderRadius: '2px',
+			background: 'currentColor',
 		},
 	},
+});
+
+export const menuIcon = style({
+	height: '28px',
+	width: '28px',
+	objectFit: 'contain',
+	fill: 'currentColor',
+	stroke: 'none',
+	filter: 'grayscale(50%) brightness(0.8) opacity(0.5)',
+	selectors: {
+		[`${menuLink}:hover &`]: {
+			filter: 'unset',
+		},
+		[`${menuActive} &`]: {
+			filter: 'unset',
+		},
+	},
+});
+
+export const menuIconBase = style({
+	opacity: 0.42,
+});
+
+export const menuIconTone = style({
+	opacity: 1,
+});
+
+export const menuLabel = style({
+	position: 'absolute',
+	width: '1px',
+	height: '1px',
+	padding: 0,
+	margin: '-1px',
+	overflow: 'hidden',
+	clip: 'rect(0, 0, 0, 0)',
+	whiteSpace: 'nowrap',
+	border: 0,
+});
+
+export const searchWrapper = style({
+	paddingBottom: '32px',
+	width: '100%',
+	borderRadius: borderCardSmall,
+});
+
+export const searchForm = style({
+	position: 'sticky',
+	top: 0,
+	height: '40px',
+	display: 'flex',
+	alignItems: 'center',
+	transition: '0.38s ease-out',
+	zIndex: 1,
+	borderRadius: borderCardSmall,
+	color: vars.color.textStrong,
+	selectors: {
+		'&::before': {
+			content: '',
+			position: 'absolute',
+			height: '2px',
+			bottom: 0,
+			left: gapPadding,
+			right: gapPadding,
+			borderRadius: borderBar,
+			background: bgA100,
+			zIndex: 0,
+			transition: '0.2s ease-out',
+		},
+		'&:hover::before': {
+			height: '100%',
+			left: 0,
+			right: 0,
+		},
+		'&:focus-within::before': {
+			height: '100%',
+			left: 0,
+			right: 0,
+		},
+	},
+});
+
+export const searchButton = style({
+	position: 'relative',
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'center',
+	height: '40px',
+	width: `calc((${sideContentWidth} + ${gapPadding} * 2 - 3 * 8px) * 0.25)`,
+	padding: 0,
+	border: 0,
+	borderRadius: borderBar,
+	background: 'transparent',
+	color: textP2,
+	cursor: 'pointer',
+	zIndex: 1,
 });
 
 export const searchIcon = style({
 	width: '1rem',
 	height: '1rem',
-	color: vars.color.textMuted,
-	flexShrink: 0,
+	color: 'currentColor',
 });
 
-export const searchLabel = style({
-	fontSize: '0.92rem',
-	color: vars.color.textMuted,
+export const searchInput = style({
+	position: 'relative',
+	width: '100%',
+	boxSizing: 'border-box',
+	fontFamily: vars.font.body,
+	fontSize: '14px',
+	padding: '12px 0',
+	border: 0,
+	outline: 0,
+	background: 'transparent',
+	color: vars.color.textStrong,
+	zIndex: 1,
+	selectors: {
+		'&::placeholder': {
+			color: textP3,
+		},
+	},
+});
+
+export const searchNoResult = style({
+	display: 'none',
+	color: textP1,
+	textAlign: 'center',
+	fontSize: '14px',
+	padding: '2rem',
+	margin: '8px 0',
+	background: bgA20,
+	borderRadius: borderCardSmall,
 });
 
 export const widgets = style({
 	position: 'relative',
-	display: 'grid',
-	gap: vars.space.xl,
-	padding: `0 ${vars.space.xl}`,
+	display: 'block',
+	padding: 0,
 	zIndex: 1,
 });
 
 export const widget = style({
-	display: 'grid',
-	gap: vars.space.sm,
+	display: 'block',
+	paddingBottom: '32px',
 });
+
+export const welcomeText = style({
+	margin: 0,
+	padding: `${vars.space.sm} ${vars.space.md}`,
+	borderRadius: '12px',
+	background: 'rgba(255, 255, 255, 0.42)',
+	fontSize: '0.88rem',
+	lineHeight: 1.55,
+	color: vars.color.text,
+});
+
+export const markdownWidget = style({});
+
+export const markdownBody = style({
+	borderRadius: borderCardSmall,
+	padding: '0.25rem 1rem',
+	background: bgA50,
+	color: textP1,
+	fontSize: '14px',
+	lineHeight: 1.5,
+});
+
+export const postListWidget = style({});
 
 export const widgetTitle = style({
 	display: 'flex',
 	alignItems: 'center',
 	justifyContent: 'space-between',
-	fontSize: '0.82rem',
-	fontWeight: 700,
-	letterSpacing: '0.08em',
-	textTransform: 'uppercase',
-	color: vars.color.textMeta,
+	paddingLeft: gapPadding,
+	paddingRight: gapPadding,
+	lineHeight: '28px',
+	fontWeight: 500,
+	fontSize: '13px',
+	letterSpacing: 0,
+	textTransform: 'none',
+	color: textP1,
 });
 
 export const widgetLink = style({
@@ -223,19 +383,28 @@ export const widgetLink = style({
 });
 
 export const recentList = style({
-	display: 'grid',
-	gap: vars.space.xs,
+	display: 'block',
 });
 
 export const recentItem = style({
-	display: 'block',
-	padding: `${vars.space.xs} 0`,
-	color: vars.color.text,
-	fontSize: '0.94rem',
-	lineHeight: 1.45,
+	display: 'flex',
+	justifyContent: 'space-between',
+	alignItems: 'center',
+	padding: `6px ${gapPadding}`,
+	borderRadius: borderBar,
+	color: textP1,
+	fontSize: '14px',
+	lineHeight: 1.2,
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
+	whiteSpace: 'nowrap',
 	selectors: {
+		'& + &': {
+			marginTop: '2px',
+		},
 		'&:hover': {
-			color: vars.color.textStrong,
+			background: bgA100,
+			color: textP1,
 		},
 	},
 });
@@ -243,11 +412,49 @@ export const recentItem = style({
 export const footer = style({
 	position: 'relative',
 	flexShrink: 0,
-	padding: `${vars.space.md} ${vars.space.xl} ${vars.space.xl}`,
-	fontSize: '0.84rem',
-	color: vars.color.textMeta,
+	margin: `0.5rem ${gapMax} 1rem`,
+	padding: 0,
+	fontSize: '14px',
+	color: textP3,
 	zIndex: 1,
+});
+
+export const socialWrap = style({
+	display: 'grid',
+	gridTemplateColumns: 'repeat(auto-fill, 32px)',
+	gap: '0.25rem',
+	textAlign: 'center',
+});
+
+export const socialLink = style({
+	display: 'inline-flex',
+	alignItems: 'center',
+	justifyContent: 'center',
+	lineHeight: 0,
+	padding: '6px',
+	borderRadius: '32px',
+	filter: 'grayscale(100%)',
+	overflow: 'hidden',
+	background: 'transparent',
+	color: textP2,
+	transition: 'box-shadow 0.2s ease, background 0.2s ease, transform 0.2s ease',
+	selectors: {
+		'&:hover': {
+			zIndex: 1,
+			filter: 'unset',
+			background: bgA100,
+			color: vars.color.accentStrong,
+		},
+	},
+});
+
+export const socialIcon = style({
+	width: '20px',
+	height: '20px',
 });
 
 globalStyle(`${container}::-webkit-scrollbar`, { display: 'none' });
 globalStyle(`${inner}::-webkit-scrollbar`, { display: 'none' });
+globalStyle(`${markdownBody} > *:first-child`, { marginTop: '0.75rem' });
+globalStyle(`${markdownBody} > *:last-child`, { marginBottom: '0.75rem' });
+globalStyle(`${widgetTitle} > span`, { opacity: 0.6 });

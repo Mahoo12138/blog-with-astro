@@ -1,81 +1,555 @@
 import { globalStyle, style } from '@vanilla-extract/css';
 import { breakpoints, vars } from '../styles/theme.css';
 
+const gapCompact = '1rem';
+const borderCardLarge = '24px';
+const borderCard = '16px';
+const borderCardSmall = '12px';
+const borderBar = '8px';
+const borderImage = '24px';
+const textP1 = 'rgba(18, 25, 38, 0.82)';
+const textP2 = 'rgba(18, 25, 38, 0.62)';
+const textP3 = 'rgba(18, 25, 38, 0.42)';
+const block = 'rgba(18, 25, 38, 0.06)';
+const blockBorder = 'rgba(18, 25, 38, 0.10)';
+const card = 'rgba(255, 255, 255, 0.76)';
+
 export const main = style({
-	width: `min(${vars.layout.shell}, calc(100% - 2rem))`,
+	width: '100%',
 	maxWidth: '100%',
 	margin: '0 auto',
-	padding: `${vars.space.xxxl} 0 ${vars.space.section}`,
-	'@media': {
-		[`screen and (max-width: ${breakpoints.tablet})`]: {
-			padding: `${vars.space.xxl} 0 ${vars.space.xxxxl}`,
-		},
-	},
+	padding: 0,
 });
 
 export const article = style({
 	display: 'grid',
-	gap: vars.space.xxl,
+	gridTemplateColumns: 'minmax(0, 1fr)',
+	gap: 0,
+	minWidth: 0,
 });
 
-export const heroWrap = style({
-	width: `min(${vars.layout.listing}, 100%)`,
-	margin: '0 auto',
-});
-
-export const heroImage = style({
-	width: '100%',
-	borderRadius: vars.radius.xl,
-	border: `1px solid ${vars.color.border}`,
-	boxShadow: vars.shadow.card,
-});
-
-export const prose = style({
-	width: `min(${vars.layout.content}, 100%)`,
-	margin: '0 auto',
-	padding: `${vars.space.xxl} ${vars.space.xl} ${vars.space.xxxl}`,
-	background: vars.color.surface,
-	border: `1px solid ${vars.color.border}`,
-	borderRadius: vars.radius.xl,
-	boxShadow: vars.shadow.card,
-	backdropFilter: 'blur(18px)',
+export const banner = style({
+	position: 'relative',
+	display: 'flex',
+	flexDirection: 'column',
+	justifyContent: 'flex-end',
+	alignItems: 'flex-start',
+	height: 'unset',
+	margin: 0,
+	overflow: 'hidden',
+	borderRadius: borderCardLarge,
+	background: block,
+	color: vars.color.text,
+	vars: {
+		'--text-banner': vars.color.text,
+		'--button-hover-bg': 'rgba(0, 0, 0, 0.05)',
+	},
 	'@media': {
-		[`screen and (max-width: ${breakpoints.tablet})`]: {
-			padding: `${vars.space.xl} ${vars.space.lg} ${vars.space.xxl}`,
+		[`screen and (max-width: ${breakpoints.mobile})`]: {
+			borderRadius: 0,
 		},
 	},
 });
 
-export const titleBlock = style({
-	marginBottom: vars.space.xxl,
-	paddingBottom: vars.space.sm,
-	textAlign: 'center',
+export const bannerImage = style({
+	position: 'absolute',
+	inset: 0,
+	zIndex: 0,
+	width: '100%',
+	height: '100%',
+	objectFit: 'cover',
+	borderRadius: 0,
+	margin: 0,
+	userSelect: 'none',
+	transition: 'transform 2s ease',
 });
 
-export const meta = style({
-	marginBottom: vars.space.md,
-	color: vars.color.textMuted,
-	fontSize: '0.95rem',
+export const bannerContent = style({
+	position: 'relative',
+	zIndex: 1,
+	display: 'flex',
+	flexDirection: 'column',
+	justifyContent: 'space-between',
+	width: '100%',
+	height: '100%',
+	color: 'var(--text-banner)',
 });
 
-export const updated = style({
-	marginTop: vars.space.xs,
-	fontStyle: 'italic',
+export const bannerContentWithImage = style({
+	minHeight: '200px',
+	aspectRatio: '2.5 / 1',
+	vars: {
+		'--text-banner': '#fff',
+		'--button-hover-bg': 'rgba(255, 255, 255, 0.25)',
+		'--blur-bg': 'rgba(0, 0, 0, 0)',
+		'--blur-px': '1em',
+		'--blur-sat': '100%',
+		'--blur-height-top': '6rem',
+		'--blur-height-bottom': '7rem',
+		'--blur-opacity': '0',
+	},
+	background: 'var(--blur-bg)',
+	transition: 'all 0.2s ease-out',
+	'::before': {
+		content: '',
+		position: 'absolute',
+		zIndex: 0,
+		left: 0,
+		right: 0,
+		top: 0,
+		height: 'var(--blur-height-top)',
+		backdropFilter: 'saturate(var(--blur-sat)) blur(var(--blur-px))',
+		WebkitBackdropFilter: 'saturate(var(--blur-sat)) blur(var(--blur-px))',
+		mask: 'linear-gradient(black, rgba(0, 0, 0, 0.75), transparent)',
+		WebkitMask: 'linear-gradient(black, rgba(0, 0, 0, 0.75), transparent)',
+		opacity: 'var(--blur-opacity)',
+		transition: 'all 0.2s ease-out',
+	},
+	'::after': {
+		content: '',
+		position: 'absolute',
+		zIndex: 0,
+		left: 0,
+		right: 0,
+		bottom: 0,
+		height: 'var(--blur-height-bottom)',
+		backdropFilter: 'saturate(var(--blur-sat)) blur(var(--blur-px))',
+		WebkitBackdropFilter: 'saturate(var(--blur-sat)) blur(var(--blur-px))',
+		mask: 'linear-gradient(transparent, rgba(0, 0, 0, 0.75), black)',
+		WebkitMask: 'linear-gradient(transparent, rgba(0, 0, 0, 0.75), black)',
+		opacity: 'var(--blur-opacity)',
+		transition: 'all 0.2s ease-out',
+	},
+	selectors: {
+		[`${banner}:hover &`]: {
+			vars: {
+				'--blur-bg': 'rgba(0, 0, 0, 0.1)',
+				'--blur-sat': '150%',
+				'--blur-opacity': '1',
+			},
+		},
+	},
+});
+
+export const bannerMeta = style({
+	display: 'flex',
+	justifyContent: 'space-between',
+	alignItems: 'flex-start',
+	margin: '1rem calc(1rem - 4px)',
+	fontSize: '13px',
+	lineHeight: 1,
+	fontWeight: 500,
+	color: 'var(--text-banner)',
+	zIndex: 1,
+});
+
+export const breadcrumb = style({
+	padding: '4px',
+	borderRadius: '2px',
+	color: 'var(--text-banner)',
+	selectors: {
+		'&:hover': {
+			background: 'var(--button-hover-bg)',
+			color: 'var(--text-banner)',
+		},
+	},
+});
+
+export const metaDot = style({
+	opacity: 0.55,
+});
+
+export const bannerBottom = style({
+	display: 'flex',
+	width: '100%',
+	boxSizing: 'border-box',
+	padding: '1rem',
+	zIndex: 1,
+	selectors: {
+		[`${bannerContentWithImage} &`]: {
+			backgroundImage: 'linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.2))',
+			textShadow: '0 0 1px rgba(0, 0, 0, 0.12)',
+		},
+	},
+});
+
+export const titleArea = style({
+	minWidth: 0,
 });
 
 export const title = style({
-	marginBottom: vars.space.lg,
-	fontSize: 'clamp(2.4rem, 6vw, 4.75rem)',
-	lineHeight: 1,
+	margin: '0.25rem 0',
+	padding: '0.75rem 0',
+	fontSize: 'calc(1rem + 8px)',
+	fontWeight: 600,
+	lineHeight: 1.2,
+	letterSpacing: 0,
+	color: 'var(--text-banner)',
 });
 
-globalStyle(`${prose} > :last-child`, {
-	marginBottom: 0,
+export const updated = style({
+	margin: '0.25rem 0',
+	fontSize: '14px',
+	lineHeight: 1.2,
+	opacity: 0.72,
 });
+
+globalStyle(`${banner}:hover ${bannerImage}`, { transform: 'scale(1.01)' });
+globalStyle(`${bannerMeta} .left`, { minWidth: 0 });
+globalStyle(`${bannerMeta} .flex-row`, { display: 'flex', alignItems: 'baseline', flexDirection: 'row', flexWrap: 'wrap' });
+globalStyle(`${bannerMeta} span`, { color: 'var(--text-banner)' });
+globalStyle(`${bannerMeta} span.sep`, { opacity: 0.5, margin: 0, padding: '4px' });
+globalStyle(`${bannerMeta} #post-meta`, { marginTop: '4px' });
+globalStyle(`${bannerMeta} #post-meta span`, { display: 'inline-block', padding: '4px' });
+globalStyle(`${bannerMeta} #post-meta span.sep`, { padding: 0 });
+globalStyle(`${bannerMeta} #post-meta span.sep::before`, { content: '|' });
+globalStyle(`${bannerMeta} #post-meta span.updated`, { visibility: 'hidden' });
+globalStyle(`${bannerMeta}:hover #post-meta span.updated`, { visibility: 'visible' });
+globalStyle(`${bannerContentWithImage} .top, ${bannerContentWithImage} .bottom`, { zIndex: 1 });
+
+export const prose = style({
+	position: 'relative',
+	boxSizing: 'border-box',
+	width: '100%',
+	maxWidth: '100%',
+	minWidth: 0,
+	margin: 0,
+	padding: '1rem 1rem 2rem',
+	overflow: 'hidden',
+	color: textP1,
+	lineHeight: 1.6,
+	wordBreak: 'break-word',
+});
+
+globalStyle(`${prose} > :first-child`, { marginTop: 0 });
+globalStyle(`${prose} > :last-child`, { marginBottom: 0 });
+
+globalStyle(`${prose} p`, {
+	fontSize: '1rem',
+	lineHeight: 1.6,
+	marginTop: `calc(${gapCompact} - 4px)`,
+	marginBottom: `calc(${gapCompact} - 4px)`,
+});
+
+globalStyle(`${prose} ul, ${prose} ol`, {
+	margin: `calc(${gapCompact} - 4px) 0.25rem`,
+	paddingBottom: '0.5rem',
+	paddingInlineStart: '1.4rem',
+});
+
+globalStyle(`${prose} li`, {
+	margin: '0.25rem 0',
+});
+
+globalStyle(`${prose} h1, ${prose} h2, ${prose} h3, ${prose} h4, ${prose} h5, ${prose} h6`, {
+	color: vars.color.textStrong,
+	lineHeight: 1.45,
+	letterSpacing: 0,
+});
+
+globalStyle(`${prose} h1`, { fontSize: '1.75rem', fontWeight: 700, marginTop: '1.5em' });
+globalStyle(`${prose} h2`, { fontSize: '1.65rem', fontWeight: 700, marginTop: '1.5em' });
+globalStyle(`${prose} h3`, { fontSize: '1.35rem', fontWeight: 700, marginTop: '1.25em' });
+globalStyle(`${prose} h4`, { fontSize: '1.18rem', fontWeight: 700 });
+globalStyle(`${prose} h5`, { fontSize: '1.05rem', fontWeight: 700 });
+globalStyle(`${prose} h6`, { fontSize: '1rem', fontWeight: 700, color: textP2 });
+
+globalStyle(`${prose} a:not([class])`, {
+	position: 'relative',
+	borderRadius: 0,
+	textDecoration: 'none',
+	background: `linear-gradient(0deg, ${blockBorder}, ${blockBorder}) no-repeat left 100% / 100% 2px`,
+});
+
+globalStyle(`${prose} a:not([class]):hover`, {
+	borderRadius: '4px',
+	color: vars.color.accentStrong,
+	background: `linear-gradient(0deg, ${vars.color.accentSoft}, ${vars.color.accentSoft}) no-repeat left 100% / 100% 100%`,
+});
+
+globalStyle(`${prose} blockquote`, {
+	margin: '1rem 0',
+	padding: '0.75rem 1rem',
+	borderLeft: `4px solid ${vars.color.accent}`,
+	borderRadius: `0 ${borderCardSmall} ${borderCardSmall} 0`,
+	background: block,
+	color: textP1,
+});
+
+globalStyle(`${prose} blockquote p`, { fontSize: '0.95rem', lineHeight: 1.5 });
 
 globalStyle(`${prose} img`, {
-	margin: `${vars.space.xl} auto`,
-	borderRadius: vars.radius.lg,
-	border: `1px solid ${vars.color.border}`,
-	boxShadow: vars.shadow.card,
+	display: 'block',
+	maxWidth: '100%',
+	height: 'auto',
+	margin: '1rem auto',
+	borderRadius: borderImage,
 });
+
+globalStyle(`${prose} p > img`, { margin: 'auto' });
+
+globalStyle(`${prose} pre`, {
+	margin: '1rem 0',
+	padding: '1rem',
+	borderRadius: borderCardSmall,
+	border: `1px solid ${blockBorder}`,
+	boxShadow: 'none',
+	background: 'rgba(15, 23, 42, 0.94)',
+	lineHeight: 1.55,
+});
+
+globalStyle(`${prose} code`, {
+	borderRadius: '4px',
+	padding: '0.15em 0.35em',
+	background: block,
+	color: vars.color.textStrong,
+	fontSize: '0.88em',
+});
+
+globalStyle(`${prose} pre > code`, {
+	all: 'unset',
+	fontFamily: vars.font.mono,
+	fontSize: '0.9rem',
+	color: '#e2e8f0',
+});
+
+globalStyle(`${prose} table`, {
+	display: 'block',
+	width: '100%',
+	overflowX: 'auto',
+	borderCollapse: 'collapse',
+	fontSize: '0.9rem',
+});
+
+globalStyle(`${prose} th, ${prose} td`, {
+	padding: '0.55rem 0.75rem',
+	borderBottom: `1px solid ${blockBorder}`,
+});
+
+globalStyle(`${prose} hr`, {
+	margin: '2rem 0',
+	border: 'none',
+	borderTop: `1px dashed ${blockBorder}`,
+});
+
+globalStyle(`${prose} u`, { textDecoration: 'none', borderBottom: `2px solid ${vars.color.accent}` });
+
+globalStyle(`${prose} kbd`, {
+	padding: '2px 4px 1px',
+	borderRadius: '4px',
+	border: '1px solid #d2d2d2',
+	borderBottomWidth: '2px',
+	background: card,
+	fontFamily: vars.font.mono,
+	fontWeight: 700,
+});
+
+globalStyle(`${prose} .tag-plugin`, {
+	boxSizing: 'border-box',
+	marginTop: gapCompact,
+	marginBottom: gapCompact,
+	vars: {
+		'--theme': vars.color.accent,
+		'--theme-block': vars.color.accentSoft,
+		'--theme-border': vars.color.borderStrong,
+		'--theme-mark': 'rgba(255, 230, 89, 0.55)',
+	},
+});
+
+globalStyle(`${prose} .tag-plugin.note`, {
+	position: 'relative',
+	padding: '0.25rem 1rem',
+	borderRadius: borderCard,
+	background: 'var(--theme-block)',
+	overflow: 'hidden',
+	color: textP1,
+});
+
+globalStyle(`${prose} .tag-plugin.note > .title`, {
+	fontSize: '0.95rem',
+	lineHeight: 1.5,
+	marginTop: gapCompact,
+	fontWeight: 500,
+	color: vars.color.textStrong,
+});
+
+globalStyle(`${prose} .tag-plugin.note > .body`, {
+	marginTop: gapCompact,
+	marginBottom: gapCompact,
+	fontSize: '0.92rem',
+	lineHeight: 1.5,
+});
+
+globalStyle(`${prose} .tag-plugin.note > .body > :first-child`, { marginTop: 0 });
+globalStyle(`${prose} .tag-plugin.note > .body > :last-child`, { marginBottom: 0 });
+
+globalStyle(`${prose} details.folding`, {
+	display: 'block',
+	padding: '1rem',
+	margin: '1rem 0',
+	borderRadius: borderCard,
+	background: 'var(--theme-block)',
+	border: '1px solid var(--theme-border)',
+});
+
+globalStyle(`${prose} details.folding > summary`, {
+	cursor: 'pointer',
+	padding: '1rem',
+	margin: '-1rem',
+	color: textP2,
+	fontWeight: 500,
+	fontSize: '0.95rem',
+	position: 'relative',
+	lineHeight: 1.2,
+	outline: 'none',
+	listStyle: 'none',
+});
+
+globalStyle(`${prose} details.folding > summary::-webkit-details-marker`, { display: 'none' });
+globalStyle(`${prose} details.folding > summary::after`, { position: 'absolute', content: '+', right: '1rem', top: '50%', transform: 'translateY(-50%)', lineHeight: 1 });
+globalStyle(`${prose} details.folding[open] > summary`, { color: textP1, fontWeight: 700 });
+globalStyle(`${prose} details.folding[open] > summary::after`, { content: '-' });
+globalStyle(`${prose} details.folding > .body`, { padding: '0 1rem 1rem', margin: '0 -1rem -1rem', color: textP1 });
+globalStyle(`${prose} details.folding[open] > .body > :first-child`, { marginTop: '1rem' });
+globalStyle(`${prose} details.folding[open] > .body > :last-child`, { marginBottom: 0 });
+
+globalStyle(`${prose} .tag-plugin.quot`, { display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', textWrap: 'balance', margin: '2rem 1rem' });
+globalStyle(`${prose} .tag-plugin.quot .content`, { position: 'relative', display: 'flex', alignItems: 'center', borderBottom: 'none', fontWeight: 700, lineHeight: 1.2, padding: '0 24px' });
+globalStyle(`${prose} .tag-plugin.quot .text`, { margin: '0 0.5rem', paddingTop: '1px' });
+globalStyle(`${prose} .tag-plugin.quot .empty`, { padding: '0 8px' });
+globalStyle(`${prose} .tag-plugin.quot h1, ${prose} .tag-plugin.quot h2`, { fontSize: '1.75rem', fontWeight: 900, padding: '4px 32px 0' });
+globalStyle(`${prose} .tag-plugin.quot.p .text::after`, { content: '', position: 'absolute', width: '90%', height: '4px', left: '5%', bottom: '-8px', borderRadius: '100%', background: vars.color.textStrong, opacity: 0.1, filter: 'blur(2px)' });
+
+globalStyle(`${prose} .tag-plugin.mark`, { padding: '1px 2px', borderRadius: '2px', background: 'var(--theme-mark)', color: vars.color.textStrong });
+
+globalStyle(`${prose} .tag-plugin.link`, { display: 'flex', justifyContent: 'center', textAlign: 'left', margin: '1em auto' });
+globalStyle(`${prose} .link-card`, { display: 'inline-flex', justifyContent: 'space-between', alignItems: 'center', width: '300px', maxWidth: '100%', borderRadius: borderCardSmall, background: card, color: textP2, lineHeight: 1.2, boxShadow: '0 4px 12px rgba(15, 23, 42, 0.06)' });
+globalStyle(`${prose} .link-card:hover`, { transform: 'translateY(-1px)', boxShadow: '0 8px 24px rgba(15, 23, 42, 0.10)', color: textP1 });
+globalStyle(`${prose} .link-card.rich`, { flexDirection: 'column', alignItems: 'stretch', width: '460px', textAlign: 'justify' });
+globalStyle(`${prose} .link-card > .left`, { overflow: 'hidden', margin: '0.75rem 0 0.75rem 0.75rem' });
+globalStyle(`${prose} .link-card > .right`, { width: '2.75rem', height: '2.75rem', margin: '0.75rem', overflow: 'hidden', flexShrink: 0 });
+globalStyle(`${prose} .link-card > .top`, { display: 'flex', alignItems: 'center', margin: '1rem 1rem 0.75rem', overflow: 'hidden' });
+globalStyle(`${prose} .link-card > .bottom`, { margin: '0 1rem 1rem' });
+globalStyle(`${prose} .link-card .title`, { display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: 2, overflow: 'hidden', fontWeight: 500, color: textP1 });
+globalStyle(`${prose} .link-card .cap`, { flexShrink: 0, color: textP3 });
+globalStyle(`${prose} .link-card .link`, { lineHeight: 1.5, opacity: 0.75, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' });
+globalStyle(`${prose} .link-card .desc`, { display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: 3, overflow: 'hidden' });
+globalStyle(`${prose} .link-card .img`, { borderRadius: '4px', width: '100%', height: '100%', backgroundSize: 'cover', backgroundPosition: 'center' });
+globalStyle(`${prose} .link-card > .top .img`, { width: '16px', height: '16px', borderRadius: '16px', marginRight: '8px', flexShrink: 0 });
+
+globalStyle(`${prose} a.tag-plugin.button`, { display: 'inline-flex', alignItems: 'baseline', justifyContent: 'center', margin: '0.5em 0', padding: '0 0.5rem', borderRadius: borderBar, background: 'var(--theme)', color: '#fff', fontSize: '1em', lineHeight: 1.5 });
+globalStyle(`${prose} a.tag-plugin.button:hover`, { background: vars.color.accentStrong, color: '#fff' });
+globalStyle(`${prose} a.tag-plugin.button span`, { margin: '0.5em', textIndent: 0 });
+globalStyle(`${prose} a.tag-plugin.button[data-size='xs']`, { margin: 0, borderRadius: '4px', padding: '0 4px' });
+globalStyle(`${prose} a.tag-plugin.button[data-size='xs'] span`, { margin: '0 2px' });
+
+globalStyle(`${prose} .tag-plugin.grid`, { display: 'grid', gridGap: '16px' });
+globalStyle(`${prose} .tag-plugin.grid[data-bg] > *`, { padding: '1rem', borderRadius: borderCard });
+globalStyle(`${prose} .tag-plugin.grid[data-bg='box'] > *`, { background: block });
+globalStyle(`${prose} .tag-plugin.grid[data-bg='card'] > *`, { background: card, boxShadow: '0 4px 12px rgba(15, 23, 42, 0.06)' });
+globalStyle(`${prose} .tag-plugin.grid[data-bg] > * > :first-child`, { marginTop: 0 });
+globalStyle(`${prose} .tag-plugin.grid[data-bg] > * > :last-child`, { marginBottom: 0 });
+
+globalStyle(`${prose} .tag-plugin.tabs`, { position: 'relative', marginTop: '1rem', marginBottom: '1rem', display: 'flex', flexDirection: 'column' });
+globalStyle(`${prose} .tag-plugin.tabs[data-align='center']`, { alignItems: 'center' });
+globalStyle(`${prose} .tag-plugin.tabs[data-align='right']`, { alignItems: 'flex-end' });
+globalStyle(`${prose} .tag-plugin.tabs .nav-tabs`, { display: 'flex', alignSelf: 'center', maxWidth: '100%', overflow: 'auto visible', whiteSpace: 'nowrap', margin: '0', padding: '8px 0', lineHeight: 1.5, position: 'relative', listStyle: 'none' });
+globalStyle(`${prose} .tag-plugin.tabs .nav-tabs::after`, { content: '', position: 'absolute', left: 0, bottom: 0, width: '100%', height: '2px', borderRadius: '2px', background: blockBorder });
+globalStyle(`${prose} .tag-plugin.tabs .tab a`, { display: 'block', cursor: 'pointer', padding: '0.25rem 0.75rem', fontSize: '0.875rem', lineHeight: 'inherit', fontWeight: 500, color: textP3, borderRadius: '4px', position: 'relative', margin: '0 2px', background: 'none' });
+globalStyle(`${prose} .tag-plugin.tabs .tab a:hover`, { color: textP1, background: blockBorder });
+globalStyle(`${prose} .tag-plugin.tabs .tab.active a`, { cursor: 'default', color: textP1, background: card, boxShadow: '0 0 0 1px rgba(18, 25, 38, 0.05), 0 4px 12px rgba(15, 23, 42, 0.06)' });
+globalStyle(`${prose} .tag-plugin.tabs .tab.active a::after`, { content: '', zIndex: 1, position: 'absolute', background: 'var(--theme)', height: '2px', bottom: '-8px', left: '0.75rem', right: '0.75rem', borderRadius: '2px' });
+globalStyle(`${prose} .tag-plugin.tabs .tab-content`, { maxWidth: '100%', textAlign: 'justify', marginTop: '0.5rem', display: 'flex', flexDirection: 'column' });
+globalStyle(`${prose} .tag-plugin.tabs .tab-pane`, { display: 'block', maxWidth: '100%' });
+globalStyle(`${prose} .tag-plugin.tabs .tab-pane:not(.active)`, { height: 0, overflow: 'hidden' });
+
+globalStyle(`${prose} .tag-plugin.image`, { marginTop: '1rem', marginBottom: '1rem', boxSizing: 'border-box' });
+globalStyle(`${prose} .tag-plugin.image .image-bg`, { textAlign: 'center', borderRadius: borderImage, position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', margin: 'auto', maxWidth: '100%' });
+globalStyle(`${prose} .tag-plugin.image img`, { display: 'block', objectFit: 'cover', borderRadius: borderImage, margin: 0 });
+globalStyle(`${prose} .tag-plugin.image .image-download`, { position: 'absolute', right: '8px', bottom: '8px', zIndex: 2, opacity: 0, padding: '6px', lineHeight: 0, borderRadius: '40px', color: textP1, background: card });
+globalStyle(`${prose} .tag-plugin.image .image-bg:hover .image-download`, { opacity: 1 });
+globalStyle(`${prose} .tag-plugin.image .image-meta`, { display: 'flex', justifyContent: 'center', padding: '0.5rem 0' });
+globalStyle(`${prose} .tag-plugin.image .image-caption`, { display: 'inline-block', fontSize: '13px', color: textP2, lineHeight: 1.5, textAlign: 'justify' });
+
+globalStyle(`${prose} .tag-plugin.checkbox`, { display: 'flex', alignItems: 'center', fontSize: '0.94rem', lineHeight: 1.2, margin: '0.5rem 0' });
+globalStyle(`${prose} .tag-plugin.checkbox input`, { appearance: 'none', position: 'relative', height: '16px', width: '16px', flexShrink: 0, marginRight: '8px', border: '2px solid var(--theme)', borderRadius: '2px' });
+globalStyle(`${prose} .tag-plugin.checkbox input:checked`, { background: 'var(--theme)' });
+globalStyle(`${prose} .tag-plugin.checkbox input:checked::after`, { content: '', position: 'absolute', left: '3px', top: '0px', width: '4px', height: '9px', border: 'solid white', borderWidth: '0 2px 2px 0', transform: 'rotate(45deg)' });
+
+globalStyle(`${prose} .tag-plugin.copy`, { display: 'flex', justifyContent: 'space-between', width: '100%', minWidth: '200px', overflow: 'hidden', borderRadius: borderBar, border: `1px solid ${blockBorder}`, background: card });
+globalStyle(`${prose} .tag-plugin.copy span`, { padding: '0.25rem 0.5rem', margin: 'auto 0.5rem', lineHeight: 1, borderRadius: '4px', background: vars.color.accentSoft, color: 'var(--theme)', fontFamily: vars.font.mono, fontSize: '13px', fontWeight: 700, flexShrink: 0 });
+globalStyle(`${prose} .tag-plugin.copy input.copy-area`, { display: 'inline-block', padding: 0, width: '100%', border: 0, outline: 0, background: 'transparent', color: textP2, lineHeight: 3, textIndent: '1rem' });
+globalStyle(`${prose} .tag-plugin.copy button.copy-btn`, { margin: '2px 2px 2px 0', border: 0, borderRadius: '6px', display: 'inline-block', minWidth: '64px', background: block, color: textP2, lineHeight: 1, padding: '0 0.75rem', cursor: 'pointer', whiteSpace: 'nowrap', fontSize: '13px' });
+globalStyle(`${prose} .tag-plugin.copy button.copy-btn:hover`, { color: 'var(--theme)', background: vars.color.accentSoft });
+
+globalStyle(`${prose} .tag-plugin.hashtag`, { display: 'inline-flex', alignItems: 'center', margin: '2px 0', padding: '0 8px', borderRadius: '100px', background: 'var(--theme-block)', color: textP2, fontSize: '0.92rem', fontWeight: 500 });
+globalStyle(`${prose} .tag-plugin.hashtag:hover`, { background: textP2, color: 'var(--theme-block)' });
+globalStyle(`${prose} .tag-plugin.hashtag span`, { margin: '0 2px' });
+
+globalStyle(`${prose} .tag-plugin.banner`, { position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', alignItems: 'flex-start', height: '220px', borderRadius: borderImage, color: '#fff' });
+globalStyle(`${prose} .tag-plugin.banner .bg`, { position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', borderRadius: 0, margin: 0, zIndex: 0, transition: 'transform 2s ease' });
+globalStyle(`${prose} .tag-plugin.banner:hover .bg`, { transform: 'scale(1.01)' });
+globalStyle(`${prose} .tag-plugin.banner .content`, { position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', width: '100%', height: '100%', background: 'linear-gradient(180deg, rgba(0,0,0,0.12), rgba(0,0,0,0.02) 42%, rgba(0,0,0,0.30))' });
+globalStyle(`${prose} .tag-plugin.banner .top`, { display: 'flex', justifyContent: 'space-between', alignItems: 'center', lineHeight: 1, margin: '1rem' });
+globalStyle(`${prose} .tag-plugin.banner .bottom`, { display: 'flex', width: '100%', boxSizing: 'border-box', padding: '1rem', backgroundImage: 'linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0.2))' });
+globalStyle(`${prose} .tag-plugin.banner .avatar`, { width: '48px', height: '48px', borderRadius: '50%', border: '2px solid white', margin: 0, objectFit: 'cover' });
+globalStyle(`${prose} .tag-plugin.banner .avatar + .text-area`, { marginLeft: '0.75rem' });
+globalStyle(`${prose} .tag-plugin.banner .title`, { fontSize: '1.5rem', fontWeight: 600, lineHeight: 1.2, margin: '0.25rem 0', color: '#fff' });
+globalStyle(`${prose} .tag-plugin.banner .subtitle`, { fontSize: '0.875rem', lineHeight: 1.2, margin: '0.25rem 0', opacity: 0.86 });
+globalStyle(`${prose} .tag-plugin.banner .banner-link`, { position: 'absolute', inset: 0, opacity: 0, zIndex: 2 });
+
+globalStyle(`${prose} .frame-wrap`, { position: 'relative', overflow: 'hidden', margin: '1rem auto', maxWidth: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' });
+globalStyle(`${prose} .frame-wrap img, ${prose} .frame-wrap video`, { borderRadius: 0, margin: 0 });
+globalStyle(`${prose} .frame-wrap .frame`, { zIndex: 1, display: 'block', position: 'absolute', backgroundSize: '100%', backgroundRepeat: 'no-repeat', overflow: 'hidden' });
+globalStyle(`${prose} .frame-wrap#iphone11 img, ${prose} .frame-wrap#iphone11 video`, { width: '287px', marginTop: '19px', marginBottom: '20px' });
+globalStyle(`${prose} .frame-wrap#iphone11 .frame`, { top: 0, width: '329px', height: '658px', backgroundImage: 'url(https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/frame/iphone11.svg)' });
+
+globalStyle(`${prose} .tag-plugin.timeline`, { position: 'relative', paddingLeft: '16px' });
+globalStyle(`${prose} .tag-plugin.timeline::before`, { content: '', position: 'absolute', zIndex: 0, background: block, width: '4px', left: 0, borderRadius: '8px', top: '0.5rem', bottom: 0 });
+globalStyle(`${prose} .tag-plugin.timeline .timenode`, { position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', boxSizing: 'border-box', maxWidth: '100%' });
+globalStyle(`${prose} .tag-plugin.timeline .timenode + .timenode`, { marginTop: '1rem' });
+globalStyle(`${prose} .tag-plugin.timeline .timenode .header`, { display: 'flex', alignItems: 'center', position: 'relative', margin: '0.25rem 0', fontSize: '13px', fontWeight: 500, color: textP3, lineHeight: 1 });
+globalStyle(`${prose} .tag-plugin.timeline .timenode .header::before`, { content: '', position: 'absolute', left: '-16px', width: '4px', height: '4px', top: 'calc(50% - 2px)', borderRadius: '12px', background: textP3, transform: 'scale(2)', transition: 'background 0.2s ease, height 0.2s ease, top 0.2s ease, transform 0.2s ease' });
+globalStyle(`${prose} .tag-plugin.timeline .timenode:hover .header::before`, { background: 'var(--theme)', height: '16px', top: 'calc(50% - 8px)', transform: 'scale(1)' });
+globalStyle(`${prose} .tag-plugin.timeline .timenode.highlight .header::before`, { background: 'var(--theme)' });
+globalStyle(`${prose} .tag-plugin.timeline .body`, { background: card, borderRadius: '16px', borderTopLeftRadius: '2px', padding: '0.5rem 1rem', marginTop: '4px', boxShadow: '0 4px 12px rgba(15, 23, 42, 0.06)', lineHeight: 1.5 });
+globalStyle(`${prose} .tag-plugin.timeline .body:empty`, { display: 'none' });
+globalStyle(`${prose} .tag-plugin.timeline .body > :first-child`, { marginTop: '0.5rem' });
+globalStyle(`${prose} .tag-plugin.timeline .body > :last-child`, { marginBottom: '0.5rem' });
+
+globalStyle(`${prose} .tag-plugin.poetry`, { display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'left' });
+globalStyle(`${prose} .tag-plugin.poetry .content`, { position: 'relative', paddingLeft: '1rem' });
+globalStyle(`${prose} .tag-plugin.poetry .content::before`, { content: '', position: 'absolute', width: '4px', left: '-4px', top: '4px', bottom: '4px', borderRadius: '4px', background: block });
+globalStyle(`${prose} .tag-plugin.poetry .title`, { position: 'relative', fontWeight: 500, marginTop: gapCompact });
+globalStyle(`${prose} .tag-plugin.poetry .title::before`, { content: '', position: 'absolute', width: '4px', left: 'calc(-1rem - 4px)', top: '6px', bottom: '6px', borderRadius: '4px', background: vars.color.accent });
+globalStyle(`${prose} .tag-plugin.poetry .meta`, { color: textP2, fontSize: '0.82rem', fontWeight: 500 });
+globalStyle(`${prose} .tag-plugin.poetry .meta span + span`, { marginLeft: '4px' });
+globalStyle(`${prose} .tag-plugin.poetry .body`, { margin: `${gapCompact} 0`, borderTop: `1px dashed ${blockBorder}`, borderBottom: `1px dashed ${blockBorder}`, lineHeight: 2 });
+globalStyle(`${prose} .tag-plugin.poetry .footer`, { fontStyle: 'italic', color: textP3, margin: `${gapCompact} 0`, fontSize: '0.82rem' });
+
+globalStyle(`${prose} .tag-plugin.ds-rating`, { textAlign: 'center' });
+globalStyle(`${prose} .tag-plugin.ds-rating .header`, { margin: '0.5rem', fontWeight: 500, color: vars.color.textStrong });
+globalStyle(`${prose} .tag-plugin.ds-rating .body`, { display: 'flex', alignItems: 'center', justifyContent: 'center' });
+globalStyle(`${prose} .tag-plugin.ds-rating button`, { color: 'var(--theme)', fontSize: '1.4rem', padding: '4px', border: 0, borderRadius: borderBar, background: 'transparent', opacity: 0.35, cursor: 'pointer' });
+globalStyle(`${prose} .tag-plugin.ds-rating button:hover, ${prose} .tag-plugin.ds-rating button.preview`, { opacity: 1 });
+globalStyle(`${prose} .tag-plugin.ds-rating .footer`, { margin: '0.5rem', color: textP3, fontWeight: 500, fontSize: '12px' });
+
+globalStyle(`${prose} .tag-plugin.gallery .grid-cell, ${prose} .tag-plugin.gallery .flow-cell`, { display: 'block', overflow: 'hidden', zIndex: 0, position: 'relative' });
+globalStyle(`${prose} .tag-plugin.gallery img`, { objectFit: 'cover', maxHeight: '100%', display: 'block', margin: 0 });
+globalStyle(`${prose} .tag-plugin.gallery .image-meta`, { position: 'absolute', zIndex: 1, inset: 0, pointerEvents: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', transition: 'background 0.2s ease' });
+globalStyle(`${prose} .tag-plugin.gallery .image-caption`, { display: 'block', fontSize: '13px', color: 'transparent', pointerEvents: 'none', lineHeight: 1.2, margin: '0.5rem', transition: 'color 0.2s ease', textAlign: 'left' });
+globalStyle(`${prose} .tag-plugin.gallery .grid-cell:hover .image-meta, ${prose} .tag-plugin.gallery .flow-cell:hover .image-meta`, { background: 'rgba(0, 0, 0, 0.5)' });
+globalStyle(`${prose} .tag-plugin.gallery .grid-cell:hover .image-caption, ${prose} .tag-plugin.gallery .flow-cell:hover .image-caption`, { color: '#fff' });
+globalStyle(`${prose} .tag-plugin.gallery.grid-box`, { display: 'grid' });
+globalStyle(`${prose} .tag-plugin.gallery.grid-box[data-size='s']`, { gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '2px' });
+globalStyle(`${prose} .tag-plugin.gallery.grid-box[data-size='m']`, { gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '4px' });
+globalStyle(`${prose} .tag-plugin.gallery.grid-box[data-size='l']`, { gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '8px' });
+globalStyle(`${prose} .tag-plugin.gallery.grid-box[data-size='xl']`, { gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' });
+globalStyle(`${prose} .tag-plugin.gallery.grid-box[data-ratio='square'] .grid-cell`, { aspectRatio: '1' });
+globalStyle(`${prose} .tag-plugin.gallery.grid-box[data-ratio='portrait'] .grid-cell`, { aspectRatio: '2 / 3' });
+globalStyle(`${prose} .tag-plugin.gallery.grid-box .grid-cell`, { background: block, borderRadius: '8px' });
+globalStyle(`${prose} .tag-plugin.gallery.grid-box .grid-cell img`, { width: '100%', height: '100%', borderRadius: '8px', transition: 'transform 0.5s ease' });
+globalStyle(`${prose} .tag-plugin.gallery.grid-box .grid-cell:hover img`, { transform: 'scale(1.1)' });
+globalStyle(`${prose} .tag-plugin.gallery.flow-box`, { columnCount: 3, columnGap: '8px' });
+globalStyle(`${prose} .tag-plugin.gallery.flow-box .flow-cell`, { borderRadius: '8px', paddingBottom: '8px' });
+globalStyle(`${prose} .tag-plugin.gallery.flow-box img`, { width: '100%', height: '100%', borderRadius: '8px' });

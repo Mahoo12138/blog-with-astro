@@ -1,0 +1,19 @@
+---
+interface Props {
+	title?: string;
+	author?: string;
+	date?: string;
+	footer?: string;
+}
+
+const { title, author, date, footer } = Astro.props;
+---
+
+<div class="tag-plugin poetry">
+	<div class="content">
+		{title && <div class="title">{title}</div>}
+		{(author || date) && <div class="meta">{author && <span>{author}</span>}{date && <span>{date}</span>}</div>}
+		<div class="body"><slot /></div>
+		{footer && <div class="footer">{footer}</div>}
+	</div>
+</div>

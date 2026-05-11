@@ -1,6 +1,9 @@
 import { style } from '@vanilla-extract/css';
 import { breakpoints, vars } from '../styles/theme.css';
 
+const stellarGapMargin = '16px';
+const stellarSidebarWidth = '288px';
+
 export const body = style({
 	minHeight: '100vh',
 	position: 'relative',
@@ -39,33 +42,63 @@ export const glowRight = style({
 export const shell = style({
 	position: 'relative',
 	zIndex: 1,
-	width: 'min(1560px, calc(100% - 2rem))',
+	width: '100%',
+	maxWidth: '100%',
 	margin: '0 auto',
-	padding: `${vars.space.lg} 0 ${vars.space.section}`,
+	padding: 0,
 	display: 'grid',
-	gridTemplateColumns: '1fr minmax(0, 42rem) 1fr',
-	gap: `calc(${vars.space.xl} * 4)`,
+	gridTemplateColumns: '1fr minmax(200px, 720px) 1fr',
+	gap: '64px',
 	alignItems: 'start',
 	'@media': {
+		'screen and (min-width: 2048px)': {
+			gridTemplateColumns: '1fr minmax(200px, 780px) 1fr',
+		},
+		'screen and (min-width: 3840px)': {
+			gridTemplateColumns: '1fr minmax(200px, 860px) 1fr',
+		},
+		'screen and (max-width: 1440px)': {
+			gap: '32px',
+		},
 		/* 平板：隐藏两侧栏，主栏撑满 */
 		[`screen and (max-width: ${breakpoints.laptop})`]: {
+			width: 'min(100%, calc(100% - 1rem))',
+			gridTemplateColumns: `${stellarSidebarWidth} minmax(0, 720px)`,
+			gap: stellarGapMargin,
+			padding: 0,
+		},
+		[`screen and (max-width: ${breakpoints.mobile})`]: {
 			display: 'block',
-			padding: `${vars.space.md} 0 ${vars.space.section}`,
+			width: 'min(100%, calc(100% - 1rem))',
 		},
 	},
 });
 
 /* 左侧栏：固定宽度，靠右对齐，吸顶 —— 照抄 .l_left */
 export const left = style({
-	width: '17rem',
+	width: stellarSidebarWidth,
 	justifySelf: 'right',
 	position: 'sticky',
-	top: vars.space.lg,
+	top: `calc(${stellarGapMargin} * 2)`,
+	margin: `calc(${stellarGapMargin} * 2) ${stellarGapMargin}`,
 	alignSelf: 'start',
 	zIndex: 8,
 	'@media': {
-		[`screen and (max-width: ${breakpoints.laptop})`]: {
-			display: 'none',
+		[`screen and (max-width: ${breakpoints.mobile})`]: {
+			position: 'fixed',
+			transform: 'translateX(-320px)',
+			transition: 'transform 0.38s ease-out',
+			margin: 0,
+			left: '8px',
+			top: `calc(${stellarGapMargin} * 2)`,
+			maxHeight: `calc(100vh - ${stellarGapMargin} * 2 - 96px)`,
+			boxShadow: '0 12px 16px -4px rgba(0, 0, 0, 0.2)',
+			zIndex: 10,
+		},
+	},
+	selectors: {
+		[`${shell}[data-leftbar-open] &`]: {
+			transform: 'translateX(0)',
 		},
 	},
 });
@@ -74,37 +107,12 @@ export const mainArea = style({
 	width: '100%',
 	minWidth: 0,
 	margin: 0,
-	padding: 0,
-});
-
-export const mobileBrand = style({
-	display: 'none',
-	marginBottom: vars.space.lg,
-	padding: `${vars.space.md} ${vars.space.lg}`,
-	borderRadius: vars.radius.xl,
-	background: vars.color.surface,
-	border: `1px solid ${vars.color.border}`,
-	boxShadow: vars.shadow.head,
+	padding: `calc(${stellarGapMargin} * 2) 0 calc(${stellarGapMargin} + 16px)`,
 	'@media': {
-		[`screen and (max-width: ${breakpoints.laptop})`]: {
-			display: 'flex',
-			alignItems: 'center',
-			justifyContent: 'space-between',
+		[`screen and (max-width: ${breakpoints.mobile})`]: {
+			paddingTop: 0,
 		},
 	},
-});
-
-export const mobileTitle = style({
-	margin: 0,
-	fontSize: '1rem',
-	fontWeight: 800,
-	color: vars.color.textStrong,
-});
-
-export const mobileSubtitle = style({
-	margin: `${vars.space.xs} 0 0`,
-	fontSize: '0.85rem',
-	color: vars.color.textMuted,
 });
 
 export const mainContent = style({
@@ -117,15 +125,135 @@ export const lead = style({
 
 /* 右侧栏：固定宽度，靠左对齐，吸顶 —— 照抄 .l_right */
 export const right = style({
-	width: '16rem',
+	width: stellarSidebarWidth,
 	justifySelf: 'left',
 	position: 'sticky',
-	top: vars.space.lg,
+	top: `calc(${stellarGapMargin} * 2)`,
+	margin: `calc(${stellarGapMargin} * 2) 0`,
 	alignSelf: 'start',
 	zIndex: 8,
 	'@media': {
 		[`screen and (max-width: ${breakpoints.laptop})`]: {
+			position: 'fixed',
+			transform: 'translateX(320px)',
+			transition: 'transform 0.38s ease-out',
+			margin: 0,
+			right: '8px',
+			top: `calc(${stellarGapMargin} * 2)`,
+			maxHeight: `calc(100vh - ${stellarGapMargin} * 2 - 96px)`,
+			boxShadow: '0 12px 16px -4px rgba(0, 0, 0, 0.2)',
+			zIndex: 10,
+			background: vars.color.background,
+			overflow: 'auto',
+		},
+	},
+	selectors: {
+		[`${shell}[data-rightbar-open] &`]: {
+			transform: 'translateX(0)',
+		},
+	},
+});
+
+export const mainMask = style({
+	position: 'fixed',
+	pointerEvents: 'none',
+	top: 0,
+	left: 0,
+	width: '100%',
+	height: '100%',
+	padding: 0,
+	border: 0,
+	background: 'rgba(0, 0, 0, 0.1)',
+	zIndex: 9,
+	opacity: 0,
+	transition: 'opacity 0.2s ease',
+	selectors: {
+		[`${shell}[data-leftbar-open] &`]: {
+			opacity: 1,
+			pointerEvents: 'auto',
+		},
+		[`${shell}[data-rightbar-open] &`]: {
+			opacity: 1,
+			pointerEvents: 'auto',
+		},
+	},
+});
+
+export const floatPanel = style({
+	position: 'sticky',
+	gridColumnEnd: 'span 3',
+	right: 0,
+	bottom: '4rem',
+	marginLeft: 'auto',
+	marginRight: '2rem',
+	float: 'right',
+	zIndex: 999999,
+	display: 'flex',
+	justifyContent: 'center',
+	flexDirection: 'column',
+	borderRadius: '64px',
+	overflow: 'hidden',
+	background: 'rgba(255, 255, 255, 0.55)',
+	boxShadow: '0 8px 30px rgba(15, 23, 42, 0.10)',
+	backdropFilter: 'saturate(300%) blur(18px)',
+	WebkitBackdropFilter: 'saturate(300%) blur(18px)',
+	transition: 'all 0.2s ease',
+	selectors: {
+		[`${shell}[data-leftbar-open] &`]: {
+			boxShadow: '0 0 4px -1px var(--theme, #2196f3), 0 0 16px -4px var(--theme, #2196f3), 0 0 32px -12px var(--theme, #2196f3), 0 0 128px -32px var(--theme, #2196f3)',
+		},
+		[`${shell}[data-rightbar-open] &`]: {
+			boxShadow: '0 0 4px -1px var(--theme, #2196f3), 0 0 16px -4px var(--theme, #2196f3), 0 0 32px -12px var(--theme, #2196f3), 0 0 128px -32px var(--theme, #2196f3)',
+		},
+	},
+	'@media': {
+		[`screen and (min-width: ${breakpoints.laptop})`]: {
 			display: 'none',
+		},
+		[`screen and (min-width: ${breakpoints.mobile})`]: {
+			marginRight: '3rem',
+		},
+	},
+});
+
+export const floatButton = style({
+	cursor: 'pointer',
+	color: vars.color.textStrong,
+	background: 'none',
+	border: 0,
+	width: '48px',
+	height: '48px',
+	lineHeight: 0,
+	fontSize: '28px',
+	margin: 0,
+	padding: 0,
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'center',
+});
+
+export const rightbarToggle = style({
+	display: 'flex',
+});
+
+export const leftbarToggle = style({
+	display: 'none',
+	'@media': {
+		[`screen and (max-width: ${breakpoints.mobile})`]: {
+			display: 'flex',
+		},
+	},
+});
+
+export const floatIcon = style({
+	width: 'auto',
+	height: '28px',
+	selectors: {
+		[`${shell}[data-leftbar-open] ${leftbarToggle} &`]: {
+			color: vars.color.accentStrong,
+		},
+		[`${shell}[data-rightbar-open] ${rightbarToggle} &`]: {
+			color: vars.color.accentStrong,
 		},
 	},
 });

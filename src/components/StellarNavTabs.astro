@@ -15,9 +15,9 @@ const { active } = Astro.props;
 
 const items: Item[] = [
 	{ key: 'home', label: '近期发布', href: '/' },
-	{ key: 'categories', label: '分类' },
-	{ key: 'tags', label: '标签' },
-	{ key: 'columns', label: '专栏' },
+	{ key: 'categories', label: '分类', href: '/categories' },
+	{ key: 'tags', label: '标签', href: '/tags' },
+	{ key: 'columns', label: '专栏', href: '/columns' },
 	{ key: 'archives', label: '归档', href: '/archives' },
 ];
 ---
@@ -27,15 +27,11 @@ const items: Item[] = [
 		<div class={styles.inner}>
 			<nav class={styles.nav} aria-label="Sections">
 				{
-					items.map((item) =>
-						item.href ? (
-							<a class:list={[styles.item, active === item.key && styles.active]} href={item.href}>
-								{item.label}
-							</a>
-						) : (
-							<span class:list={[styles.item, styles.disabled]}>{item.label}</span>
-						),
-					)
+					items.map((item) => (
+						<a class:list={[styles.item, active === item.key && styles.active]} href={item.href}>
+							{item.label}
+						</a>
+					))
 				}
 			</nav>
 		</div>

@@ -1,0 +1,14 @@
+---
+interface Props {
+	src: string;
+	alt?: string;
+	type?: 'iphone11';
+}
+
+const { src, alt = '', type = 'iphone11' } = Astro.props;
+---
+
+<div class="frame-wrap" id={type}>
+	<img src={src} alt={alt} />
+	<span class="frame" aria-hidden="true"></span>
+</div>

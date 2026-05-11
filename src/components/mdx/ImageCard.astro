@@ -1,0 +1,19 @@
+---
+interface Props {
+	src: string;
+	alt?: string;
+	caption?: string;
+	width?: string;
+	download?: boolean;
+}
+
+const { src, alt = '', caption, width = '100%', download = true } = Astro.props;
+---
+
+<figure class="tag-plugin image">
+	<div class="image-bg" style={`width:${width};`}>
+		<img src={src} alt={alt} />
+		{download && <a class="image-download" href={src} download aria-label="Download image">↓</a>}
+	</div>
+	{caption && <figcaption class="image-meta"><span class="image-caption">{caption}</span></figcaption>}
+</figure>

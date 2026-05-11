@@ -1,0 +1,16 @@
+---
+interface Props {
+	title?: string;
+	highlight?: boolean;
+}
+
+const { title, highlight = false } = Astro.props;
+const className = highlight ? 'timenode highlight' : 'timenode';
+---
+
+<div class={className}>
+	<div class="header">{title && <span>{title}</span>}</div>
+	<div class="body fs14">
+		<slot />
+	</div>
+</div>

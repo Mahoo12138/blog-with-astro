@@ -1,0 +1,20 @@
+---
+interface Props {
+	title?: string;
+	value?: number;
+	max?: number;
+	footer?: string;
+	color?: string;
+}
+
+const { title, value = 4, max = 5, footer, color = '#ffb300' } = Astro.props;
+const items = Array.from({ length: max }, (_, index) => index < value);
+---
+
+<div class="tag-plugin ds-rating rated" style={`--theme:${color};`}>
+	{title && <div class="header">{title}</div>}
+	<div class="body">
+		{items.map((active) => <button class:list={[active && 'preview']} type="button" aria-label="rating star">★</button>)}
+	</div>
+	{footer && <div class="footer">{footer}</div>}
+</div>

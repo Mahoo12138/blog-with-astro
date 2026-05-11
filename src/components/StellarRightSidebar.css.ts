@@ -1,128 +1,215 @@
-import { style } from '@vanilla-extract/css';
+import { globalStyle, style } from '@vanilla-extract/css';
 import { vars } from '../styles/theme.css';
 
+const gapMargin = '16px';
+const gapPadding = '16px';
+const borderCardSmall = '12px';
+const borderBar = '8px';
+const bgA20 = 'rgba(255, 255, 255, 0.2)';
+const bgA50 = 'rgba(255, 255, 255, 0.5)';
+const bgA100 = 'rgba(255, 255, 255, 1)';
+const textP1 = 'rgba(18, 25, 38, 0.8)';
+const textP2 = 'rgba(18, 25, 38, 0.7)';
+const textP3 = 'rgba(18, 25, 38, 0.5)';
+
 export const root = style({
-	display: 'grid',
-	gap: vars.space.lg,
+	overflow: 'visible',
+	flexGrow: 1,
+	scrollbarWidth: 'none',
+	zIndex: 1,
+	lineHeight: 1.2,
+	margin: `0 ${gapMargin}`,
 });
 
-export const card = style({
-	padding: vars.space.xl,
-	borderRadius: vars.radius.xl,
-	border: `1px solid ${vars.color.border}`,
-	background: vars.color.surface,
-	boxShadow: vars.shadow.card,
-	backdropFilter: 'blur(18px)',
+export const widget = style({
+	display: 'block',
+	paddingBottom: '32px',
 });
 
-export const cardTitle = style({
-	margin: `0 0 ${vars.space.md}`,
-	fontSize: '0.88rem',
-	fontWeight: 700,
-	letterSpacing: '0.08em',
-	textTransform: 'uppercase',
-	color: vars.color.textMeta,
-});
-
-export const intro = style({
-	fontSize: '0.98rem',
-	lineHeight: 1.7,
-	color: vars.color.text,
-});
-
-export const quote = style({
-	marginTop: vars.space.lg,
-	padding: `${vars.space.md} ${vars.space.lg}`,
-	borderLeft: `3px solid ${vars.color.borderStrong}`,
-	borderRadius: `0 ${vars.radius.md} ${vars.radius.md} 0`,
-	background: vars.color.surfaceStrong,
-	color: vars.color.textMuted,
-	fontSize: '0.92rem',
-});
-
-export const actionList = style({
-	display: 'grid',
-	gap: vars.space.xs,
-	marginTop: vars.space.lg,
-});
-
-export const actionLink = style({
+export const widgetHeader = style({
+	paddingLeft: gapPadding,
+	paddingRight: gapPadding,
 	display: 'flex',
-	alignItems: 'center',
-	gap: vars.space.sm,
-	padding: `${vars.space.sm} ${vars.space.md}`,
-	borderRadius: vars.radius.md,
-	background: vars.color.surfaceStrong,
-	color: vars.color.text,
-	fontSize: '0.92rem',
+	justifyContent: 'space-between',
+	alignItems: 'baseline',
+	lineHeight: '28px',
+	fontWeight: 500,
+	fontSize: '13px',
+	color: textP1,
+});
+
+export const capAction = style({
+	lineHeight: 0,
+	color: 'inherit',
+	opacity: 0.6,
+	border: 0,
+	borderRadius: '4px',
+	padding: '6px',
+	marginRight: '-6px',
+	background: 'transparent',
+	cursor: 'pointer',
 	selectors: {
 		'&:hover': {
-			color: vars.color.textStrong,
-			background: vars.color.backgroundElevated,
+			color: vars.color.accentStrong,
+			background: bgA100,
+			opacity: 1,
+		},
+		'&[aria-pressed="true"]': {
+			background: 'rgba(18, 25, 38, 0.08)',
+			color: vars.color.accentStrong,
+			opacity: 1,
 		},
 	},
 });
 
-export const actionIcon = style({
-	width: '0.95rem',
-	height: '0.95rem',
-	flexShrink: 0,
+export const markdownWidget = style({});
+
+export const markdownBody = style({
+	borderRadius: borderCardSmall,
+	padding: '0.25rem 1rem',
+	background: bgA50,
+	color: textP1,
+	fontSize: '14px',
+	lineHeight: 1.5,
 });
+
+export const postListWidget = style({});
 
 export const timeline = style({
-	display: 'grid',
-	gap: vars.space.md,
-});
-
-export const timelineItem = style({
-	position: 'relative',
-	paddingLeft: vars.space.lg,
-	selectors: {
-		'&::before': {
-			content: '',
-			position: 'absolute',
-			left: 0,
-			top: '0.35rem',
-			width: '0.45rem',
-			height: '0.45rem',
-			borderRadius: vars.radius.pill,
-			background: vars.color.accentStrong,
-		},
-		'&::after': {
-			content: '',
-			position: 'absolute',
-			left: '0.21rem',
-			top: '0.95rem',
-			bottom: '-0.85rem',
-			width: '1px',
-			background: vars.color.border,
-		},
-		'&:last-child::after': {
-			display: 'none',
-		},
-	},
-});
-
-export const timelineTime = style({
-	marginBottom: vars.space.xs,
-	fontSize: '0.8rem',
-	color: vars.color.textMeta,
+	display: 'block',
 });
 
 export const timelineLink = style({
-	display: 'block',
-	padding: `${vars.space.sm} ${vars.space.md}`,
-	borderRadius: vars.radius.md,
-	background: vars.color.surfaceStrong,
-	color: vars.color.text,
-	fontSize: '0.92rem',
-	lineHeight: 1.55,
+	display: 'flex',
+	justifyContent: 'space-between',
+	alignItems: 'center',
+	padding: `6px ${gapPadding}`,
+	borderRadius: borderBar,
+	color: textP1,
+	fontSize: '14px',
+	lineHeight: 1.2,
 	selectors: {
+		'& + &': {
+			marginTop: '2px',
+		},
 		'&:hover': {
-			color: vars.color.textStrong,
-			background: vars.color.backgroundElevated,
+			background: bgA100,
+			color: textP1,
 		},
 	},
+});
+
+export const tocWidget = style({
+	zIndex: 3,
+	position: 'sticky',
+	top: gapMargin,
+	padding: '16px 0',
+});
+
+export const tocBody = style({
+	position: 'relative',
+	display: 'grid',
+	gridTemplateRows: '1fr',
+	overflow: 'hidden',
+	transition: 'grid-template-rows 0.2s ease',
+	selectors: {
+		[`${tocWidget}.collapse &`]: {
+			gridTemplateRows: '0fr',
+		},
+	},
+});
+
+export const tocList = style({
+	minHeight: 0,
+	maxHeight: '70vh',
+	margin: 0,
+	padding: 0,
+	listStyle: 'none',
+	overflow: 'auto',
+	scrollbarWidth: 'none',
+});
+
+export const tocItem = style({
+	margin: 0,
+	listStyle: 'none',
+});
+
+export const tocLink = style({
+	display: 'block',
+	position: 'relative',
+	margin: '0 8px',
+	padding: '4px 8px',
+	paddingLeft: 'var(--toc-padding, 8px)',
+	borderRadius: borderBar,
+	color: textP3,
+	fontSize: '14px',
+	fontWeight: 500,
+	lineHeight: 1.45,
+	selectors: {
+		'&:hover': {
+			background: 'rgba(18, 25, 38, 0.08)',
+			color: vars.color.textStrong,
+		},
+		'&.active': {
+			color: vars.color.textStrong,
+		},
+	},
+});
+
+export const tocText = style({
+	display: 'block',
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
+	whiteSpace: 'nowrap',
+});
+
+export const ghrepoWidget = style({});
+
+export const repoCard = style({
+	display: 'block',
+	padding: '0.75rem 0.5rem',
+	borderRadius: borderCardSmall,
+	background: bgA50,
+	color: textP2,
+	selectors: {
+		'&:hover': {
+			background: bgA100,
+			color: textP1,
+		},
+	},
+});
+
+export const repoName = style({
+	display: 'flex',
+	alignItems: 'center',
+	gap: '4px',
+	fontSize: '14px',
+	fontWeight: 700,
+	color: textP1,
+});
+
+export const repoDesc = style({
+	marginTop: '0.5rem',
+	marginLeft: '2px',
+	marginRight: '2px',
+	fontSize: '13px',
+	lineHeight: 1.45,
+	color: textP3,
+});
+
+export const repoMetaGrid = style({
+	display: 'grid',
+	gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+	gap: '2px',
+	marginTop: '0.5rem',
+	fontSize: '13px',
+});
+
+export const repoStat = style({
+	display: 'flex',
+	alignItems: 'center',
+	minWidth: 0,
+	color: textP2,
 });
 
 export const mediaCard = style({
@@ -133,12 +220,40 @@ export const mediaImage = style({
 	width: '100%',
 	aspectRatio: '1.25 / 0.82',
 	objectFit: 'cover',
-	borderRadius: vars.radius.lg,
-	marginBottom: vars.space.md,
+	borderRadius: borderCardSmall,
+	marginBottom: '0.75rem',
 });
 
 export const mediaCaption = style({
 	margin: 0,
-	fontSize: '0.95rem',
-	color: vars.color.text,
+	fontSize: '14px',
+	color: textP1,
 });
+
+globalStyle(`${widgetHeader} > span`, { opacity: 0.6 });
+globalStyle(`${capAction} svg`, { height: '1em', width: 'auto', transform: 'scale(1.2)', fill: 'none', stroke: 'currentColor', strokeWidth: '2', strokeLinecap: 'round' });
+globalStyle(`${markdownBody} > *:first-child`, { marginTop: '0.75rem' });
+globalStyle(`${markdownBody} > *:last-child`, { marginBottom: '0.75rem' });
+globalStyle(`${tocBody}::before`, {
+	content: '',
+	position: 'absolute',
+	top: '6px',
+	bottom: '6px',
+	left: 0,
+	width: '4px',
+	borderRadius: '4px',
+	background: 'rgba(18, 25, 38, 0.08)',
+});
+globalStyle(`${tocList}::-webkit-scrollbar`, { display: 'none' });
+globalStyle(`${tocLink}.active::before`, {
+	content: '',
+	position: 'absolute',
+	top: '6px',
+	bottom: '6px',
+	left: '-8px',
+	width: '4px',
+	borderRadius: '4px',
+	background: vars.color.accent,
+});
+globalStyle(`${repoName} svg`, { width: '1em', height: '1em', fill: 'currentColor' });
+globalStyle(`${repoStat} svg`, { width: '1em', height: '1em', marginRight: '4px', fill: 'currentColor' });

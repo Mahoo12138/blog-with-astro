@@ -3,6 +3,12 @@ title: 'Using MDX'
 description: 'Lorem ipsum dolor sit amet'
 pubDate: 'Jun 01 2024'
 heroImage: '../../assets/blog-placeholder-5.jpg'
+categories:
+  - Guides
+tags:
+  - Astro
+  - MDX
+columnId: 'content-system'
 ---
 
 This theme comes with the [@astrojs/mdx](https://docs.astro.build/en/guides/integrations-guide/mdx/) integration installed and configured in your `astro.config.mjs` config file. If you prefer not to use MDX, you can disable support by removing the integration from your config file.
@@ -30,6 +36,63 @@ without importing them in every file.
 </Fold>
 
 Use inline markers like <Label tone="warning">callouts</Label> to surface metadata inside a paragraph.
+You can also use <Hashtag href="/tags/astro/">Astro</Hashtag> chips inline.
+
+<Quot as="h2">Stellar-style content blocks now render as Astro components.</Quot>
+
+<Banner
+	title="Content Components"
+	subtitle="Banner, gallery, timeline and more"
+	bg="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg"
+	href="/columns/content-system/"
+/>
+
+<Grid bg="card" min="220px">
+	<div>
+		### Notes
+
+		<Note title="Compact block" tone="purple">Nested markdown keeps the same spacing rhythm as the article body.</Note>
+	</div>
+	<div>
+		### Actions
+
+		<Button href="/columns">Open columns</Button>
+
+		<Copy label="pnpm" value="pnpm astro build" />
+	</div>
+</Grid>
+
+<Tabs>
+	<Tab label="Link">
+		<LinkCard href="https://astro.build" title="Astro" desc="The web framework used by this migration." icon="/favicon.svg" />
+	</Tab>
+	<Tab label="Checklist">
+		<Checkbox checked>Markdown base styles aligned</Checkbox>
+		<Checkbox checked>Stellar tag-plugin DOM reproduced</Checkbox>
+	</Tab>
+</Tabs>
+
+<Timeline>
+	<TimeNode title="Markdown body">
+		Base prose spacing, headings, links, tables, quotes and code blocks follow the Stellar rhythm.
+	</TimeNode>
+	<TimeNode title="Tag plugins" highlight>
+		Astro components now render the same `tag-plugin` class structure that Stellar uses.
+	</TimeNode>
+</Timeline>
+
+<Poetry title="静态页" author="Astro" date="2026" footer="A small block for long-form writing.">
+	页面如星尘归档，
+	组件沿轨道发光。
+</Poetry>
+
+<Gallery size="m" ratio="square">
+	<GalleryImage src="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/10433048.png" alt="Column icon" />
+	<GalleryImage src="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2779789.png" alt="Lab note" />
+	<GalleryImage src="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg" alt="Stellar remake" />
+</Gallery>
+
+<Rating title="复刻完成度" value={4} footer="Static preview score" />
 
 ## More Links
 

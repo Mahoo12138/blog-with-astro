@@ -1,44 +1,38 @@
 ---
 import { getCollection } from 'astro:content';
 import AvatarImage from '../assets/blog-placeholder-about.jpg';
+import { stellarConfig, type MenuId, type SidebarWidgetConfig } from '../config/stellar';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import StellarIcon from './StellarIcon.astro';
 import * as styles from './StellarLeftSidebar.css';
 
+interface Props {
+	menuId?: MenuId;
+	widgets?: SidebarWidgetConfig[];
+}
+
+const { menuId = 'post', widgets = [] } = Astro.props;
 const recentPosts = (await getCollection('blog'))
 	.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
 	.slice(0, 8);
 
 const pathname = Astro.url.pathname;
 
-const navItems = [
-	{
-		label: 'Home',
-		href: '/',
-		icon: 'M3 4.5h18v15H3z M7 2h10',
-	},
-	{
-		label: 'Blog',
-		href: '/blog',
-		icon: 'M5 5.5h14M5 10.5h14M5 15.5h10',
-	},
-	{
-		label: 'About',
-		href: '/about',
-		icon: 'M12 8.5a2 2 0 1 0 0-4a2 2 0 0 0 0 4Zm-4 8.5a4 4 0 0 1 8 0',
-	},
-	{
-		label: 'RSS',
-		href: '/rss.xml',
-		icon: 'M6 17a1.5 1.5 0 1 0 0 3a1.5 1.5 0 0 0 0-3Zm0-7a8 8 0 0 1 8 8M6 10a15 15 0 0 1 15 15',
-	},
-];
-
-function isActive(href: string) {
+function isActive(id: MenuId, href: string) {
+	if (id === menuId) {
+		return true;
+	}
 	if (href === '/') {
 		return pathname === '/';
 	}
 	return pathname === href || pathname.startsWith(`${href}/`);
 }
+
+function postsForWidget(widget: SidebarWidgetConfig) {
+	return recentPosts.slice(0, widget.limit ?? 8);
+}
+
+const socialItems = stellarConfig.footer.social;
 ---
 
 <div class={styles.root}>
@@ -59,47 +53,69 @@ function isActive(href: string) {
 			</div>
 		</header>
 
-		<nav class={styles.menuGrid} aria-label="Primary">
-			{
-				navItems.map((item) => (
-					<a class:list={[styles.menuLink, isActive(item.href) && styles.menuActive]} href={item.href} title={item.label}>
-						<svg class={styles.menuIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-							<path d={item.icon}></path>
-						</svg>
-					</a>
-				))
-			}
-		</nav>
-
-		<a class={styles.search} href="/blog">
-			<svg class={styles.searchIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-				<circle cx="11" cy="11" r="7"></circle>
-				<path d="m20 20-3.5-3.5"></path>
-			</svg>
-			<span class={styles.searchLabel}>站内搜索</span>
-		</a>
+		<div class={styles.navArea}>
+			<nav class={styles.menuGrid} style={`--menubar-columns: ${stellarConfig.menubar.columns};`} aria-label="Primary">
+				{
+					stellarConfig.menubar.items.map((item) => (
+						<a class:list={[styles.menuLink, isActive(item.id, item.url) && styles.menuActive]} style={`--menu-theme: ${item.theme};`} href={item.url} title={item.title} aria-label={item.title}>
+							<StellarIcon name={item.icon} class={styles.menuIcon} />
+							<span class={styles.menuLabel}>{item.title}</span>
+						</a>
+					))
+				}
+			</nav>
+		</div>
 
 		{/* 可滚动 widgets 区域，底部 mask 渐隐 —— 对应 >.widgets */}
 		<div class={styles.inner}>
 			<div class={styles.widgets}>
-				<section class={styles.widget}>
-					<div class={styles.widgetTitle}>
-						<span>最近更新</span>
-						<a class={styles.widgetLink} href="/rss.xml" aria-label="RSS">RSS</a>
-					</div>
-					<div class={styles.recentList}>
-						{
-							recentPosts.map((post) => (
-								<a class={styles.recentItem} href={`/blog/${post.id}/`}>
-									{post.data.title}
-								</a>
-							))
-						}
-					</div>
-				</section>
+				<div class={styles.searchWrapper} id="search-wrapper">
+					<form class={styles.searchForm} action="/blog">
+						<button class={styles.searchButton} type="submit" aria-label="站内搜索">
+							<StellarIcon name="default:search" class={styles.searchIcon} />
+						</button>
+						<input class={styles.searchInput} type="text" placeholder="站内搜索" />
+					</form>
+					<div class={styles.searchNoResult}>没有找到内容</div>
+				</div>
+				{
+					widgets.map((widget) =>
+						widget.layout === 'welcome' ? (
+							<section class:list={[styles.widget, styles.markdownWidget]}>
+								<div class={styles.widgetTitle}><span>{widget.title}</span></div>
+								<div class={styles.markdownBody}><p>{widget.body}</p></div>
+							</section>
+						) : widget.layout === 'recent' ? (
+							<section class:list={[styles.widget, styles.postListWidget]}>
+								<div class={styles.widgetTitle}>
+									<span>{widget.title}</span>
+								</div>
+								<div class={styles.recentList}>
+									{
+										postsForWidget(widget).map((post) => (
+											<a class={styles.recentItem} href={`/blog/${post.id}/`}>
+												{post.data.title}
+											</a>
+										))
+									}
+								</div>
+							</section>
+						) : null,
+					)
+				}
 			</div>
 		</div>
 
-		<footer class={styles.footer}>Static Astro build · Inspired by Stellar</footer>
+		<footer class={styles.footer}>
+			<div class={styles.socialWrap}>
+				{
+					socialItems.map((item) => (
+						<a class={styles.socialLink} href={item.url} title={item.title} aria-label={item.title}>
+							<StellarIcon name={item.icon} class={styles.socialIcon} />
+						</a>
+					))
+				}
+			</div>
+		</footer>
 	</div>
 </div>

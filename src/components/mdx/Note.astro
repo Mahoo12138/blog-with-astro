@@ -1,17 +1,25 @@
 ---
-import * as styles from './blocks.css';
+const tones = {
+	info: ['#2196f3', 'rgba(33, 150, 243, 0.12)', 'rgba(33, 150, 243, 0.24)'],
+	success: ['#3aa757', 'rgba(58, 167, 87, 0.12)', 'rgba(58, 167, 87, 0.24)'],
+	warning: ['#ff9800', 'rgba(255, 152, 0, 0.14)', 'rgba(255, 152, 0, 0.26)'],
+	danger: ['#f44336', 'rgba(244, 67, 54, 0.12)', 'rgba(244, 67, 54, 0.24)'],
+	purple: ['#9c27b0', 'rgba(156, 39, 176, 0.12)', 'rgba(156, 39, 176, 0.24)'],
+} as const;
 
 interface Props {
 	title?: string;
-	tone?: keyof typeof styles.noteTone;
+	tone?: keyof typeof tones;
+	color?: string;
 }
 
-const { title = 'Note', tone = 'info' } = Astro.props;
+const { title, tone = 'info', color } = Astro.props;
+const [theme, themeBlock, themeBorder] = color ? [color, `${color}1f`, `${color}3d`] : tones[tone];
 ---
 
-<aside class:list={[styles.note, styles.noteTone[tone]]}>
-	<strong class={styles.noteTitle}>{title}</strong>
-	<div class={styles.noteBody}>
+<aside class="tag-plugin colorful note" data-color={tone} style={`--theme:${theme};--theme-block:${themeBlock};--theme-border:${themeBorder};`}>
+	{title && <div class="title">{title}</div>}
+	<div class="body">
 		<slot />
 	</div>
 </aside>

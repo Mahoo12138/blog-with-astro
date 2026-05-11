@@ -1,0 +1,15 @@
+---
+interface Props {
+	bg?: 'box' | 'card';
+	min?: string;
+	columns?: number;
+	gap?: string;
+}
+
+const { bg, min = '240px', columns, gap = '16px' } = Astro.props;
+const template = columns ? `repeat(${columns}, minmax(0, 1fr))` : `repeat(auto-fill, minmax(${min}, 1fr))`;
+---
+
+<div class="tag-plugin grid" data-bg={bg} style={`grid-template-columns:${template};grid-gap:${gap};`}>
+	<slot />
+</div>

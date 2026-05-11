@@ -1,0 +1,16 @@
+---
+interface Props {
+	href: string;
+	size?: 'xs' | 'sm' | 'md';
+	color?: string;
+	external?: boolean;
+}
+
+const { href, size = 'md', color = '#2196f3', external = href.includes('://') } = Astro.props;
+const rel = external ? 'external nofollow noopener noreferrer' : undefined;
+const target = external ? '_blank' : undefined;
+---
+
+<a class="tag-plugin button" href={href} data-size={size} style={`--theme:${color};`} target={target} rel={rel}>
+	<span><slot /></span>
+</a>

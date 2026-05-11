@@ -1,0 +1,42 @@
+---
+import { getCollection } from 'astro:content';
+import StellarIcon from '../../components/StellarIcon.astro';
+import StellarNavTabs from '../../components/StellarNavTabs.astro';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
+import StellarShell from '../../layouts/StellarShell.astro';
+import * as styles from '../../styles/taxonomy.css';
+import { buildTaxonomyBuckets, sortBlogPosts } from '../../utils/content';
+
+const posts = sortBlogPosts(await getCollection('blog'));
+const categories = buildTaxonomyBuckets(posts, 'categories');
+---
+
+<StellarShell title={`Categories · ${SITE_TITLE}`} description={SITE_DESCRIPTION} mainClass={styles.pageMain} siteTree="index_blog">
+	<header class={styles.header}>
+		<StellarNavTabs active="categories" />
+	</header>
+	<h1 class={styles.srOnly}>分类</h1>
+	{
+		categories.length ? (
+			<div class={styles.postList}>
+				<article class={styles.cats} id="cats">
+				{
+					categories.map((category) => (
+						<div class={styles.catRow}>
+							<a class={styles.catLink} href={`/categories/${category.slug}/`}>
+								<span class={styles.catName}>
+									<StellarIcon name="default:category" class={styles.catIcon} />
+									<span class={styles.catText}>{category.label}</span>
+								</span>
+								<span class={styles.catBadge}>({category.posts.length})</span>
+							</a>
+						</div>
+					))
+				}
+				</article>
+			</div>
+		) : (
+			<section class={styles.empty}>暂无分类</section>
+		)
+	}
+</StellarShell>

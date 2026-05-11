@@ -1,0 +1,28 @@
+---
+interface Props {
+	value: string;
+	label?: string;
+	color?: string;
+}
+
+const { value, label, color = '#2196f3' } = Astro.props;
+---
+
+<div class="tag-plugin copy" style={`--theme:${color};`}>
+	{label && <span>{label}</span>}
+	<input class="copy-area" value={value} readonly />
+	<button class="copy-btn" type="button" data-copy-value={value}>Copy</button>
+</div>
+
+<script is:inline>
+	document.querySelectorAll('[data-copy-value]').forEach((button) => {
+		if (button.dataset.ready) return;
+		button.dataset.ready = 'true';
+		button.addEventListener('click', async () => {
+			await navigator.clipboard?.writeText(button.getAttribute('data-copy-value') || '');
+			const oldText = button.textContent;
+			button.textContent = 'Copied';
+			setTimeout(() => { button.textContent = oldText; }, 1200);
+		});
+	});
+</script>

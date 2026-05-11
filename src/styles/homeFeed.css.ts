@@ -9,8 +9,13 @@ export const main = style({
 
 export const list = style({
 	listStyle: 'none',
-	margin: 0,
+	margin: vars.space.lg,
 	padding: 0,
+	'@media': {
+		[`screen and (max-width: ${breakpoints.mobile})`]: {
+			margin: `${vars.space.lg} 0`,
+		},
+	},
 });
 
 export const item = style({
@@ -18,7 +23,7 @@ export const item = style({
 });
 
 export const header = style({
-	marginBottom: vars.space.xl,
+	marginBottom: 0,
 });
 
 export const archiveMain = style({
@@ -27,56 +32,80 @@ export const archiveMain = style({
 	padding: 0,
 });
 
+export const archivePostList = style({
+	margin: vars.space.lg,
+	'@media': {
+		[`screen and (max-width: ${breakpoints.mobile})`]: {
+			margin: `${vars.space.lg} 0`,
+		},
+	},
+});
+
 export const archiveSection = style({
-	marginTop: vars.space.xl,
-	padding: vars.space.xl,
-	borderRadius: vars.radius.xl,
-	border: `1px solid ${vars.color.border}`,
-	background: vars.color.surface,
-	boxShadow: vars.shadow.card,
-	backdropFilter: 'blur(18px)',
+	padding: vars.space.lg,
 });
 
 export const archiveYear = style({
-	margin: `0 0 ${vars.space.lg}`,
-	fontSize: '1.3rem',
+	display: 'inline-block',
+	fontFamily: vars.font.mono,
 	fontWeight: 700,
+	lineHeight: 1.2,
+	margin: `0 0 0.5em`,
+	position: 'relative',
+	padding: '4px 0',
+	fontSize: 'calc(1rem + 4px)',
 	color: vars.color.textStrong,
+	selectors: {
+		'&:after': {
+			content: '""',
+			position: 'absolute',
+			height: '4px',
+			bottom: 0,
+			left: 0,
+			right: 0,
+			zIndex: -1,
+			borderRadius: '4px',
+			background: vars.color.accent,
+		},
+	},
 });
 
 export const archiveList = style({
 	listStyle: 'none',
 	margin: 0,
 	padding: 0,
-	display: 'grid',
-	gap: vars.space.sm,
+});
+
+export const archiveItem = style({
+	margin: 0,
 });
 
 export const archiveLink = style({
-	display: 'grid',
-	gridTemplateColumns: '8rem minmax(0, 1fr)',
-	gap: vars.space.lg,
+	display: 'inline-flex',
 	alignItems: 'baseline',
-	padding: `${vars.space.sm} ${vars.space.md}`,
-	borderRadius: vars.radius.md,
-	color: vars.color.text,
-	'@media': {
-		[`screen and (max-width: ${breakpoints.tablet})`]: {
-			gridTemplateColumns: '1fr',
-			gap: vars.space.xs,
-		},
-	},
+	margin: `${vars.space.xs} 0`,
+	borderBottom: `1px dashed ${vars.color.textMeta}`,
+	color: vars.color.textStrong,
+	fontSize: '0.875rem',
 	selectors: {
 		'&:hover': {
-			background: vars.color.surfaceStrong,
+			borderBottom: `1px solid ${vars.color.accent}`,
 			color: vars.color.textStrong,
 		},
 	},
 });
 
 export const archiveDate = style({
-	fontSize: '0.88rem',
+	fontFamily: vars.font.mono,
+	marginRight: '1em',
+	fontWeight: 700,
+	flexShrink: 0,
 	color: vars.color.textMeta,
+	selectors: {
+		[`${archiveLink}:hover &`]: {
+			color: vars.color.accentStrong,
+		},
+	},
 });
 
 export const archiveTitle = style({

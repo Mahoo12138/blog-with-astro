@@ -1,0 +1,21 @@
+---
+interface Props {
+	href?: string;
+	color?: string;
+}
+
+const { href, color = '#2196f3' } = Astro.props;
+const style = `--theme:${color};--theme-block:${color}1f;`;
+---
+
+{
+	href ? (
+		<a class="tag-plugin hashtag" href={href} style={style}>
+			<span>#</span><span><slot /></span>
+		</a>
+	) : (
+		<span class="tag-plugin hashtag" style={style}>
+			<span>#</span><span><slot /></span>
+		</span>
+	)
+}

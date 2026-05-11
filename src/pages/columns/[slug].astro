@@ -1,0 +1,72 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import StellarNavTabs from '../../components/StellarNavTabs.astro';
+import StellarPostCard from '../../components/StellarPostCard.astro';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
+import StellarShell from '../../layouts/StellarShell.astro';
+import * as styles from '../../styles/taxonomy.css';
+import { buildColumnBuckets, getPhotoIndex, sortBlogPosts, type ColumnBucket } from '../../utils/content';
+
+export async function getStaticPaths() {
+	const posts = sortBlogPosts(await getCollection('blog'));
+	const columns = await getCollection('columns');
+
+	return buildColumnBuckets(posts, columns)
+		.filter((bucket) => bucket.entry)
+		.map((bucket) => ({
+			params: { slug: bucket.slug },
+			props: { bucket, column: bucket.entry },
+		}));
+}
+
+interface Props {
+	bucket: ColumnBucket;
+	column: CollectionEntry<'columns'>;
+}
+
+const { bucket, column } = Astro.props as Props;
+const { Content } = await render(column);
+const photoIndex = getPhotoIndex(bucket.posts);
+---
+
+<StellarShell title={`${bucket.title} · Columns · ${SITE_TITLE}`} description={column.data.description || SITE_DESCRIPTION} mainClass={styles.pageMain} siteTree="topic">
+	<header class={styles.header}>
+		<StellarNavTabs active="columns" />
+	</header>
+	<div class={styles.topicList}>
+		<div class={styles.topicCardWrap}>
+			<article class={styles.topicCard}>
+				<div class={styles.topicArticle}>
+					<div class={styles.topicPreview}>
+						{column.data.icon ? <img class={styles.topicImage} src={column.data.icon} alt="" /> : <span class={styles.topicFallback}>{bucket.title.slice(0, 1)}</span>}
+					</div>
+					<div class={styles.topicExcerpt}>
+						<div class={styles.topicCaps}>
+							<span class={styles.topicCap}>{bucket.posts.length} 篇</span>
+						</div>
+						<h1 class={styles.topicTitle}>{bucket.title}</h1>
+						{bucket.description && <p class={styles.topicDescription}>{bucket.description}</p>}
+					</div>
+				</div>
+			</article>
+		</div>
+		<section class={styles.columnBody}>
+			<Content />
+		</section>
+		{
+			bucket.posts.length ? (
+				<ul class={styles.list}>
+					{
+						bucket.posts.map((post, index) => (
+							<li class={styles.item}>
+								<StellarPostCard post={post} variant={index === photoIndex ? 'photo' : 'default'} />
+							</li>
+						))
+					}
+				</ul>
+			) : (
+				<section class={styles.empty}>暂无文章</section>
+			)
+		}
+	</div>
+</StellarShell>

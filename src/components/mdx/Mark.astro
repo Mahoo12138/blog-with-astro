@@ -1,0 +1,11 @@
+---
+interface Props {
+	color?: string;
+}
+
+const { color = 'rgba(255, 230, 89, 0.55)' } = Astro.props;
+---
+
+<mark class="tag-plugin mark" style={`--theme-mark:${color};`}>
+	<slot />
+</mark>

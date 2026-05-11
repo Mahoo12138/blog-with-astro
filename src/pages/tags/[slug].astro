@@ -1,0 +1,42 @@
+---
+import { getCollection } from 'astro:content';
+import StellarNavTabs from '../../components/StellarNavTabs.astro';
+import StellarPostCard from '../../components/StellarPostCard.astro';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
+import StellarShell from '../../layouts/StellarShell.astro';
+import * as styles from '../../styles/taxonomy.css';
+import { buildTaxonomyBuckets, getPhotoIndex, sortBlogPosts, type TaxonomyBucket } from '../../utils/content';
+
+export async function getStaticPaths() {
+	const posts = sortBlogPosts(await getCollection('blog'));
+	return buildTaxonomyBuckets(posts, 'tags').map((bucket) => ({
+		params: { slug: bucket.slug },
+		props: { bucket },
+	}));
+}
+
+interface Props {
+	bucket: TaxonomyBucket;
+}
+
+const { bucket } = Astro.props as Props;
+const photoIndex = getPhotoIndex(bucket.posts);
+---
+
+<StellarShell title={`${bucket.label} · Tags · ${SITE_TITLE}`} description={SITE_DESCRIPTION} mainClass={styles.pageMain} siteTree="index_blog">
+	<header class={styles.header}>
+		<StellarNavTabs active="tags" />
+	</header>
+	<h1 class={styles.srOnly}>{bucket.label}</h1>
+	<div class={styles.postList}>
+		<ul class={styles.list}>
+			{
+				bucket.posts.map((post, index) => (
+					<li class={styles.item}>
+						<StellarPostCard post={post} variant={index === photoIndex ? 'photo' : 'default'} />
+					</li>
+				))
+			}
+		</ul>
+	</div>
+</StellarShell>

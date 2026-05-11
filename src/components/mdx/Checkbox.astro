@@ -1,0 +1,14 @@
+---
+interface Props {
+	checked?: boolean;
+	color?: string;
+	interactive?: boolean;
+}
+
+const { checked = false, color = '#2196f3', interactive = false } = Astro.props;
+---
+
+<label class="tag-plugin checkbox" style={`--theme:${color};`}>
+	<input type="checkbox" checked={checked} disabled={!interactive} />
+	<span><slot /></span>
+</label>

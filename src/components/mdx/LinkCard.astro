@@ -1,0 +1,42 @@
+---
+interface Props {
+	href: string;
+	title?: string;
+	desc?: string;
+	icon?: string;
+}
+
+const { href, title = href, desc, icon = '/favicon.svg' } = Astro.props;
+const external = href.includes('://');
+const rel = external ? 'external nofollow noopener noreferrer' : undefined;
+const target = external ? '_blank' : undefined;
+---
+
+<div class="tag-plugin link dis-select">
+	<a class:list={['link-card', desc ? 'rich' : 'plain']} title={title} href={href} target={target} rel={rel}>
+		{
+			desc ? (
+				<>
+					<div class="top">
+						<div class="img" style={`background-image:url(${icon});`}></div>
+						<span class="cap link footnote">{href}</span>
+					</div>
+					<div class="bottom">
+						<span class="title">{title}</span>
+						<span class="cap desc footnote">{desc}</span>
+					</div>
+				</>
+			) : (
+				<>
+					<div class="left">
+						<span class="title">{title}</span>
+						<span class="cap link footnote">{href}</span>
+					</div>
+					<div class="right">
+						<div class="img" style={`background-image:url(${icon});`}></div>
+					</div>
+				</>
+			)
+		}
+	</a>
+</div>

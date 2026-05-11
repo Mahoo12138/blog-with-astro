@@ -1,0 +1,13 @@
+---
+interface Props {
+	layout?: 'grid' | 'flow';
+	size?: 's' | 'm' | 'l' | 'xl';
+	ratio?: 'origin' | 'square' | 'portrait';
+}
+
+const { layout = 'grid', size = 'm', ratio = 'origin' } = Astro.props;
+---
+
+<div class:list={['tag-plugin gallery', `${layout}-box`]} data-size={size} data-ratio={ratio}>
+	<slot />
+</div>

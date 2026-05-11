@@ -1,6 +1,5 @@
 ---
 import { getCollection } from 'astro:content';
-import FormattedDate from '../components/FormattedDate.astro';
 import StellarNavTabs from '../components/StellarNavTabs.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 import StellarShell from '../layouts/StellarShell.astro';
@@ -17,31 +16,34 @@ const archives = posts.reduce<Map<number, typeof posts>>((map, post) => {
 }, new Map());
 
 const groups = Array.from(archives.entries()).sort((a, b) => b[0] - a[0]);
+const formatArchiveDate = (date: Date) => `${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 ---
 
-<StellarShell title={`Archives · ${SITE_TITLE}`} description={SITE_DESCRIPTION} mainClass={styles.archiveMain}>
+<StellarShell title={`Archives · ${SITE_TITLE}`} description={SITE_DESCRIPTION} mainClass={styles.archiveMain} siteTree="index_blog">
 	<header class={styles.header}>
 		<StellarNavTabs active="archives" />
 	</header>
-	{
-		groups.map(([year, yearPosts]) => (
-			<section class={styles.archiveSection}>
-				<h2 class={styles.archiveYear}>{year}</h2>
-				<ul class={styles.archiveList}>
-					{
-						yearPosts.map((post) => (
-							<li>
-								<a class={styles.archiveLink} href={`/blog/${post.id}/`}>
-									<span class={styles.archiveDate}>
-										<FormattedDate date={post.data.pubDate} />
-									</span>
-									<span class={styles.archiveTitle}>{post.data.title}</span>
-								</a>
-							</li>
-						))
-					}
-				</ul>
-			</section>
-		))
-	}
+	<div class={styles.archivePostList}>
+		{
+			groups.map(([year, yearPosts]) => (
+				<article class={styles.archiveSection} id="archive">
+					<h2 class={styles.archiveYear}>{year}</h2>
+					<ul class={styles.archiveList}>
+						{
+							yearPosts.map((post) => (
+								<li class={styles.archiveItem}>
+									<a class={styles.archiveLink} href={`/blog/${post.id}/`}>
+										<time class={styles.archiveDate} datetime={post.data.pubDate.toISOString()}>
+											{formatArchiveDate(post.data.pubDate)}
+										</time>
+										<span class={styles.archiveTitle}>{post.data.title}</span>
+									</a>
+								</li>
+							))
+						}
+					</ul>
+				</article>
+			))
+		}
+	</div>
 </StellarShell>

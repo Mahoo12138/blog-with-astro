@@ -1,0 +1,48 @@
+---
+interface Props {
+	align?: 'left' | 'center' | 'right';
+	active?: number;
+	color?: string;
+}
+
+const { align = 'center', active = 0, color = '#2196f3' } = Astro.props;
+---
+
+<div class="tag-plugin tabs" data-align={align} data-tabs data-active={active} style={`--theme:${color};`}>
+	<ul class="nav-tabs" aria-label="Tabs"></ul>
+	<div class="tab-content">
+		<slot />
+	</div>
+</div>
+
+<script is:inline>
+	document.querySelectorAll('[data-tabs]').forEach((tabs) => {
+		if (tabs.dataset.ready) return;
+		tabs.dataset.ready = 'true';
+
+		const nav = tabs.querySelector('.nav-tabs');
+		const panes = Array.from(tabs.querySelectorAll('.tab-pane'));
+		const initial = Number(tabs.getAttribute('data-active') || 0);
+
+		const activate = (index) => {
+			panes.forEach((pane, paneIndex) => pane.classList.toggle('active', paneIndex === index));
+			nav.querySelectorAll('.tab').forEach((item, itemIndex) => item.classList.toggle('active', itemIndex === index));
+		};
+
+		panes.forEach((pane, index) => {
+			const item = document.createElement('li');
+			const button = document.createElement('a');
+			item.className = 'tab';
+			button.href = '#';
+			button.textContent = pane.getAttribute('data-tab-label') || `Tab ${index + 1}`;
+			button.addEventListener('click', (event) => {
+				event.preventDefault();
+				activate(index);
+			});
+			item.append(button);
+			nav.append(item);
+		});
+
+		activate(Math.min(Math.max(initial, 0), Math.max(panes.length - 1, 0)));
+	});
+</script>

@@ -1,0 +1,11 @@
+---
+interface Props {
+	color?: string;
+}
+
+const { color = '#2196f3' } = Astro.props;
+---
+
+<div class="tag-plugin timeline" style={`--theme:${color};`}>
+	<slot />
+</div>

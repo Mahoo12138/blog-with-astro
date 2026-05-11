@@ -1,18 +1,24 @@
 ---
-import * as styles from './blocks.css';
+const tones = {
+	info: ['#2196f3', 'rgba(33, 150, 243, 0.12)', 'rgba(33, 150, 243, 0.24)'],
+	success: ['#3aa757', 'rgba(58, 167, 87, 0.12)', 'rgba(58, 167, 87, 0.24)'],
+	warning: ['#ff9800', 'rgba(255, 152, 0, 0.14)', 'rgba(255, 152, 0, 0.26)'],
+	danger: ['#f44336', 'rgba(244, 67, 54, 0.12)', 'rgba(244, 67, 54, 0.24)'],
+} as const;
 
 interface Props {
 	title: string;
 	open?: boolean;
-	tone?: keyof typeof styles.foldTone;
+	tone?: keyof typeof tones;
 }
 
 const { title, open = false, tone = 'info' } = Astro.props;
+const [theme, themeBlock, themeBorder] = tones[tone];
 ---
 
-<details class:list={[styles.fold, styles.foldTone[tone]]} open={open}>
-	<summary class:list={[styles.foldSummary, styles.foldSummaryTone[tone]]}>{title}</summary>
-	<div class={styles.foldBody}>
+<details class="tag-plugin colorful folding" open={open} style={`--theme:${theme};--theme-block:${themeBlock};--theme-border:${themeBorder};`}>
+	<summary><span>{title}</span></summary>
+	<div class="body">
 		<slot />
 	</div>
 </details>

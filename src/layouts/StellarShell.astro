@@ -1,8 +1,10 @@
 ---
 import BaseHead from '../components/BaseHead.astro';
 import StellarLeftSidebar from '../components/StellarLeftSidebar.astro';
+import StellarIcon from '../components/StellarIcon.astro';
+import StellarPageFooter from '../components/StellarPageFooter.astro';
 import StellarRightSidebar from '../components/StellarRightSidebar.astro';
-import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import { resolveShellConfig, type MenuId, type SidebarValue, type SiteTreeKey } from '../config/stellar';
 import * as styles from './StellarShell.css';
 
 interface Props {
@@ -10,12 +12,19 @@ interface Props {
 	description: string;
 	lang?: string;
 	mainClass?: string;
+	siteTree?: SiteTreeKey;
+	menuId?: MenuId;
+	leftbar?: SidebarValue;
+	rightbar?: SidebarValue;
+	tocHeadings?: { depth: number; slug: string; text: string }[];
 }
 
-const { title, description, lang = 'en', mainClass } = Astro.props;
+const { title, description, lang = 'en', mainClass, siteTree = 'page', menuId, leftbar, rightbar, tocHeadings = [] } = Astro.props;
 const hasLead = Astro.slots.has('lead');
 const hasLeftbar = Astro.slots.has('leftbar');
 const hasRightbar = Astro.slots.has('rightbar');
+const shellConfig = resolveShellConfig(siteTree, { menuId, leftbar, rightbar });
+const hasRightbarContent = shellConfig.rightbar.length > 0 || hasRightbar;
 ---
 
 <!doctype html>
@@ -28,27 +37,64 @@ const hasRightbar = Astro.slots.has('rightbar');
 			<div class={styles.glowLeft}></div>
 			<div class={styles.glowRight}></div>
 		</div>
-		<div class={styles.shell}>
+		<div class={styles.shell} data-stellar-shell>
 			<aside class={styles.left}>
-				<StellarLeftSidebar />
+				<StellarLeftSidebar menuId={shellConfig.menuId} widgets={shellConfig.leftbar} />
 				{hasLeftbar && <slot name="leftbar" />}
 			</aside>
 			<main class={styles.mainArea}>
-				<div class={styles.mobileBrand}>
-					<div>
-						<p class={styles.mobileTitle}>{SITE_TITLE}</p>
-						<p class={styles.mobileSubtitle}>{SITE_DESCRIPTION}</p>
-					</div>
-				</div>
 				<div class:list={[styles.mainContent, mainClass]}>
 					{hasLead && <div class={styles.lead}><slot name="lead" /></div>}
 					<slot />
+					<StellarPageFooter />
 				</div>
 			</main>
 			<aside class={styles.right}>
-				<StellarRightSidebar />
+				<StellarRightSidebar widgets={shellConfig.rightbar} headings={tocHeadings} />
 				{hasRightbar && <slot name="rightbar" />}
 			</aside>
+			<button class={styles.mainMask} type="button" data-sidebar-dismiss aria-label="Close sidebar"></button>
+			<div class={styles.floatPanel}>
+				{
+					hasRightbarContent && (
+						<button class:list={[styles.floatButton, styles.rightbarToggle]} type="button" data-sidebar-toggle="rightbar" aria-label="Toggle right sidebar">
+							<StellarIcon name="default:rightbar" class={styles.floatIcon} />
+						</button>
+					)
+				}
+				<button class:list={[styles.floatButton, styles.leftbarToggle]} type="button" data-sidebar-toggle="leftbar" aria-label="Toggle left sidebar">
+					<StellarIcon name="default:leftbar" class={styles.floatIcon} />
+				</button>
+			</div>
 		</div>
+		<script is:inline>
+			(() => {
+				const shell = document.querySelector('[data-stellar-shell]');
+				if (!shell) return;
+
+				const dismiss = () => {
+					shell.removeAttribute('data-leftbar-open');
+					shell.removeAttribute('data-rightbar-open');
+				};
+
+				document.querySelectorAll('[data-sidebar-toggle]').forEach((button) => {
+					button.addEventListener('click', () => {
+						const target = button.getAttribute('data-sidebar-toggle');
+						if (target === 'leftbar') {
+							const isOpen = shell.hasAttribute('data-leftbar-open');
+							dismiss();
+							if (!isOpen) shell.setAttribute('data-leftbar-open', '');
+						}
+						if (target === 'rightbar') {
+							const isOpen = shell.hasAttribute('data-rightbar-open');
+							dismiss();
+							if (!isOpen) shell.setAttribute('data-rightbar-open', '');
+						}
+					});
+				});
+
+				document.querySelector('[data-sidebar-dismiss]')?.addEventListener('click', dismiss);
+			})();
+		</script>
 	</body>
 </html>

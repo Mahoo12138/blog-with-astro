@@ -5,14 +5,13 @@ import StellarPostCard from '../../components/StellarPostCard.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
 import StellarShell from '../../layouts/StellarShell.astro';
 import * as styles from '../../styles/homeFeed.css';
+import { getPhotoIndex, sortBlogPosts } from '../../utils/content';
 
-const posts = (await getCollection('blog')).sort(
-	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
-);
-const photoIndex = posts.findIndex((post, index) => index > 1 && post.data.heroImage);
+const posts = sortBlogPosts(await getCollection('blog'));
+const photoIndex = getPhotoIndex(posts);
 ---
 
-<StellarShell title={SITE_TITLE} description={SITE_DESCRIPTION} mainClass={styles.main}>
+<StellarShell title={SITE_TITLE} description={SITE_DESCRIPTION} mainClass={styles.main} siteTree="index_blog">
 	<header class={styles.header}>
 		<StellarNavTabs active="home" />
 	</header>

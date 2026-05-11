@@ -1,61 +1,134 @@
 ---
 import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
 import { getCollection } from 'astro:content';
-import FormattedDate from './FormattedDate.astro';
+import type { SidebarWidgetConfig } from '../config/stellar';
+import StellarIcon from './StellarIcon.astro';
 import * as styles from './StellarRightSidebar.css';
 
+interface Props {
+	widgets?: SidebarWidgetConfig[];
+	headings?: { depth: number; slug: string; text: string }[];
+}
+
+const { widgets = [], headings = [] } = Astro.props;
 const recentPosts = (await getCollection('blog'))
 	.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
 	.slice(0, 3);
 
 const featuredPost = recentPosts.find((post) => post.data.heroImage) ?? recentPosts[0];
+const featuredHeroImage = featuredPost?.data.heroImage as ImageMetadata | undefined;
+const tocHeadings = headings.filter((heading) => heading.depth >= 1 && heading.depth <= 6);
+const tocBaseDepth = Math.min(...tocHeadings.map((heading) => heading.depth), 2);
 ---
 
-<div class={styles.root}>
-	<section class={styles.card}>
-		<h2 class={styles.cardTitle}>欢迎，旅行者</h2>
-		<p class={styles.intro}>您已来到世界边缘，喜欢的话欢迎停留交流。</p>
-		<div class={styles.quote}>博客是一处长期写作与整理的静态栖居地。</div>
-		<div class={styles.actionList}>
-			<a class={styles.actionLink} href="/about">
-				<svg class={styles.actionIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-					<path d="M12 8.5a2 2 0 1 0 0-4a2 2 0 0 0 0 4Zm-4 8.5a4 4 0 0 1 8 0"></path>
-				</svg>
-				<span>查看作者页</span>
-			</a>
-			<a class={styles.actionLink} href="/blog">
-				<svg class={styles.actionIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-					<path d="M4 6.5h16M4 12h16M4 17.5h10"></path>
-				</svg>
-				<span>传送到文章区</span>
-			</a>
-		</div>
-	</section>
-
-	<section class={styles.card}>
-		<h2 class={styles.cardTitle}>近期动态</h2>
-		<div class={styles.timeline}>
+{
+	widgets.length > 0 && (
+		<div class={styles.root}>
 			{
-				recentPosts.map((post) => (
-					<div class={styles.timelineItem}>
-						<div class={styles.timelineTime}>
-							<FormattedDate date={post.data.pubDate} />
-						</div>
-						<a class={styles.timelineLink} href={`/blog/${post.id}/`}>
-							{post.data.title}
-						</a>
-					</div>
-				))
+				widgets.map((widget) =>
+					widget.layout === 'welcome' ? (
+						<section class:list={[styles.widget, styles.markdownWidget]}>
+							<div class={styles.widgetHeader}><span>{widget.title}</span></div>
+							<div class={styles.markdownBody}><p>{widget.body}</p></div>
+						</section>
+					) : widget.layout === 'timeline' || widget.layout === 'recent' ? (
+						<section class:list={[styles.widget, styles.postListWidget]}>
+							<div class={styles.widgetHeader}><span>{widget.title}</span></div>
+							<div class={styles.timeline}>
+								{
+									recentPosts.slice(0, widget.limit ?? 3).map((post) => (
+										<a class={styles.timelineLink} href={`/blog/${post.id}/`}>
+											<span>{post.data.title}</span>
+										</a>
+									))
+								}
+							</div>
+						</section>
+					) : widget.layout === 'toc' && tocHeadings.length > 0 ? (
+						<section class:list={[styles.widget, styles.tocWidget]} id="data-toc" data-toc-widget data-toc-collapse="false">
+							<div class={styles.widgetHeader}>
+								<span>{widget.title}</span>
+								<button class={styles.capAction} type="button" aria-label="Collapse table of contents" aria-pressed="false" data-toc-toggle>
+									<StellarIcon name="default:rightbar" />
+								</button>
+							</div>
+							<div class={styles.tocBody}>
+								<ol class={styles.tocList}>
+									{
+										tocHeadings.map((heading) => (
+											<li class={styles.tocItem} style={`--toc-padding:${8 + Math.max(0, heading.depth - tocBaseDepth) * 16}px;`}>
+												<a class={styles.tocLink} href={`#${heading.slug}`}>
+													<span class={styles.tocText}>{heading.text}</span>
+												</a>
+											</li>
+										))
+									}
+								</ol>
+							</div>
+						</section>
+					) : widget.layout === 'ghrepo' ? (
+						<section class:list={[styles.widget, styles.ghrepoWidget]}>
+							<a class={styles.repoCard} href="/" aria-label="Repository">
+								<div class={styles.repoName}>
+									<StellarIcon name="github:repo" />
+									<span>blog-with-astro</span>
+								</div>
+								<div class={styles.repoDesc}>Astro migration of Hexo Stellar theme.</div>
+								<div class={styles.repoMetaGrid} aria-hidden="true">
+									<span class={styles.repoStat}><StellarIcon name="github:star" />0</span>
+									<span class={styles.repoStat}><StellarIcon name="github:fork" />0</span>
+									<span class={styles.repoStat}><StellarIcon name="github:tag" />0</span>
+								</div>
+							</a>
+						</section>
+					) : widget.layout === 'media' && featuredPost && featuredHeroImage ? (
+						<section class:list={[styles.widget, styles.mediaCard]}>
+							<div class={styles.widgetHeader}><span>{widget.title}</span></div>
+							<Image class={styles.mediaImage} src={featuredHeroImage} width={320} height={210} alt={featuredPost.data.title} />
+							<p class={styles.mediaCaption}>{featuredPost.data.title}</p>
+						</section>
+					) : null,
+				)
 			}
 		</div>
-	</section>
+	)
+}
 
-	{
-		featuredPost?.data.heroImage && (
-			<section class:list={[styles.card, styles.mediaCard]}>
-				<Image class={styles.mediaImage} src={featuredPost.data.heroImage} width={320} height={210} alt={featuredPost.data.title} />
-				<p class={styles.mediaCaption}>{featuredPost.data.title}</p>
-			</section>
-		)
-	}
-</div>
+<script is:inline>
+	(() => {
+		const widget = document.querySelector('[data-toc-widget]');
+		if (!widget) return;
+
+		const list = widget.querySelector('ol');
+		const links = Array.from(widget.querySelectorAll('a[href^="#"]'));
+		const headings = links
+			.map((link) => document.getElementById(decodeURIComponent(link.hash.slice(1))))
+			.filter(Boolean);
+
+		const setActiveLink = () => {
+			let activeIndex = 0;
+			headings.forEach((heading, index) => {
+				if (heading.getBoundingClientRect().top <= 96) activeIndex = index;
+			});
+
+			links.forEach((link, index) => link.classList.toggle('active', index === activeIndex));
+
+			const activeLink = links[activeIndex];
+			if (list && activeLink) {
+				const listTop = list.getBoundingClientRect().top;
+				const linkTop = activeLink.getBoundingClientRect().top;
+				list.scrollTo({ top: list.scrollTop + linkTop - listTop - list.clientHeight / 2, behavior: 'smooth' });
+			}
+		};
+
+		const toggle = widget.querySelector('[data-toc-toggle]');
+		toggle?.addEventListener('click', () => {
+			const collapsed = widget.classList.toggle('collapse');
+			toggle.setAttribute('aria-pressed', String(collapsed));
+		});
+
+		setActiveLink();
+		window.addEventListener('scroll', setActiveLink, { passive: true });
+	})();
+</script>

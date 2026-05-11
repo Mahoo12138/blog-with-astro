@@ -1,0 +1,28 @@
+---
+interface Props {
+	title?: string;
+	subtitle?: string;
+	bg: string;
+	avatar?: string;
+	href?: string;
+}
+
+const { title, subtitle, bg, avatar, href } = Astro.props;
+---
+
+<div class="tag-plugin banner">
+	<img class="bg" src={bg} alt="" />
+	<div class="content">
+		<div class="top"><slot name="top" /></div>
+		<div class="bottom">
+			{avatar && <img class="avatar" src={avatar} alt="" />}
+			{(title || subtitle) && (
+				<div class="text-area">
+					{title && <div class="text title">{title}</div>}
+					{subtitle && <div class="text subtitle">{subtitle}</div>}
+				</div>
+			)}
+		</div>
+	</div>
+	{href && <a class="banner-link" href={href} aria-label={title ?? subtitle ?? 'Banner'}></a>}
+</div>

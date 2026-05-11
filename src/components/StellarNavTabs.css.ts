@@ -3,54 +3,66 @@ import { vars } from '../styles/theme.css';
 
 export const root = style({
 	position: 'sticky',
-	top: vars.space.xl,
+	top: vars.space.xxl,
 	zIndex: 8,
-	marginBottom: vars.space.xl,
 });
 
 export const blur = style({
-	padding: '1px',
-	borderRadius: vars.radius.xl,
-	background: 'rgba(255, 255, 255, 0.42)',
+	margin: `0 ${vars.space.lg}`,
+	borderRadius: '64px',
+	position: 'relative',
+	background: 'rgba(255, 255, 255, 0.5)',
 	boxShadow: vars.shadow.head,
-	backdropFilter: 'blur(18px)',
+	backdropFilter: 'saturate(300%) blur(18px)',
+	WebkitBackdropFilter: 'saturate(300%) blur(18px)',
 });
 
 export const inner = style({
-	overflowX: 'auto',
-	borderRadius: vars.radius.xl,
+	maxWidth: '100%',
+	margin: '1px',
+	overflow: 'scroll visible',
+	borderRadius: '64px',
 	scrollbarWidth: 'none',
 });
 
 export const nav = style({
 	display: 'inline-flex',
-	minWidth: '100%',
-	padding: vars.space.xs,
-	gap: '4px',
+	minWidth: 0,
+	fontSize: '0.875rem',
 });
 
 export const item = style({
 	display: 'inline-flex',
 	alignItems: 'center',
 	justifyContent: 'center',
-	padding: `${vars.space.xs} ${vars.space.md}`,
-	borderRadius: vars.radius.pill,
+	padding: `0.25rem ${vars.space.md}`,
+	margin: '0.25rem',
+	lineHeight: 2,
+	borderRadius: '32px',
 	whiteSpace: 'nowrap',
-	fontSize: '0.88rem',
 	fontWeight: 500,
-	color: vars.color.textMuted,
+	color: vars.color.text,
+	position: 'relative',
+	zIndex: 1,
 	selectors: {
 		'&:hover': {
-			background: vars.color.surfaceStrong,
+			background: vars.color.surfaceMuted,
 			color: vars.color.textStrong,
+		},
+		'& + &': {
+			marginLeft: '4px',
 		},
 	},
 });
 
 export const active = style({
-	background: 'rgba(255, 255, 255, 0.88)',
+	background: 'rgba(255, 255, 255, 0.6)',
 	color: vars.color.textStrong,
-	boxShadow: '0 0 1px rgba(0, 0, 0, 0.04), 0 0 4px rgba(0, 0, 0, 0.08)',
+	boxShadow: '0 0 1px rgba(0, 0, 0, 0.04), 0 0 2px rgba(0, 0, 0, 0.04), 0 0 4px rgba(0, 0, 0, 0.08)',
+	cursor: 'default',
+	pointerEvents: 'none',
+	backdropFilter: 'saturate(300%)',
+	WebkitBackdropFilter: 'saturate(300%)',
 });
 
 export const disabled = style({

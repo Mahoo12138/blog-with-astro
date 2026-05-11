@@ -1,13 +1,21 @@
 ---
-import * as styles from './blocks.css';
+const tones = {
+	info: '#2196f3',
+	success: '#3aa757',
+	warning: '#ff9800',
+	danger: '#f44336',
+	purple: '#9c27b0',
+} as const;
 
 interface Props {
-	tone?: keyof typeof styles.labelTone;
+	tone?: keyof typeof tones;
+	color?: string;
 }
 
-const { tone = 'info' } = Astro.props;
+const { tone = 'info', color } = Astro.props;
+const theme = color ?? tones[tone];
 ---
 
-<span class:list={[styles.label, styles.labelTone[tone]]}>
+<span class="tag-plugin mark" style={`--theme:${theme};--theme-mark:${theme}33;`}>
 	<slot />
 </span>

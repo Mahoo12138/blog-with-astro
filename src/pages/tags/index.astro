@@ -1,0 +1,35 @@
+---
+import { getCollection } from 'astro:content';
+import StellarNavTabs from '../../components/StellarNavTabs.astro';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
+import StellarShell from '../../layouts/StellarShell.astro';
+import * as styles from '../../styles/taxonomy.css';
+import { buildTaxonomyBuckets, sortBlogPosts } from '../../utils/content';
+
+const posts = sortBlogPosts(await getCollection('blog'));
+const tags = buildTaxonomyBuckets(posts, 'tags');
+---
+
+<StellarShell title={`Tags · ${SITE_TITLE}`} description={SITE_DESCRIPTION} mainClass={styles.pageMain} siteTree="index_blog">
+	<header class={styles.header}>
+		<StellarNavTabs active="tags" />
+	</header>
+	<h1 class={styles.srOnly}>标签</h1>
+	{
+		tags.length ? (
+			<div class={styles.postList}>
+				<article class={styles.tags} id="tags">
+				{
+					tags.map((tag) => (
+						<a class={styles.tagLink} href={`/tags/${tag.slug}/`} aria-label={`${tag.label}，${tag.posts.length} 篇文章`}>
+							<span>{tag.label}</span>
+						</a>
+					))
+				}
+				</article>
+			</div>
+		) : (
+			<section class={styles.empty}>暂无标签</section>
+		)
+	}
+</StellarShell>

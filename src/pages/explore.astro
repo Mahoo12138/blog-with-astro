@@ -1,0 +1,35 @@
+---
+import { exploreIconImages } from '../assets/explore-icons';
+import { explorePageConfig } from '../config/explore';
+import { SITE_TITLE } from '../consts';
+import StellarShell from '../layouts/StellarShell.astro';
+import * as styles from '../styles/explore.css';
+
+const { title, description, items } = explorePageConfig;
+---
+
+<StellarShell title={`${title} · ${SITE_TITLE}`} description={description} siteTree="explore" mainClass={styles.pageMain}>
+	<h1 class={styles.srOnly}>{title}</h1>
+	<div class={styles.grid}>
+		{
+			items.map((item) => {
+				const target = item.openInNewTab ? '_blank' : undefined;
+				const rel = [item.external ? 'external nofollow' : '', item.openInNewTab ? 'noopener noreferrer' : ''].filter(Boolean).join(' ') || undefined;
+
+				return (
+					<a class={styles.card} href={item.href} target={target} rel={rel} aria-label={item.title}>
+						<article class={styles.article}>
+							<div class={styles.preview}>
+								<img class={styles.iconImage} src={exploreIconImages[item.icon]} alt="" loading="eager" decoding="async" />
+							</div>
+							<div class={styles.body}>
+								<h2 class={styles.title}>{item.title}</h2>
+								<p class={styles.description}>{item.description}</p>
+							</div>
+						</article>
+					</a>
+				);
+			})
+		}
+	</div>
+</StellarShell>

@@ -1,0 +1,22 @@
+---
+import type { ExploreContentLayoutKey, ExploreInternalItem } from '../../config/explore';
+import DefaultLayout from './default.astro';
+import GalleryLayout from './gallery.astro';
+import LoveLayout from './love.astro';
+
+interface Props {
+	item: ExploreInternalItem;
+}
+
+const { item } = Astro.props;
+const layouts = {
+	default: DefaultLayout,
+	gallery: GalleryLayout,
+	love: LoveLayout,
+} satisfies Record<ExploreContentLayoutKey, typeof DefaultLayout>;
+const ContentLayout = layouts[item.layout] ?? DefaultLayout;
+---
+
+<ContentLayout item={item}>
+	<slot />
+</ContentLayout>

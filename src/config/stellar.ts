@@ -1,8 +1,8 @@
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 
-export type MenuId = 'post' | 'columns' | 'about' | 'rss' | 'wiki' | 'notebooks';
+export type MenuId = 'post' | 'columns' | 'explore' | 'about' | 'rss' | 'wiki' | 'notebooks';
 export type SidebarWidgetId = 'welcome' | 'recent' | 'related' | 'timeline' | 'media' | 'toc' | 'ghrepo';
-export type SiteTreeKey = 'home' | 'index_blog' | 'index_topic' | 'post' | 'topic' | 'wiki' | 'notebooks' | 'notes' | 'note' | 'author' | 'error_page' | 'page';
+export type SiteTreeKey = 'home' | 'index_blog' | 'index_topic' | 'explore' | 'post' | 'topic' | 'wiki' | 'notebooks' | 'notes' | 'note' | 'author' | 'error_page' | 'page';
 
 export interface MenubarItem {
 	id: MenuId;
@@ -47,7 +47,7 @@ export const stellarConfig = {
 		url: '/',
 	},
 	menubar: {
-		columns: 4,
+		columns: 5,
 		items: [
 			{
 				id: 'post',
@@ -62,6 +62,13 @@ export const stellarConfig = {
 				icon: 'stellar:menu-columns',
 				title: '专栏',
 				url: '/columns',
+			},
+			{
+				id: 'explore',
+				theme: '#32B67A',
+				icon: 'solar:planet-bold-duotone',
+				title: '探索',
+				url: '/explore',
 			},
 			{
 				id: 'about',
@@ -89,6 +96,7 @@ export const stellarConfig = {
 					{ label: '归档', url: '/archives' },
 					{ label: '分类', url: '/categories' },
 					{ label: '标签', url: '/tags' },
+					{ label: '探索', url: '/explore' },
 				],
 			},
 			{
@@ -131,6 +139,7 @@ export const stellarConfig = {
 		home: { menuId: 'post', leftbar: ['welcome', 'recent'], rightbar: null },
 		index_blog: { menuId: 'post', leftbar: ['welcome', 'recent'], rightbar: null },
 		index_topic: { menuId: 'columns', leftbar: ['welcome', 'recent'], rightbar: null },
+		explore: { menuId: 'explore', leftbar: ['welcome', 'recent'], rightbar: null },
 		post: { menuId: 'post', leftbar: ['related', 'recent'], rightbar: ['ghrepo', 'toc'] },
 		topic: { menuId: 'post', leftbar: ['related', 'recent'], rightbar: ['ghrepo', 'toc'] },
 		wiki: { menuId: 'wiki', leftbar: ['related', 'recent'], rightbar: ['ghrepo', 'toc'] },

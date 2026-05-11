@@ -1,0 +1,17 @@
+---
+import LoveLayout from '../components/explore-layouts/love.astro';
+import { getExploreInternalItemByHref, getExploreShellLayout } from '../config/explore';
+import { SITE_TITLE } from '../consts';
+import StellarShell from '../layouts/StellarShell.astro';
+import * as styles from '../styles/explore.css';
+
+const item = getExploreInternalItemByHref('/love/');
+
+if (!item) {
+	throw new Error('Explore item for /love/ was not found.');
+}
+---
+
+<StellarShell title={`${item.title} · ${SITE_TITLE}`} description={item.description} siteTree="explore" layout={getExploreShellLayout(item)} mainClass={styles.pageMain}>
+	<LoveLayout item={item} />
+</StellarShell>

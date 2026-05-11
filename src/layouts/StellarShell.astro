@@ -4,6 +4,7 @@ import StellarLeftSidebar from '../components/StellarLeftSidebar.astro';
 import StellarIcon from '../components/StellarIcon.astro';
 import StellarPageFooter from '../components/StellarPageFooter.astro';
 import StellarRightSidebar from '../components/StellarRightSidebar.astro';
+import { resolveStellarLayout, type StellarLayoutInput } from '../config/stellar-layouts';
 import { resolveShellConfig, type MenuId, type SidebarValue, type SiteTreeKey } from '../config/stellar';
 import * as styles from './StellarShell.css';
 
@@ -17,14 +18,21 @@ interface Props {
 	leftbar?: SidebarValue;
 	rightbar?: SidebarValue;
 	tocHeadings?: { depth: number; slug: string; text: string }[];
+	layout?: StellarLayoutInput;
 }
 
-const { title, description, lang = 'en', mainClass, siteTree = 'page', menuId, leftbar, rightbar, tocHeadings = [] } = Astro.props;
+const { title, description, lang = 'en', mainClass, siteTree = 'page', menuId, leftbar, rightbar, tocHeadings = [], layout } = Astro.props;
 const hasLead = Astro.slots.has('lead');
 const hasLeftbar = Astro.slots.has('leftbar');
 const hasRightbar = Astro.slots.has('rightbar');
 const shellConfig = resolveShellConfig(siteTree, { menuId, leftbar, rightbar });
-const hasRightbarContent = shellConfig.rightbar.length > 0 || hasRightbar;
+const layoutConfig = resolveStellarLayout(layout);
+const showLeftbar = layoutConfig.leftbar?.visible !== false;
+const showRightbar = layoutConfig.rightbar?.visible !== false;
+const showFooter = layoutConfig.footer?.visible !== false;
+const hasRightbarContent = showRightbar && (shellConfig.rightbar.length > 0 || hasRightbar);
+const showBackground = layoutConfig.name !== 'blank';
+const showFloatPanel = showLeftbar || hasRightbarContent;
 ---
 
 <!doctype html>
@@ -33,39 +41,59 @@ const hasRightbarContent = shellConfig.rightbar.length > 0 || hasRightbar;
 		<BaseHead title={title} description={description} />
 	</head>
 	<body class={styles.body}>
-		<div class={styles.background} aria-hidden="true">
-			<div class={styles.glowLeft}></div>
-			<div class={styles.glowRight}></div>
-		</div>
-		<div class={styles.shell} data-stellar-shell>
-			<aside class={styles.left}>
-				<StellarLeftSidebar menuId={shellConfig.menuId} widgets={shellConfig.leftbar} />
-				{hasLeftbar && <slot name="leftbar" />}
-			</aside>
+		{
+			showBackground && (
+				<div class={styles.background} aria-hidden="true">
+					<div class={styles.glowLeft}></div>
+					<div class={styles.glowRight}></div>
+				</div>
+			)
+		}
+		<div class={styles.shell} data-stellar-shell data-layout={layoutConfig.name} data-layout-motion={layoutConfig.animation?.preset} style={layoutConfig.style}>
+			{
+				showLeftbar && (
+					<aside class={styles.left}>
+						<StellarLeftSidebar menuId={shellConfig.menuId} widgets={shellConfig.leftbar} />
+						{hasLeftbar && <slot name="leftbar" />}
+					</aside>
+				)
+			}
 			<main class={styles.mainArea}>
 				<div class:list={[styles.mainContent, mainClass]}>
 					{hasLead && <div class={styles.lead}><slot name="lead" /></div>}
 					<slot />
-					<StellarPageFooter />
+					{showFooter && <StellarPageFooter />}
 				</div>
 			</main>
-			<aside class={styles.right}>
-				<StellarRightSidebar widgets={shellConfig.rightbar} headings={tocHeadings} />
-				{hasRightbar && <slot name="rightbar" />}
-			</aside>
-			<button class={styles.mainMask} type="button" data-sidebar-dismiss aria-label="Close sidebar"></button>
-			<div class={styles.floatPanel}>
-				{
-					hasRightbarContent && (
-						<button class:list={[styles.floatButton, styles.rightbarToggle]} type="button" data-sidebar-toggle="rightbar" aria-label="Toggle right sidebar">
-							<StellarIcon name="default:rightbar" class={styles.floatIcon} />
-						</button>
-					)
-				}
-				<button class:list={[styles.floatButton, styles.leftbarToggle]} type="button" data-sidebar-toggle="leftbar" aria-label="Toggle left sidebar">
-					<StellarIcon name="default:leftbar" class={styles.floatIcon} />
-				</button>
-			</div>
+			{
+				showRightbar && (
+					<aside class={styles.right}>
+						<StellarRightSidebar widgets={shellConfig.rightbar} headings={tocHeadings} />
+						{hasRightbar && <slot name="rightbar" />}
+					</aside>
+				)
+			}
+			{showFloatPanel && <button class={styles.mainMask} type="button" data-sidebar-dismiss aria-label="Close sidebar"></button>}
+			{
+				showFloatPanel && (
+					<div class={styles.floatPanel}>
+						{
+							hasRightbarContent && (
+								<button class:list={[styles.floatButton, styles.rightbarToggle]} type="button" data-sidebar-toggle="rightbar" aria-label="Toggle right sidebar">
+									<StellarIcon name="default:rightbar" class={styles.floatIcon} />
+								</button>
+							)
+						}
+						{
+							showLeftbar && (
+								<button class:list={[styles.floatButton, styles.leftbarToggle]} type="button" data-sidebar-toggle="leftbar" aria-label="Toggle left sidebar">
+									<StellarIcon name="default:leftbar" class={styles.floatIcon} />
+								</button>
+							)
+						}
+					</div>
+				)
+			}
 		</div>
 		<script is:inline>
 			(() => {

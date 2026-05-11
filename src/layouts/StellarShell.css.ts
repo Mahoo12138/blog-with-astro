@@ -1,8 +1,23 @@
-import { style } from '@vanilla-extract/css';
+import { keyframes, style } from '@vanilla-extract/css';
 import { breakpoints, vars } from '../styles/theme.css';
 
 const stellarGapMargin = '16px';
 const stellarSidebarWidth = '288px';
+
+const fadeUp = keyframes({
+	from: { opacity: 0, transform: 'translate3d(0, 12px, 0)' },
+	to: { opacity: 1, transform: 'translate3d(0, 0, 0)' },
+});
+
+const slideLeft = keyframes({
+	from: { opacity: 0, transform: 'translate3d(16px, 0, 0)' },
+	to: { opacity: 1, transform: 'translate3d(0, 0, 0)' },
+});
+
+const scaleIn = keyframes({
+	from: { opacity: 0, transform: 'scale(0.985)' },
+	to: { opacity: 1, transform: 'scale(1)' },
+});
 
 export const body = style({
 	minHeight: '100vh',
@@ -47,40 +62,65 @@ export const shell = style({
 	margin: '0 auto',
 	padding: 0,
 	display: 'grid',
-	gridTemplateColumns: '1fr minmax(200px, 720px) 1fr',
-	gap: '64px',
+	gridTemplateColumns: 'var(--stellar-layout-columns, 1fr minmax(200px, 720px) 1fr)',
+	gap: 'var(--stellar-shell-gap, 64px)',
 	alignItems: 'start',
+	selectors: {
+		'&[data-layout="blank"]': {
+			width: '100%',
+			gridTemplateColumns: 'minmax(0, 1fr)',
+			gap: 0,
+		},
+	},
 	'@media': {
 		'screen and (min-width: 2048px)': {
-			gridTemplateColumns: '1fr minmax(200px, 780px) 1fr',
+			vars: {
+				'--stellar-main-width': 'var(--stellar-main-wide-width, 780px)',
+			},
 		},
 		'screen and (min-width: 3840px)': {
-			gridTemplateColumns: '1fr minmax(200px, 860px) 1fr',
+			vars: {
+				'--stellar-main-width': 'var(--stellar-main-ultra-width, 860px)',
+			},
 		},
 		'screen and (max-width: 1440px)': {
-			gap: '32px',
+			gap: 'var(--stellar-shell-compact-gap, 32px)',
 		},
 		/* 平板：隐藏两侧栏，主栏撑满 */
 		[`screen and (max-width: ${breakpoints.laptop})`]: {
 			width: 'min(100%, calc(100% - 1rem))',
-			gridTemplateColumns: `${stellarSidebarWidth} minmax(0, 720px)`,
+			gridTemplateColumns: `var(--stellar-sidebar-width, ${stellarSidebarWidth}) minmax(0, var(--stellar-main-width, 720px))`,
 			gap: stellarGapMargin,
 			padding: 0,
+			selectors: {
+				'&[data-layout="blank"]': {
+					width: '100%',
+					gridTemplateColumns: 'minmax(0, 1fr)',
+					gap: 0,
+				},
+			},
 		},
 		[`screen and (max-width: ${breakpoints.mobile})`]: {
 			display: 'block',
 			width: 'min(100%, calc(100% - 1rem))',
+			selectors: {
+				'&[data-layout="blank"]': {
+					width: '100%',
+				},
+			},
 		},
 	},
 });
 
 /* 左侧栏：固定宽度，靠右对齐，吸顶 —— 照抄 .l_left */
 export const left = style({
-	width: stellarSidebarWidth,
+	gridColumn: '1',
+	width: `var(--stellar-sidebar-width, ${stellarSidebarWidth})`,
 	justifySelf: 'right',
 	position: 'sticky',
 	top: `calc(${stellarGapMargin} * 2)`,
 	margin: `calc(${stellarGapMargin} * 2) ${stellarGapMargin}`,
+	transform: 'translateX(var(--stellar-left-shift, 0px))',
 	alignSelf: 'start',
 	zIndex: 8,
 	'@media': {
@@ -104,10 +144,17 @@ export const left = style({
 });
 
 export const mainArea = style({
+	gridColumn: '2',
 	width: '100%',
 	minWidth: 0,
 	margin: 0,
-	padding: `calc(${stellarGapMargin} * 2) 0 calc(${stellarGapMargin} + 16px)`,
+	padding: `var(--stellar-main-padding-top, calc(${stellarGapMargin} * 2)) 0 var(--stellar-main-padding-bottom, calc(${stellarGapMargin} + 16px))`,
+	selectors: {
+		[`${shell}[data-layout="blank"] &`]: {
+			gridColumn: '1',
+			padding: 0,
+		},
+	},
 	'@media': {
 		[`screen and (max-width: ${breakpoints.mobile})`]: {
 			paddingTop: 0,
@@ -117,6 +164,17 @@ export const mainArea = style({
 
 export const mainContent = style({
 	minWidth: 0,
+	selectors: {
+		[`${shell}[data-layout-motion='fade-up'] &`]: {
+			animation: `${fadeUp} var(--stellar-layout-duration, 360ms) var(--stellar-layout-easing, ease) var(--stellar-layout-delay, 0ms) both`,
+		},
+		[`${shell}[data-layout-motion='slide-left'] &`]: {
+			animation: `${slideLeft} var(--stellar-layout-duration, 360ms) var(--stellar-layout-easing, ease) var(--stellar-layout-delay, 0ms) both`,
+		},
+		[`${shell}[data-layout-motion='scale-in'] &`]: {
+			animation: `${scaleIn} var(--stellar-layout-duration, 360ms) var(--stellar-layout-easing, ease) var(--stellar-layout-delay, 0ms) both`,
+		},
+	},
 });
 
 export const lead = style({
@@ -125,11 +183,13 @@ export const lead = style({
 
 /* 右侧栏：固定宽度，靠左对齐，吸顶 —— 照抄 .l_right */
 export const right = style({
-	width: stellarSidebarWidth,
+	gridColumn: '3',
+	width: `var(--stellar-rightbar-width, ${stellarSidebarWidth})`,
 	justifySelf: 'left',
 	position: 'sticky',
 	top: `calc(${stellarGapMargin} * 2)`,
 	margin: `calc(${stellarGapMargin} * 2) 0`,
+	transform: 'translateX(var(--stellar-right-shift, 0px))',
 	alignSelf: 'start',
 	zIndex: 8,
 	'@media': {

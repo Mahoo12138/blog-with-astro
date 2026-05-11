@@ -1,0 +1,50 @@
+---
+import { Image } from 'astro:assets';
+import PhotoOne from '../../assets/blog-placeholder-1.jpg';
+import PhotoTwo from '../../assets/blog-placeholder-2.jpg';
+import PhotoThree from '../../assets/blog-placeholder-3.jpg';
+import PhotoFour from '../../assets/blog-placeholder-4.jpg';
+import PhotoFive from '../../assets/blog-placeholder-5.jpg';
+import type { ExploreInternalItem } from '../../config/explore';
+import * as styles from '../../styles/exploreLayouts.css';
+
+interface Props {
+	item: ExploreInternalItem;
+}
+
+const { item } = Astro.props;
+const photos = [
+	{ src: PhotoOne, title: '窗边的光', meta: '2026 · 日常' },
+	{ src: PhotoTwo, title: '步行片刻', meta: '2026 · 城市' },
+	{ src: PhotoThree, title: '晚风经过', meta: '2026 · 旅途' },
+	{ src: PhotoFour, title: '桌面小景', meta: '2026 · 生活' },
+	{ src: PhotoFive, title: '晴天留存', meta: '2026 · 记录' },
+];
+---
+
+<section class={styles.galleryFrame}>
+	<header class={styles.galleryHeader}>
+		<div>
+			<p class={styles.kicker}>Gallery</p>
+			<h1 class={styles.galleryTitle}>{item.title}</h1>
+			<p class={styles.galleryDescription}>{item.description}</p>
+		</div>
+		<div class={styles.galleryMeta}>
+			<span class={styles.galleryMetaCount}>{photos.length}</span>
+			<small class={styles.galleryMetaLabel}>photos</small>
+		</div>
+	</header>
+	<div class={styles.galleryGrid}>
+		{
+			photos.map((photo, index) => (
+				<figure class:list={[styles.galleryTile, index === 0 && styles.galleryTileFeature]}>
+					<Image class={styles.galleryImage} src={photo.src} alt={photo.title} width={index === 0 ? 960 : 520} height={index === 0 ? 680 : 420} />
+					<figcaption class={styles.galleryCaption}>
+						<strong class={styles.galleryCaptionTitle}>{photo.title}</strong>
+						<span class={styles.galleryCaptionMeta}>{photo.meta}</span>
+					</figcaption>
+				</figure>
+			))
+		}
+	</div>
+</section>

@@ -1,17 +1,901 @@
 ---
-import LoveLayout from '../components/explore-layouts/love.astro';
-import { getExploreInternalItemByHref, getExploreShellLayout } from '../config/explore';
-import { SITE_TITLE } from '../consts';
-import StellarShell from '../layouts/StellarShell.astro';
-import * as styles from '../styles/explore.css';
+import { getExploreInternalItemByHref } from '../config/explore';
+import ExploreShell from '../layouts/ExploreShell.astro';
 
 const item = getExploreInternalItemByHref('/love/');
 
 if (!item) {
 	throw new Error('Explore item for /love/ was not found.');
 }
+
+// ---- 配置区域 ----
+const START_DATE = '2025-12-06'; // 恋爱开始日期，格式 YYYY-MM-DD
+
+const timeline = [
+	{ date: '2025-12-06', emoji: '💘', title: '在一起啦', desc: '这一天，我们决定在一起，开始了属于我们的故事。' },
+	{ date: '2026-03-20', emoji: '🌸', title: '第一次约会', desc: '春日里，我们手牵手逛了公园，吃了很多好吃的。' },
+	{ date: '2026-05-02', emoji: '🚆', title: '第一次旅行', desc: '一起去了南京，看了城墙和鸡鸣寺，拍了好多好看的照片。' },
+	// { date: '2026-05-20', emoji: '🎂', title: '520 纪念', desc: '收到了你亲手做的蛋糕，甜到心里去了。' },
+	// { date: '2026-07-07', emoji: '🎋', title: '七夕快乐', desc: '一起在桥上许愿，星空好美，你比星星还亮。' },
+	// { date: '2026-11-11', emoji: '🎁', title: '双十一互换礼物', desc: '互相知道对方想要什么，礼物超级合心意！' },
+	// { date: '2027-02-14', emoji: '🌹', title: '一周年纪念日', desc: '整整一年啦，感谢你一直在我身边。' },
+	// { date: '2027-08-18', emoji: '✈️', title: '第一次旅行', desc: '一起去了大理，看了苍山洱海，拍了好多好看的照片。' },
+	// { date: '2028-02-14', emoji: '💍', title: '两周年纪念日', desc: '两年了，爱你越来越深，期待更长的未来。' },
+];
+
+const activities = [
+	{ emoji: '🎬', label: '一起看电影', count: 4 },
+	{ emoji: '🍜', label: '一起吃饭', count: '20+' },
+	{ emoji: '🎮', label: '一起打游戏', count: '999+' },
+	{ emoji: '📸', label: '拍了多少张照片', count: '400+' },
+	{ emoji: '🚗', label: '一起出游', count: 2 },
+	{ emoji: '📞', label: '打过视频电话（次）', count: '999+' },
+	{ emoji: '🎁', label: '互赠礼物', count: 3 },
+	{ emoji: '☕', label: '一起喝奶茶', count: '10+' },
+];
+
+const noteMessages = [
+	{ text: '你是我每天睁开眼睛最想见到的人。' },
+	{ text: '有你陪着的日子，连失眠都变得可爱了。' },
+	{ text: '谢谢你把最好的时光都给了我。' },
+	{ text: '下辈子，还要找到你。' },
+	{ text: '想把每个普通的黄昏都分你一半。' },
+	{ text: '你一笑，我就觉得今天已经很好了。' },
+	{ text: '喜欢和你慢慢走，也喜欢和你突然奔跑。' },
+	{ text: '你的名字，是我心里最柔软的开关。' },
+	{ text: '今天也有偷偷多喜欢你一点。' },
+];
+const notesWithMeta = noteMessages.map((note, index) => ({
+	...note,
+	num: (index + 1 < 10 ? '0' : '') + (index + 1),
+	cls: index % 2 === 0 ? 'whisper whisper-a' : 'whisper whisper-b',
+	fromKind: index % 2 === 0 ? 'me' : 'you',
+	duplicate: false,
+}));
+const noteLoop = notesWithMeta;
+
+const heroAvatarGroups = [
+	{ me: '/avatar/a-me.webp', you: '/avatar/a-you.webp' },
+	{ me: '/avatar/b-me.webp', you: '/avatar/b-you.webp' },
+	{ me: '/avatar/c-me.webp', you: '/avatar/c-you.webp' },
+];
 ---
 
-<StellarShell title={`${item.title} · ${SITE_TITLE}`} description={item.description} siteTree="explore" layout={getExploreShellLayout(item)} mainClass={styles.pageMain}>
-	<LoveLayout item={item} />
-</StellarShell>
+<ExploreShell item={item}>
+	<div class="love-page">
+
+		<!-- Floating petals -->
+		<div class="petals" aria-hidden="true">
+			<span class="petal petal-1">🌸</span>
+			<span class="petal petal-2">🌸</span>
+			<span class="petal petal-3">🌸</span>
+			<span class="petal petal-4">🌸</span>
+			<span class="petal petal-5">🌸</span>
+			<span class="petal petal-6">🌸</span>
+		</div>
+
+		<!-- Hero -->
+		<section class="hero">
+			<div class="hero-inner">
+				<p class="hero-eyebrow">Love Story · 恋爱纪念册</p>
+				<h1 class="hero-title">我们的<br/>故事</h1>
+				<p class="hero-desc">每一天都是礼物，每一刻都值得珍藏</p>
+			</div>
+			<div class="hero-couple" aria-hidden="true">
+				<img class="hero-avatar hero-avatar-me" id="heroAvatarMe"
+					src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
+					alt="" width="96" height="96" />
+				<div class="hero-heart">
+					<svg viewBox="0 0 160 148" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path d="M80 136 C46 110 8 86 8 52 C8 30 26 14 48 14 C62 14 74 22 80 34 C86 22 98 14 112 14 C134 14 152 30 152 52 C152 86 114 110 80 136Z" fill="oklch(72% 0.21 358)"/>
+					</svg>
+				</div>
+				<img class="hero-avatar hero-avatar-you" id="heroAvatarYou"
+					src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
+					alt="" width="96" height="96" />
+			</div>
+		</section>
+
+		<!-- Duration prose -->
+		<section class="duration-section">
+			<p class="duration-caption">从 {START_DATE} 至今</p>
+			<p class="duration-prose" id="durationProse">正在计算……</p>
+			<div class="duration-ticker">
+				<span id="tickSecs" class="tick-secs">00</span>
+				<span class="tick-label">秒</span>
+				<span class="tick-sep">·</span>
+				<span id="tickMins" class="tick-secs">00</span>
+				<span class="tick-label">分</span>
+				<span class="tick-sep">·</span>
+				<span id="tickHours" class="tick-secs">00</span>
+				<span class="tick-label">时</span>
+			</div>
+		</section>
+
+		<!-- Timeline -->
+		<section class="timeline-section">
+			<h2 class="section-heading">我们走过的路</h2>
+			<ol class="timeline" role="list">
+				{timeline.map(ev => (
+					<li class="tl-item">
+						<div class="tl-marker" aria-hidden="true"></div>
+						<div class="tl-body">
+							<time class="tl-date" datetime={ev.date}>{ev.date}</time>
+							<h3 class="tl-title">{ev.emoji} {ev.title}</h3>
+							<p class="tl-desc">{ev.desc}</p>
+						</div>
+					</li>
+				))}
+			</ol>
+		</section>
+
+		<!-- Activities — ledger layout -->
+		<section class="ledger-section">
+			<h2 class="section-heading">我们一起做了什么</h2>
+			<dl class="ledger">
+				{activities.map(a => (
+					<div class="ledger-row">
+						<dt class="ledger-label"><span class="ledger-emoji">{a.emoji}</span>{a.label}</dt>
+						<dd class="ledger-value">{a.count.toLocaleString()}</dd>
+					</div>
+				))}
+			</dl>
+		</section>
+
+		<!-- Paper notes -->
+		<section class="whispers-section">
+			<h2 class="section-heading">心动纸条墙</h2>
+			<div class="notes-window" tabindex="0" aria-label="心动纸条墙">
+				<ul class="whispers" role="list">
+					{noteLoop.map((note) => (
+						<li class={note.cls} data-note-id={note.num}>
+							<div class="note-tape" aria-hidden="true"></div>
+							<p class="whisper-text">{note.text}</p>
+							<img class="note-from" data-from-kind={note.fromKind}
+								src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
+								alt="" width="26" height="26" aria-hidden="true" />
+						</li>
+					))}
+				</ul>
+			</div>
+		</section>
+
+		<!-- Footer -->
+		<footer class="love-footer" role="contentinfo">
+			<svg class="footer-heart" viewBox="0 0 24 22" fill="none" aria-hidden="true">
+				<path d="M12 20 C8 17 1 13 1 7 C1 4 3.5 2 7 2 C9.2 2 11 3.4 12 5.2 C13 3.4 14.8 2 17 2 C20.5 2 23 4 23 7 C23 13 16 17 12 20Z" fill="oklch(72% 0.21 358)"/>
+			</svg>
+			<p>永远爱你</p>
+		</footer>
+
+	</div>
+</ExploreShell>
+
+<script define:vars={{ START_DATE }}>
+	function diff() {
+		const start = new Date(START_DATE);
+		const now = new Date();
+
+		let years = now.getFullYear() - start.getFullYear();
+		let months = now.getMonth() - start.getMonth();
+		if (months < 0) { years--; months += 12; }
+		let days = now.getDate() - start.getDate();
+		if (days < 0) {
+			months--;
+			if (months < 0) { years--; months += 12; }
+			days += new Date(now.getFullYear(), now.getMonth(), 0).getDate();
+		}
+
+		// total seconds elapsed for the ticker
+		const totalSec = Math.floor((now - start) / 1000);
+		const secs  = totalSec % 60;
+		const mins  = Math.floor(totalSec / 60) % 60;
+		const hours = Math.floor(totalSec / 3600) % 24;
+
+		return { years, months, days, hours, mins, secs };
+	}
+
+	function render() {
+		const { years, months, days, hours, mins, secs } = diff();
+		const prose = document.getElementById('durationProse');
+		const parts = [];
+		if (years)  parts.push(`${years} 年`);
+		if (months) parts.push(`${months} 个月`);
+		if (days)   parts.push(`${days} 天`);
+		if (prose) prose.textContent = parts.length ? parts.join(' ') : '今天就是纪念日！';
+
+		const pad = n => String(n).padStart(2, '0');
+		const s = document.getElementById('tickSecs');
+		const m = document.getElementById('tickMins');
+		const h = document.getElementById('tickHours');
+		if (s) s.textContent = pad(secs);
+		if (m) m.textContent = pad(mins);
+		if (h) h.textContent = pad(hours);
+	}
+
+	render();
+	setInterval(render, 1000);
+</script>
+
+<script>
+	(function () {
+		function makeObserver(onEnter: (target: Element) => void, opts?: IntersectionObserverInit) {
+			return new IntersectionObserver(function (entries, obs) {
+				entries.forEach(function (entry) {
+					if (entry.isIntersecting) {
+						onEnter(entry.target);
+						obs.unobserve(entry.target);
+					}
+				});
+			}, opts || { threshold: 0.2 });
+		}
+
+		function shuffle<T>(items: T[]) {
+			for (var index = items.length - 1; index > 0; index--) {
+				var swapIndex = Math.floor(Math.random() * (index + 1));
+				var value = items[index];
+				items[index] = items[swapIndex];
+				items[swapIndex] = value;
+			}
+			return items;
+		}
+
+		function placeWhispers(container: HTMLElement) {
+			var whispers = Array.from(container.querySelectorAll<HTMLElement>('.whisper'));
+			if (!whispers.length) return;
+
+			var rect = container.getBoundingClientRect();
+			var width = Math.max(rect.width, 320);
+			var cardWidth = 218;
+			var cardHeight = 152;
+			var columns = width < 560 ? 2 : width < 900 ? 3 : 4;
+			var rows = Math.ceil(whispers.length / columns);
+			var cellWidth = width / columns;
+			var cellHeight = 164;
+			var positions = [];
+
+			for (var row = 0; row < rows; row++) {
+				for (var column = 0; column < columns; column++) {
+					positions.push({ row: row, column: column });
+				}
+			}
+
+			shuffle(positions);
+			container.style.minHeight = Math.max(rows * cellHeight + 40, cardHeight + 48) + 'px';
+
+			whispers.forEach(function (card, index) {
+				var slot = positions[index];
+				if (!slot) return;
+
+				var maxLeft = Math.max(width - cardWidth, 0);
+				var baseLeft = slot.column * cellWidth + (cellWidth - cardWidth) / 2;
+				var baseTop = slot.row * cellHeight + 10;
+				var jitterX = (Math.random() - 0.5) * Math.min(32, cellWidth * 0.22);
+				var jitterY = (Math.random() - 0.5) * 26;
+				var left = Math.min(Math.max(baseLeft + jitterX, 0), maxLeft);
+				var top = Math.max(baseTop + jitterY, 0);
+
+				card.style.left = left + 'px';
+				card.style.top = top + 'px';
+				card.style.zIndex = String(index + 1);
+				card.style.setProperty('--rot', ((Math.random() * 6) - 3).toFixed(2) + 'deg');
+				card.classList.remove('is-raised');
+				card.onclick = function () {
+					topZ += 1;
+					card.style.zIndex = String(topZ);
+					whispers.forEach(function (other) {
+						other.classList.remove('is-raised');
+					});
+					card.classList.add('is-raised');
+				};
+				card.onmouseenter = function () {
+					topZ += 1;
+					card.style.zIndex = String(topZ);
+					card.classList.add('is-raised');
+				};
+				card.onmouseleave = function () {
+					card.classList.remove('is-raised');
+				};
+			});
+		}
+
+		var topZ = 20;
+
+		document.addEventListener('DOMContentLoaded', function () {
+			// Couple avatar block
+			var couple = document.querySelector('.whispers-couple');
+			if (couple) {
+				makeObserver(function (el: Element) {
+					el.classList.add('is-visible');
+				}, { threshold: 0.6 }).observe(couple);
+			}
+
+			var notesWindow = document.querySelector<HTMLElement>('.notes-window');
+			if (notesWindow) {
+				placeWhispers(notesWindow);
+				window.addEventListener('resize', function () {
+					placeWhispers(notesWindow);
+				});
+			}
+
+			// Notes are driven by CSS marquee — no JS scroll needed
+		});
+	})();
+</script>
+
+<script define:vars={{ heroAvatarGroups }}>
+	(function () {
+		var groups = heroAvatarGroups;
+		var group = groups[Math.floor(Math.random() * groups.length)];
+		function loadAvatar(id, src) {
+			var el = document.getElementById(id);
+			if (!el) return;
+			el.src = src;
+			var onLoad = function () { el.classList.add('loaded'); };
+			if (el.complete && el.naturalWidth) { onLoad(); }
+			else { el.addEventListener('load', onLoad, { once: true }); }
+		}
+
+		function applyGroup() {
+			loadAvatar('heroAvatarMe',  group.me);
+			loadAvatar('heroAvatarYou', group.you);
+			loadAvatar('wcAvatarMe',    group.me);
+			loadAvatar('wcAvatarYou',   group.you);
+			document.querySelectorAll('.note-from[data-from-kind]').forEach((el) => {
+				var kind = el.dataset.fromKind;
+				if (!kind) return;
+				loadAvatarEl(el, kind === 'me' ? group.me : group.you);
+			});
+		}
+
+		function loadAvatarEl(el, src) {
+			el.src = src;
+			var onLoad = function () { el.classList.add('loaded'); };
+			if (el.complete && el.naturalWidth) { onLoad(); }
+			else { el.addEventListener('load', onLoad, { once: true }); }
+		}
+
+		if (document.readyState === 'loading') {
+			document.addEventListener('DOMContentLoaded', applyGroup);
+		} else {
+			applyGroup();
+		}
+	})();
+</script>
+
+<style>
+	@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;700;900&family=Gilda+Display&display=swap');
+
+	/* ---- Tokens ---- */
+	.love-page {
+		/* OKLCH palette */
+		--petal:      oklch(72% 0.21 358);     /* rose pink */
+		--petal-soft: oklch(88% 0.09 358);     /* blush */
+		--petal-pale: oklch(97% 0.025 358);    /* off-white blush */
+		--ink:        oklch(22% 0.04 345);     /* warm near-black */
+		--ink-mid:    oklch(46% 0.05 345);     /* body text */
+		--ink-faint:  oklch(66% 0.04 345);     /* captions */
+		--rule:       oklch(88% 0.06 358);     /* borders */
+		--surface:    oklch(98% 0.012 355);    /* card bg */
+		--cream:      oklch(98.5% 0.008 85);   /* page bg */
+
+		/* Typography */
+		--font-display: 'Gilda Display', 'Noto Serif SC', serif;
+		--font-body:    'Noto Serif SC', serif;
+
+		font-family: var(--font-body);
+		font-size: 16px;
+		color: var(--ink);
+		background-color: var(--cream);
+		min-height: 100vh;
+		overflow-x: hidden;
+		position: relative;
+	}
+
+	/* ---- Petals ---- */
+	.petals {
+		position: fixed;
+		inset: 0;
+		pointer-events: none;
+		z-index: 0;
+		overflow: hidden;
+	}
+	.petal {
+		position: absolute;
+		font-size: 1.1rem;
+		opacity: 0;
+		animation: drift linear infinite;
+	}
+	.petal-1 { left: 6%;  animation-duration: 18s; animation-delay:  0s; }
+	.petal-2 { left: 21%; animation-duration: 14s; animation-delay:  3s; }
+	.petal-3 { left: 38%; animation-duration: 20s; animation-delay:  7s; }
+	.petal-4 { left: 55%; animation-duration: 16s; animation-delay:  1s; }
+	.petal-5 { left: 72%; animation-duration: 22s; animation-delay:  5s; }
+	.petal-6 { left: 88%; animation-duration: 15s; animation-delay: 10s; }
+
+	@keyframes drift {
+		0%   { transform: translateY(105vh) rotate(-10deg); opacity: 0; }
+		8%   { opacity: 0.55; }
+		88%  { opacity: 0.35; }
+		100% { transform: translateY(-8vh) rotate(30deg); opacity: 0; }
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.petal { animation: none; }
+	}
+
+	/* ---- Shared layout ---- */
+	.love-page > section,
+	.love-page > footer {
+		position: relative;
+		z-index: 1;
+		max-width: 800px;
+		margin-inline: auto;
+		padding-inline: clamp(20px, 6vw, 56px);
+	}
+
+	/* ---- Section heading ---- */
+	.section-heading {
+		font-family: var(--font-display);
+		font-size: clamp(18px, 3vw, 24px);
+		font-weight: 400;
+		letter-spacing: 0.04em;
+		color: var(--petal);
+		margin: 0 0 2rem;
+		padding-bottom: 0.6rem;
+		border-bottom: 1px solid var(--rule);
+	}
+
+	/* ---- Hero ---- */
+	.hero {
+		padding-top: clamp(56px, 10vw, 112px);
+		padding-bottom: clamp(48px, 8vw, 96px);
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: clamp(24px, 6vw, 64px);
+	}
+	.hero-inner { flex: 1; min-width: 0; }
+	.hero-eyebrow {
+		font-size: 11px;
+		letter-spacing: 0.18em;
+		text-transform: uppercase;
+		color: var(--petal);
+		font-weight: 700;
+		margin: 0 0 1.2rem;
+	}
+	.hero-title {
+		font-family: var(--font-display);
+		font-size: clamp(52px, 10vw, 108px);
+		font-weight: 400;
+		line-height: 0.95;
+		letter-spacing: -0.02em;
+		margin: 0 0 1.4rem;
+		color: var(--ink);
+	}
+	.hero-desc {
+		font-size: 15px;
+		line-height: 1.8;
+		color: var(--ink-mid);
+		margin: 0;
+		max-width: 34ch;
+		font-style: italic;
+	}
+	/* Hero couple: avatars + heart */
+	.hero-couple {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		flex-shrink: 0;
+		margin-top: clamp(10px, 1.8vw, 20px);
+	}
+	.hero-avatar {
+		width: clamp(72px, 11vw, 100px);
+		height: clamp(72px, 11vw, 100px);
+		border-radius: 50%;
+		object-fit: cover;
+		display: block;
+		border: 2.5px solid oklch(92% 0.05 358);
+		box-shadow:
+			0 0 0 4px oklch(98% 0.015 358),
+			0 6px 22px oklch(72% 0.21 358 / 0.18);
+		opacity: 0;
+		transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+		            transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+	}
+	.hero-avatar.loaded { opacity: 1; }
+	.hero-avatar-me  { transform: translateY(-7px); }
+	.hero-avatar-you { transform: translateY( 7px); }
+	.hero-avatar-me.loaded  { transform: translateY(-7px); }
+	.hero-avatar-you.loaded { transform: translateY( 7px); }
+	.hero-avatar:hover { transform: translateY(0) scale(1.06) !important; }
+	.hero-heart {
+		width: clamp(36px, 6vw, 56px);
+		flex-shrink: 0;
+		animation: heartbeat 3.6s ease-in-out infinite;
+	}
+	@keyframes heartbeat {
+		0%, 100% { transform: scale(1); }
+		14%       { transform: scale(1.12); }
+		28%       { transform: scale(1); }
+		42%       { transform: scale(1.06); }
+		56%       { transform: scale(1); }
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.hero-heart { animation: none; }
+	}
+	@media (max-width: 500px) {
+		.hero { flex-direction: column-reverse; gap: 1.4rem; }
+		.hero-couple { gap: 8px; }
+		.hero-avatar { width: 62px; height: 62px; }
+		.hero-couple { margin-top: 0; }
+		.hero-heart { width: 30px; }
+	}
+
+	/* ---- Duration ---- */
+	.duration-section {
+		padding-bottom: clamp(48px, 7vw, 88px);
+		border-bottom: 1px solid var(--rule);
+		margin-bottom: clamp(48px, 7vw, 88px);
+	}
+	.duration-caption {
+		font-size: 11px;
+		letter-spacing: 0.18em;
+		text-transform: uppercase;
+		color: var(--ink-faint);
+		margin: 0 0 0.5rem;
+	}
+	.duration-prose {
+		font-family: var(--font-display);
+		font-size: clamp(32px, 6vw, 56px);
+		font-weight: 400;
+		line-height: 1.1;
+		color: var(--ink);
+		margin: 0 0 1.8rem;
+		letter-spacing: -0.01em;
+	}
+	.duration-ticker {
+		display: flex;
+		align-items: baseline;
+		gap: 6px;
+		font-variant-numeric: tabular-nums;
+	}
+	.tick-secs {
+		font-size: 28px;
+		font-weight: 700;
+		color: var(--petal);
+		line-height: 1;
+		font-family: var(--font-display);
+		min-width: 2ch;
+		text-align: center;
+	}
+	.tick-label {
+		font-size: 11px;
+		letter-spacing: 0.1em;
+		color: var(--ink-faint);
+		text-transform: uppercase;
+	}
+	.tick-sep {
+		font-size: 20px;
+		color: var(--rule);
+		margin-inline: 4px;
+	}
+
+	/* ---- Ledger (activities) ---- */
+	.ledger-section {
+		padding-bottom: clamp(48px, 7vw, 88px);
+		border-bottom: 1px solid var(--rule);
+		margin-bottom: clamp(48px, 7vw, 88px);
+	}
+	.ledger {
+		margin: 0;
+		display: flex;
+		flex-direction: column;
+	}
+	.ledger-row {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: 1.5rem;
+		padding: 0.9rem 0;
+		border-bottom: 1px solid var(--rule);
+		transition: background-color 0.15s ease;
+	}
+	.ledger-row:last-child { border-bottom: none; }
+	.ledger-row:hover { background-color: var(--petal-pale); margin-inline: -12px; padding-inline: 12px; }
+	.ledger-label {
+		font-size: 14px;
+		color: var(--ink-mid);
+		display: flex;
+		align-items: baseline;
+		gap: 0.6rem;
+		line-height: 1.5;
+	}
+	.ledger-emoji { font-size: 1rem; }
+	.ledger-value {
+		font-family: var(--font-display);
+		font-size: clamp(22px, 4vw, 32px);
+		font-weight: 400;
+		color: var(--ink);
+		white-space: nowrap;
+		letter-spacing: -0.02em;
+		font-variant-numeric: tabular-nums;
+		margin: 0;
+	}
+
+	/* ---- Timeline ---- */
+	.timeline-section {
+		padding-bottom: clamp(48px, 7vw, 88px);
+		border-bottom: 1px solid var(--rule);
+		margin-bottom: clamp(48px, 7vw, 88px);
+	}
+	.timeline {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		position: relative;
+	}
+	.timeline::before {
+		content: '';
+		position: absolute;
+		top: 8px;
+		bottom: 8px;
+		left: 7px;
+		width: 1px;
+		background: linear-gradient(to bottom, var(--petal-soft), transparent);
+	}
+	.tl-item {
+		display: flex;
+		gap: 1.4rem;
+		padding-bottom: 2.4rem;
+		position: relative;
+	}
+	.tl-item:last-child { padding-bottom: 0; }
+	.tl-marker {
+		flex-shrink: 0;
+		width: 15px;
+		height: 15px;
+		border-radius: 50%;
+		background-color: var(--surface);
+		border: 2px solid var(--petal);
+		margin-top: 4px;
+		position: relative;
+		z-index: 1;
+		transition: background-color 0.15s ease;
+	}
+	.tl-item:hover .tl-marker { background-color: var(--petal); }
+	.tl-body { flex: 1; min-width: 0; }
+	.tl-date {
+		font-size: 11px;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+		color: var(--ink-faint);
+		display: block;
+		margin-bottom: 0.3rem;
+	}
+	.tl-title {
+		font-family: var(--font-display);
+		font-size: clamp(16px, 2.5vw, 20px);
+		font-weight: 400;
+		color: var(--ink);
+		margin: 0 0 0.4rem;
+		letter-spacing: 0.01em;
+	}
+	.tl-desc {
+		font-size: 14px;
+		line-height: 1.75;
+		color: var(--ink-mid);
+		margin: 0;
+		max-width: 60ch;
+	}
+
+	/* ---- Whispers ---- */
+	.whispers-section {
+		padding-bottom: clamp(48px, 7vw, 88px);
+	}
+
+	/* Couple avatars */
+	.whispers-couple {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		margin-bottom: 3rem;
+		opacity: 0;
+		transform: translateY(20px);
+		transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+		            transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+	}
+	.whispers-couple.is-visible {
+		opacity: 1;
+		transform: none;
+	}
+	.wc-avatar {
+		width: 64px;
+		height: 64px;
+		border-radius: 50%;
+		flex-shrink: 0;
+		overflow: hidden;
+		border: 2.5px solid oklch(92% 0.05 358);
+		box-shadow:
+			0 0 0 3px oklch(98% 0.015 358),
+			0 4px 16px oklch(72% 0.21 358 / 0.22);
+		background-color: oklch(96% 0.015 358);
+	}
+	.wc-avatar img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		display: block;
+		opacity: 0;
+		transition: opacity 0.4s ease;
+	}
+	.wc-avatar img.loaded { opacity: 1; }
+	.wc-avatar-b {
+		box-shadow:
+			0 0 0 3px oklch(98% 0.015 290),
+			0 4px 16px oklch(76% 0.12 290 / 0.22);
+	}
+	.whispers-couple.is-visible .wc-avatar-a {
+		animation: avatar-float 5.4s ease-in-out infinite;
+	}
+	.whispers-couple.is-visible .wc-avatar-b {
+		animation: avatar-float 5.4s ease-in-out infinite;
+		animation-delay: -2.7s;
+	}
+	@keyframes avatar-float {
+		0%, 100% { transform: translateY(0); }
+		50%       { transform: translateY(-6px); }
+	}
+	.wc-connector {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding-inline: 14px;
+	}
+	.wc-heart-icon {
+		width: 20px;
+		height: 20px;
+	}
+	.whispers-couple.is-visible .wc-heart-icon {
+		animation: heartbeat 3.6s ease-in-out infinite;
+		animation-delay: 0.3s;
+	}
+
+	/* Paper notes */
+	.notes-window {
+		position: relative;
+		overflow: visible;
+		padding: 0.4rem;
+		margin-inline: calc(-1 * clamp(20px, 6vw, 56px));
+	}
+	.whispers {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		position: relative;
+		width: 100%;
+		min-height: 560px;
+	}
+	.whisper {
+		--rot: 0deg;
+		width: 218px;
+		flex-shrink: 0;
+		position: absolute;
+		background-color: oklch(97.8% 0.012 82);
+		border-radius: 2px;
+		min-height: 152px;
+		box-shadow:
+			0 1px 3px oklch(22% 0.04 345 / 0.07),
+			0 6px 20px oklch(22% 0.04 345 / 0.09);
+		transform: rotate(var(--rot));
+		transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+		            box-shadow 0.2s ease;
+		cursor: pointer;
+		will-change: transform, left, top;
+	}
+	.whisper:hover,
+	.whisper.is-raised {
+		transform: translateY(-10px) rotate(var(--rot)) scale(1.03);
+		z-index: 2;
+		box-shadow:
+			0 2px 8px oklch(22% 0.04 345 / 0.10),
+			0 14px 36px oklch(22% 0.04 345 / 0.14);
+	}
+	/* Rotation variety */
+	.whisper:nth-child(8n + 1) { --rot: -1.5deg; }
+	.whisper:nth-child(8n + 2) { --rot:  1.2deg; }
+	.whisper:nth-child(8n + 3) { --rot: -0.7deg; }
+	.whisper:nth-child(8n + 4) { --rot:  2.0deg; }
+	.whisper:nth-child(8n + 5) { --rot: -1.1deg; }
+	.whisper:nth-child(8n + 6) { --rot:  0.8deg; }
+	.whisper:nth-child(8n + 7) { --rot:  1.6deg; }
+	.whisper:nth-child(8n + 8) { --rot: -0.4deg; }
+	/* Washi tape top strip */
+	.note-tape {
+		height: 11px;
+		border-radius: 1px 1px 0 0;
+		opacity: 0.65;
+	}
+	.whisper-a .note-tape { background-color: oklch(72% 0.21 358); }
+	.whisper-b .note-tape { background-color: oklch(76% 0.12 290); }
+	.whisper-text {
+		font-size: 15px;
+		line-height: 1.85;
+		color: oklch(38% 0.05 345);
+		font-style: italic;
+		margin: 0;
+		padding: 1.1rem 1.3rem 2.6rem;
+		transition: color 0.2s ease;
+	}
+	.whisper:hover .whisper-text { color: oklch(22% 0.04 345); }
+	/* Attribution badge */
+	.note-from {
+		position: absolute;
+		bottom: 10px;
+		right: 11px;
+		width: 26px;
+		height: 26px;
+		border-radius: 50%;
+		object-fit: cover;
+		display: block;
+		opacity: 0;
+		transition: opacity 0.35s ease;
+		user-select: none;
+	}
+	.note-from.loaded { opacity: 1; }
+	.whisper-a .note-from {
+		box-shadow:
+			0 0 0 2px oklch(98% 0.015 358),
+			0 2px 8px oklch(72% 0.21 358 / 0.22);
+	}
+	.whisper-b .note-from {
+		box-shadow:
+			0 0 0 2px oklch(98% 0.015 290),
+			0 2px 8px oklch(76% 0.12 290 / 0.22);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.notes-window {
+			overflow: visible;
+			margin-inline: 0;
+			mask-image: none;
+			-webkit-mask-image: none;
+		}
+		.whispers {
+				min-height: 0;
+		}
+		.whisper {
+				position: relative;
+				left: auto !important;
+				top: auto !important;
+				width: min(100%, 218px);
+				margin: 0 auto 1rem;
+		}
+		.whispers-couple {
+			opacity: 1;
+			transform: none;
+		}
+		.wc-avatar-a,
+		.wc-avatar-b,
+		.wc-heart-icon { animation: none; }
+	}
+
+	/* ---- Footer ---- */
+	.love-footer {
+		padding: clamp(32px, 6vw, 64px) 0 clamp(48px, 8vw, 96px);
+		text-align: center;
+		color: var(--ink-faint);
+		font-style: italic;
+		font-size: 14px;
+		letter-spacing: 0.06em;
+	}
+	.footer-heart {
+		display: block;
+		width: 28px;
+		margin: 0 auto 0.8rem;
+		animation: heartbeat 3.6s ease-in-out infinite;
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.footer-heart { animation: none; }
+	}
+</style>

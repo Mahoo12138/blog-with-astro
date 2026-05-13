@@ -12,7 +12,7 @@ export default defineConfig({
 	site: 'https://example.com',
 	integrations: [mdx(), react(), sitemap()],
 	vite: {
-		plugins: [vanillaExtractPlugin()],
+		plugins: [vanillaExtractPlugin({ identifiers: 'debug' })],
 	},
 	fonts: [
 		{

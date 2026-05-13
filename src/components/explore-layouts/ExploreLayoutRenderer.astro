@@ -11,8 +11,8 @@ interface Props {
 const { item } = Astro.props;
 const layouts = {
 	default: DefaultLayout,
-	gallery: GalleryLayout,
-	love: LoveLayout,
+	wide: GalleryLayout,
+	blank: LoveLayout,
 } satisfies Record<ExploreContentLayoutKey, typeof DefaultLayout>;
 const ContentLayout = layouts[item.layout] ?? DefaultLayout;
 ---

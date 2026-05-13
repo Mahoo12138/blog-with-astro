@@ -98,6 +98,10 @@ globalStyle('*', {
 globalStyle('html', {
 	backgroundColor: vars.color.background,
 	scrollBehavior: 'smooth',
+	// @ts-expect-error — scrollbar-gutter not yet in TS CSS types
+	scrollbarGutter: 'stable',
+	scrollbarWidth: 'thin',
+	scrollbarColor: `${vars.color.borderStrong} transparent`,
 });
 
 globalStyle('body', {
@@ -124,16 +128,6 @@ globalStyle('body', {
 	},
 });
 
-globalStyle('main', {
-	width: `min(${vars.layout.listing}, calc(100% - 2rem))`,
-	margin: '0 auto',
-	padding: `${vars.space.xxxl} 0 ${vars.space.section}`,
-	'@media': {
-		[`screen and (max-width: ${breakpoints.tablet})`]: {
-			padding: `${vars.space.xxl} 0 ${vars.space.xxxxl}`,
-		},
-	},
-});
 
 globalStyle('h1, h2, h3, h4, h5, h6', {
 	margin: `0 0 ${vars.space.md}`,
@@ -255,6 +249,25 @@ globalStyle('hr', {
 globalStyle('::selection', {
 	backgroundColor: vars.color.accentSoft,
 	color: vars.color.textStrong,
+});
+
+/* ── 滚动条 (Webkit) ── */
+globalStyle('::-webkit-scrollbar', {
+	width: '6px',
+	height: '6px',
+});
+
+globalStyle('::-webkit-scrollbar-track', {
+	background: 'transparent',
+});
+
+globalStyle('::-webkit-scrollbar-thumb', {
+	background: vars.color.borderStrong,
+	borderRadius: vars.radius.pill,
+});
+
+globalStyle('::-webkit-scrollbar-thumb:hover', {
+	background: vars.color.textMeta,
 });
 
 globalStyle('.sr-only', {

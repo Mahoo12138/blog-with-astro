@@ -1,0 +1,24 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import * as styles from './BlankShell.css';
+
+interface Props {
+	title: string;
+	description: string;
+	lang?: string;
+}
+
+const { title, description, lang = 'en' } = Astro.props;
+---
+
+<!doctype html>
+<html lang={lang}>
+	<head>
+		<BaseHead title={title} description={description} />
+	</head>
+	<body class={styles.body}>
+		<main class={styles.main}>
+			<slot />
+		</main>
+	</body>
+</html>

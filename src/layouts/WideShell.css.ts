@@ -1,8 +1,14 @@
-import { style } from '@vanilla-extract/css';
+import { keyframes, style } from '@vanilla-extract/css';
 import { breakpoints, vars } from '../styles/theme.css';
 
-const stellarGapMargin = '16px';
-const stellarSidebarWidth = '288px';
+const GAP = '40px';
+const COMPACT_GAP = '24px';
+const M = '16px';
+
+const slideLeft = keyframes({
+	from: { opacity: 0, transform: 'translate3d(16px, 0, 0)' },
+	to: { opacity: 1, transform: 'translate3d(0, 0, 0)' },
+});
 
 export const body = style({
 	minHeight: '100vh',
@@ -38,28 +44,29 @@ export const glowRight = style({
 	filter: 'blur(12px)',
 });
 
-/* 三栏：左右各 1fr，中间 minmax(0, 主内容最大宽) —— 照抄原主题 l_body */
+/* 宽版：左栏 + 宽主栏 + 占位列（右侧空白） */
 export const shell = style({
 	position: 'relative',
 	zIndex: 1,
 	width: '100%',
-	maxWidth: '100%',
-	margin: '0 auto',
-	padding: 0,
 	display: 'grid',
-	gridTemplateColumns: '1fr minmax(200px, 720px) 1fr',
-	gap: '64px',
+	gridTemplateColumns: '288px minmax(240px, 960px) minmax(0, 1fr)',
+	gap: GAP,
 	alignItems: 'start',
 	'@media': {
-		'screen and (max-width: 1440px)': {
-			gap: '32px',
+		'screen and (min-width: 2048px)': {
+			gridTemplateColumns: '288px minmax(240px, 1040px) minmax(0, 1fr)',
 		},
-		/* 平板：左栏 + 主栏两列 */
+		'screen and (min-width: 3840px)': {
+			gridTemplateColumns: '288px minmax(240px, 1160px) minmax(0, 1fr)',
+		},
+		'screen and (max-width: 1440px)': {
+			gap: COMPACT_GAP,
+		},
 		[`screen and (max-width: ${breakpoints.laptop})`]: {
 			width: 'min(100%, calc(100% - 1rem))',
-			gridTemplateColumns: `${stellarSidebarWidth} minmax(0, 720px)`,
-			gap: stellarGapMargin,
-			padding: 0,
+			gridTemplateColumns: '288px minmax(0, 960px)',
+			gap: M,
 		},
 		[`screen and (max-width: ${breakpoints.mobile})`]: {
 			display: 'block',
@@ -68,14 +75,14 @@ export const shell = style({
 	},
 });
 
-/* 左侧栏：固定宽度，靠右对齐，吸顶 —— 照抄 .l_left */
 export const left = style({
 	gridColumn: '1',
-	width: stellarSidebarWidth,
+	width: '288px',
 	justifySelf: 'right',
 	position: 'sticky',
-	top: `calc(${stellarGapMargin} * 2)`,
-	margin: `calc(${stellarGapMargin} * 2) ${stellarGapMargin}`,
+	top: `calc(${M} * 2)`,
+	margin: `calc(${M} * 2) ${M}`,
+	transform: 'translateX(-32px)',
 	alignSelf: 'start',
 	zIndex: 8,
 	'@media': {
@@ -85,10 +92,12 @@ export const left = style({
 			transition: 'transform 0.38s ease-out',
 			margin: 0,
 			left: '8px',
-			top: `calc(${stellarGapMargin} * 2)`,
-			maxHeight: `calc(100vh - ${stellarGapMargin} * 2 - 96px)`,
+			top: `calc(${M} * 2)`,
+			maxHeight: `calc(100vh - ${M} * 2 - 96px)`,
 			boxShadow: '0 12px 16px -4px rgba(0, 0, 0, 0.2)',
 			zIndex: 10,
+			background: vars.color.background,
+			overflow: 'auto',
 		},
 	},
 	selectors: {
@@ -102,8 +111,7 @@ export const mainArea = style({
 	gridColumn: '2',
 	width: '100%',
 	minWidth: 0,
-	margin: 0,
-	padding: `calc(${stellarGapMargin} * 2) 0 calc(${stellarGapMargin} + 16px)`,
+	padding: '32px 0',
 	'@media': {
 		[`screen and (max-width: ${breakpoints.mobile})`]: {
 			paddingTop: 0,
@@ -113,42 +121,11 @@ export const mainArea = style({
 
 export const mainContent = style({
 	minWidth: 0,
+	animation: `${slideLeft} 460ms cubic-bezier(0.22, 1, 0.36, 1) 40ms both`,
 });
 
 export const lead = style({
 	marginBottom: vars.space.xl,
-});
-
-/* 右侧栏：固定宽度，靠左对齐，吸顶 —— 照抄 .l_right */
-export const right = style({
-	gridColumn: '3',
-	width: stellarSidebarWidth,
-	justifySelf: 'left',
-	position: 'sticky',
-	top: `calc(${stellarGapMargin} * 2)`,
-	margin: `calc(${stellarGapMargin} * 2) 0`,
-	alignSelf: 'start',
-	zIndex: 8,
-	'@media': {
-		[`screen and (max-width: ${breakpoints.laptop})`]: {
-			position: 'fixed',
-			transform: 'translateX(320px)',
-			transition: 'transform 0.38s ease-out',
-			margin: 0,
-			right: '8px',
-			top: `calc(${stellarGapMargin} * 2)`,
-			maxHeight: `calc(100vh - ${stellarGapMargin} * 2 - 96px)`,
-			boxShadow: '0 12px 16px -4px rgba(0, 0, 0, 0.2)',
-			zIndex: 10,
-			background: vars.color.background,
-			overflow: 'auto',
-		},
-	},
-	selectors: {
-		[`${shell}[data-rightbar-open] &`]: {
-			transform: 'translateX(0)',
-		},
-	},
 });
 
 export const mainMask = style({
@@ -166,10 +143,6 @@ export const mainMask = style({
 	transition: 'opacity 0.2s ease',
 	selectors: {
 		[`${shell}[data-leftbar-open] &`]: {
-			opacity: 1,
-			pointerEvents: 'auto',
-		},
-		[`${shell}[data-rightbar-open] &`]: {
 			opacity: 1,
 			pointerEvents: 'auto',
 		},
@@ -197,10 +170,8 @@ export const floatPanel = style({
 	transition: 'all 0.2s ease',
 	selectors: {
 		[`${shell}[data-leftbar-open] &`]: {
-			boxShadow: '0 0 4px -1px var(--theme, #2196f3), 0 0 16px -4px var(--theme, #2196f3), 0 0 32px -12px var(--theme, #2196f3), 0 0 128px -32px var(--theme, #2196f3)',
-		},
-		[`${shell}[data-rightbar-open] &`]: {
-			boxShadow: '0 0 4px -1px var(--theme, #2196f3), 0 0 16px -4px var(--theme, #2196f3), 0 0 32px -12px var(--theme, #2196f3), 0 0 128px -32px var(--theme, #2196f3)',
+			boxShadow:
+				'0 0 4px -1px var(--theme, #2196f3), 0 0 16px -4px var(--theme, #2196f3), 0 0 32px -12px var(--theme, #2196f3), 0 0 128px -32px var(--theme, #2196f3)',
 		},
 	},
 	'@media': {
@@ -229,10 +200,6 @@ export const floatButton = style({
 	justifyContent: 'center',
 });
 
-export const rightbarToggle = style({
-	display: 'flex',
-});
-
 export const leftbarToggle = style({
 	display: 'none',
 	'@media': {
@@ -247,9 +214,6 @@ export const floatIcon = style({
 	height: '28px',
 	selectors: {
 		[`${shell}[data-leftbar-open] ${leftbarToggle} &`]: {
-			color: vars.color.accentStrong,
-		},
-		[`${shell}[data-rightbar-open] ${rightbarToggle} &`]: {
 			color: vars.color.accentStrong,
 		},
 	},

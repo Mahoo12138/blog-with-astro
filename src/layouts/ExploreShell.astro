@@ -1,0 +1,36 @@
+---
+import { SITE_TITLE } from "../consts";
+import type {
+  ExploreContentLayoutKey,
+  ExploreInternalItem,
+} from "../config/explore";
+import BlankShell from "./BlankShell.astro";
+import StellarShell from "./StellarShell.astro";
+import WideShell from "./WideShell.astro";
+import * as styles from "../styles/explore.css";
+
+interface Props {
+  item: ExploreInternalItem;
+}
+
+const { item } = Astro.props;
+const shells = {
+  default: StellarShell,
+  wide: WideShell,
+  blank: BlankShell,
+} satisfies Record<ExploreContentLayoutKey, typeof StellarShell>;
+const ShellLayout = shells[item.layout] ?? StellarShell;
+const shellProps =
+  item.layout === "blank"
+    ? { title: `${item.title} · ${SITE_TITLE}`, description: item.description }
+    : {
+        title: `${item.title} · ${SITE_TITLE}`,
+        description: item.description,
+        siteTree: "explore" as const,
+        mainClass: styles.pageMain,
+      };
+---
+
+<ShellLayout {...shellProps}>
+  <slot />
+</ShellLayout>

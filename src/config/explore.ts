@@ -1,7 +1,6 @@
 import type { ExploreIconImageKey } from '../assets/explore-icons';
-import type { StellarLayoutKey } from './stellar-layouts';
 
-export type ExploreContentLayoutKey = 'default' | 'gallery' | 'love';
+export type ExploreContentLayoutKey = 'default' | 'wide' | 'blank';
 export type ExploreRouteKind = 'generated' | 'file';
 
 interface ExploreItemBase {
@@ -14,7 +13,6 @@ interface ExploreItemBase {
 
 export interface ExploreInternalItem extends ExploreItemBase {
 	layout: ExploreContentLayoutKey;
-	shellLayout?: StellarLayoutKey;
 	routeKind?: ExploreRouteKind;
 	external?: false;
 }
@@ -57,8 +55,7 @@ export const explorePageConfig: ExplorePageConfig = {
 			description: '记录自己的恋爱纪念日',
 			href: '/love/',
 			icon: 'love',
-			layout: 'love',
-			shellLayout: 'blank',
+			layout: 'blank',
 			routeKind: 'file',
 		},
 		{
@@ -80,9 +77,7 @@ export const explorePageConfig: ExplorePageConfig = {
 			description: '我的日常生活记录',
 			href: '/gallery/',
 			icon: 'photo',
-			layout: 'gallery',
-			shellLayout: 'wide',
-			routeKind: 'file',
+			layout: 'wide',
 		},
 	],
 };
@@ -108,6 +103,4 @@ export function getExploreInternalItemByHref(href: string) {
 	return getExploreInternalItems().find((item) => getExploreRouteParam(item) === routeParam);
 }
 
-export function getExploreShellLayout(item: ExploreInternalItem): StellarLayoutKey {
-	return item.shellLayout ?? 'default';
-}
+

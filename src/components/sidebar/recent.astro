@@ -1,0 +1,36 @@
+---
+import { getCollection } from 'astro:content';
+import type { WidgetProps } from './types';
+import * as leftStyles from '../StellarLeftSidebar.css';
+import * as rightStyles from '../StellarRightSidebar.css';
+
+const { widget, side } = Astro.props as WidgetProps;
+const limit = widget.limit ?? (side === 'left' ? 8 : 3);
+const posts = (await getCollection('blog'))
+	.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+	.slice(0, limit);
+---
+
+{
+	side === 'left' ? (
+		<section class:list={[leftStyles.widget, leftStyles.postListWidget]}>
+			<div class={leftStyles.widgetTitle}><span>{widget.title}</span></div>
+			<div class={leftStyles.recentList}>
+				{posts.map((post) => (
+					<a class={leftStyles.recentItem} href={`/blog/${post.id}/`}>{post.data.title}</a>
+				))}
+			</div>
+		</section>
+	) : (
+		<section class:list={[rightStyles.widget, rightStyles.postListWidget]}>
+			<div class={rightStyles.widgetHeader}><span>{widget.title}</span></div>
+			<div class={rightStyles.timeline}>
+				{posts.map((post) => (
+					<a class={rightStyles.timelineLink} href={`/blog/${post.id}/`}>
+						<span>{post.data.title}</span>
+					</a>
+				))}
+			</div>
+		</section>
+	)
+}

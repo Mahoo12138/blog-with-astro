@@ -1,0 +1,22 @@
+---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import { getCollection } from 'astro:content';
+import type { WidgetProps } from './types';
+import * as styles from '../StellarRightSidebar.css';
+
+const { widget } = Astro.props as WidgetProps;
+const recentPosts = (await getCollection('blog'))
+	.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+	.slice(0, 3);
+const featuredPost = recentPosts.find((post) => post.data.heroImage) ?? recentPosts[0];
+const featuredHeroImage = featuredPost?.data.heroImage as ImageMetadata | undefined;
+---
+
+{featuredPost && featuredHeroImage && (
+	<section class:list={[styles.widget, styles.mediaCard]}>
+		<div class={styles.widgetHeader}><span>{widget.title}</span></div>
+		<Image class={styles.mediaImage} src={featuredHeroImage} width={320} height={210} alt={featuredPost.data.title} />
+		<p class={styles.mediaCaption}>{featuredPost.data.title}</p>
+	</section>
+)}

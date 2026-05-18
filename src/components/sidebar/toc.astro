@@ -1,0 +1,69 @@
+---
+import type { WidgetProps } from './types';
+import StellarIcon from '../StellarIcon.astro';
+import * as styles from '../StellarRightSidebar.css';
+
+const { widget, context } = Astro.props as WidgetProps;
+const tocHeadings = (context.headings ?? []).filter((h) => h.depth >= 1 && h.depth <= 6);
+const baseDepth = tocHeadings.length > 0 ? Math.min(...tocHeadings.map((h) => h.depth), 2) : 2;
+---
+
+{tocHeadings.length > 0 && (
+	<section class:list={[styles.widget, styles.tocWidget]} id="data-toc" data-toc-widget data-toc-collapse="false">
+		<div class={styles.widgetHeader}>
+			<span>{widget.title}</span>
+			<button class={styles.capAction} type="button" aria-label="Collapse table of contents" aria-pressed="false" data-toc-toggle>
+				<StellarIcon name="default:rightbar" />
+			</button>
+		</div>
+		<div class={styles.tocBody}>
+			<ol class={styles.tocList}>
+				{tocHeadings.map((heading) => (
+					<li class={styles.tocItem} style={`--toc-padding:${8 + Math.max(0, heading.depth - baseDepth) * 16}px;`}>
+						<a class={styles.tocLink} href={`#${heading.slug}`}>
+							<span class={styles.tocText}>{heading.text}</span>
+						</a>
+					</li>
+				))}
+			</ol>
+		</div>
+	</section>
+)}
+
+<script is:inline>
+	(() => {
+		const widget = document.querySelector('[data-toc-widget]');
+		if (!widget) return;
+
+		const list = widget.querySelector('ol');
+		const links = Array.from(widget.querySelectorAll('a[href^="#"]'));
+		const headings = links
+			.map((link) => document.getElementById(decodeURIComponent(link.hash.slice(1))))
+			.filter(Boolean);
+
+		const setActiveLink = () => {
+			let activeIndex = 0;
+			headings.forEach((heading, index) => {
+				if (heading.getBoundingClientRect().top <= 96) activeIndex = index;
+			});
+
+			links.forEach((link, index) => link.classList.toggle('active', index === activeIndex));
+
+			const activeLink = links[activeIndex];
+			if (list && activeLink) {
+				const listTop = list.getBoundingClientRect().top;
+				const linkTop = activeLink.getBoundingClientRect().top;
+				list.scrollTo({ top: list.scrollTop + linkTop - listTop - list.clientHeight / 2, behavior: 'smooth' });
+			}
+		};
+
+		const toggle = widget.querySelector('[data-toc-toggle]');
+		toggle?.addEventListener('click', () => {
+			const collapsed = widget.classList.toggle('collapse');
+			toggle.setAttribute('aria-pressed', String(collapsed));
+		});
+
+		setActiveLink();
+		window.addEventListener('scroll', setActiveLink, { passive: true });
+	})();
+</script>

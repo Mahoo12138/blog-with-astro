@@ -1,0 +1,246 @@
+---
+import { getCollection } from 'astro:content';
+import type { WidgetProps } from './types';
+import * as styles from '../StellarRightSidebar.css';
+
+const { widget } = Astro.props as WidgetProps;
+
+function fmtDuration(days: number): string {
+	if (days >= 365) {
+		const y = Math.floor(days / 365);
+		const m = Math.floor((days % 365) / 30);
+		return m > 0 ? `${y} 年 ${m} 月` : `${y} 年`;
+	}
+	if (days >= 30) return `${Math.floor(days / 30)} 个月`;
+	return `${days} 天`;
+}
+
+const goodsEntries = await getCollection('goods');
+const now = new Date();
+const total = goodsEntries.length;
+const totalSpend = goodsEntries.reduce((s, e) => s + e.data.price, 0);
+const avgRating = total > 0
+	? Math.round((goodsEntries.reduce((s, e) => s + e.data.rating, 0) / total) * 10) / 10
+	: 0;
+
+const statusCounts: Record<string, number> = { 仍在使用: 0, 已废置: 0, 偶尔使用: 0 };
+const categoryCounts: Record<string, number> = {};
+for (const e of goodsEntries) {
+	statusCounts[e.data.status] = (statusCounts[e.data.status] ?? 0) + 1;
+	categoryCounts[e.data.category] = (categoryCounts[e.data.category] ?? 0) + 1;
+}
+
+const topEntry = [...goodsEntries].sort((a, b) => b.data.rating - a.data.rating)[0];
+const topItem = topEntry
+	? { name: topEntry.data.name, rating: topEntry.data.rating, price: topEntry.data.price }
+	: null;
+
+const recentEntry = [...goodsEntries].sort(
+	(a, b) => b.data.purchaseDate.valueOf() - a.data.purchaseDate.valueOf(),
+)[0];
+const recentItem = recentEntry
+	? {
+			name: recentEntry.data.name,
+			category: recentEntry.data.category,
+			purchaseDate: recentEntry.data.purchaseDate.toISOString().slice(0, 10),
+	  }
+	: null;
+
+const activeEntries = goodsEntries.filter((e) => e.data.status === '仍在使用');
+const longestEntry = activeEntries.sort(
+	(a, b) => a.data.purchaseDate.valueOf() - b.data.purchaseDate.valueOf(),
+)[0];
+const longestItem = longestEntry
+	? {
+			name: longestEntry.data.name,
+			duration: fmtDuration(Math.floor((now.valueOf() - longestEntry.data.purchaseDate.valueOf()) / 86400000)),
+			purchaseDate: longestEntry.data.purchaseDate.toISOString().slice(0, 10),
+	  }
+	: null;
+
+const bestEntry = [...goodsEntries].sort(
+	(a, b) => b.data.rating / Math.log(b.data.price + 1) - a.data.rating / Math.log(a.data.price + 1),
+)[0];
+const bestValueItem = bestEntry
+	? { name: bestEntry.data.name, rating: bestEntry.data.rating, price: bestEntry.data.price }
+	: null;
+---
+
+<section class:list={[styles.widget, 'gs-widget']}>
+	<div class={styles.widgetHeader}><span>{widget.title}</span></div>
+	<div class="gs-body">
+		<div class="gs-spend-card">
+			<span class="gs-spend-label">累计消费</span>
+			<span class="gs-spend-value">¥{totalSpend.toLocaleString()}</span>
+			<span class="gs-spend-sub">{total} 件好物</span>
+		</div>
+		<div class="gs-section">
+			<p class="gs-section-title">使用状态</p>
+			<div class="gs-status-row">
+				{Object.entries(statusCounts).map(([label, count]) => (
+					<span class={`gs-status-chip gs-status-${label === '仍在使用' ? 'active' : label === '已废置' ? 'retired' : 'occasional'}`}>
+						{label} {count}
+					</span>
+				))}
+			</div>
+		</div>
+		<div class="gs-section">
+			<p class="gs-section-title">品类分布</p>
+			<div class="gs-bars">
+				{Object.entries(categoryCounts).map(([cat, count]) => (
+					<div class="gs-bar-row">
+						<span class="gs-bar-label">{cat}</span>
+						<div class="gs-bar-track">
+							<div class="gs-bar-fill" style={`width:${Math.round(count / total * 100)}%`}></div>
+						</div>
+						<span class="gs-bar-count">{count}</span>
+					</div>
+				))}
+			</div>
+		</div>
+		<div class="gs-section gs-bottom-row">
+			<div class="gs-stat-box">
+				<span class="gs-stat-value">
+					<svg class="gs-star" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 1l1.95 3.95L14 5.76l-3 2.92.71 4.13L8 10.77l-3.71 2.04L5 8.68 2 5.76l4.05-.81z"/></svg>
+					{avgRating.toFixed(1)}
+				</span>
+				<span class="gs-stat-label">平均评分</span>
+			</div>
+			{topItem && (
+				<div class="gs-top-item">
+					<span class="gs-top-label">最高评分</span>
+					<span class="gs-top-name">{topItem.name}</span>
+					<span class="gs-top-meta">★{topItem.rating} · ¥{topItem.price.toLocaleString()}</span>
+				</div>
+			)}
+		</div>
+		{recentItem && (
+			<div class="gs-section">
+				<p class="gs-section-title">最近入手</p>
+				<div class="gs-highlight-card gs-recent-card">
+					<span class="gs-hl-icon">🛒</span>
+					<div class="gs-hl-body">
+						<span class="gs-hl-name">{recentItem.name}</span>
+						<div class="gs-hl-meta">
+							<span class="gs-hl-tag">{recentItem.category}</span>
+							<span class="gs-hl-date">{recentItem.purchaseDate}</span>
+						</div>
+					</div>
+				</div>
+			</div>
+		)}
+		{longestItem && (
+			<div class="gs-section">
+				<p class="gs-section-title">最长在用</p>
+				<div class="gs-highlight-card gs-longest-card">
+					<span class="gs-hl-icon">⏳</span>
+					<div class="gs-hl-body">
+						<span class="gs-hl-name">{longestItem.name}</span>
+						<div class="gs-hl-meta">
+							<span class="gs-longest-duration">{longestItem.duration}</span>
+							<span class="gs-hl-date">自 {longestItem.purchaseDate}</span>
+						</div>
+					</div>
+				</div>
+			</div>
+		)}
+		{bestValueItem && (
+			<div class="gs-section">
+				<p class="gs-section-title">性价比之王</p>
+				<div class="gs-highlight-card gs-value-card">
+					<span class="gs-hl-icon">💡</span>
+					<div class="gs-hl-body">
+						<span class="gs-hl-name">{bestValueItem.name}</span>
+						<div class="gs-hl-meta">
+							<span class="gs-hl-tag">★{bestValueItem.rating}</span>
+							<span class="gs-hl-date">¥{bestValueItem.price.toLocaleString()}</span>
+						</div>
+					</div>
+				</div>
+			</div>
+		)}
+	</div>
+</section>
+
+<style>
+	.gs-body { display: flex; flex-direction: column; gap: 10px; padding: 0 4px; }
+	.gs-spend-card {
+		display: flex; flex-direction: column; gap: 2px;
+		padding: 12px 14px; border-radius: 12px;
+		background: linear-gradient(135deg, rgba(33,150,243,0.12) 0%, rgba(33,150,243,0.06) 100%);
+		border: 1px solid rgba(33,150,243,0.18);
+	}
+	.gs-spend-label { font-size: 11px; font-weight: 600; color: #2196f3; text-transform: uppercase; letter-spacing: 0.04em; }
+	.gs-spend-value { font-size: 22px; font-weight: 800; color: rgba(18, 25, 38, 0.9); letter-spacing: -0.5px; line-height: 1.2; }
+	:global([data-theme='dark']) .gs-spend-value { color: rgba(241, 245, 249, 0.92); }
+	.gs-spend-sub { font-size: 12px; color: rgba(18, 25, 38, 0.45); }
+	:global([data-theme='dark']) .gs-spend-sub { color: rgba(241, 245, 249, 0.4); }
+
+	.gs-section { display: flex; flex-direction: column; gap: 6px; }
+	.gs-section-title { margin: 0; font-size: 11px; font-weight: 600; color: rgba(18, 25, 38, 0.42); text-transform: uppercase; letter-spacing: 0.04em; }
+	:global([data-theme='dark']) .gs-section-title { color: rgba(241, 245, 249, 0.38); }
+
+	.gs-status-row { display: flex; flex-wrap: wrap; gap: 5px; }
+	.gs-status-chip { padding: 3px 8px; border-radius: 999px; font-size: 11.5px; font-weight: 600; line-height: 1.4; }
+	.gs-status-active  { background: #e8f8f0; color: #1a8c52; }
+	.gs-status-retired { background: #f0f0f0; color: #777; }
+	.gs-status-occasional { background: #fff8e6; color: #b07a00; }
+	:global([data-theme='dark']) .gs-status-active   { background: rgba(26,140,82,0.18); color: #4ade80; }
+	:global([data-theme='dark']) .gs-status-retired  { background: rgba(148,163,184,0.14); color: #94a3b8; }
+	:global([data-theme='dark']) .gs-status-occasional { background: rgba(176,122,0,0.16); color: #fbbf24; }
+
+	.gs-bars { display: flex; flex-direction: column; gap: 5px; }
+	.gs-bar-row { display: grid; grid-template-columns: 4.5em 1fr 1.5em; align-items: center; gap: 6px; }
+	.gs-bar-label { font-size: 12px; color: rgba(18, 25, 38, 0.65); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+	:global([data-theme='dark']) .gs-bar-label { color: rgba(241,245,249,0.6); }
+	.gs-bar-track { height: 5px; border-radius: 999px; background: rgba(18, 25, 38, 0.08); overflow: hidden; }
+	:global([data-theme='dark']) .gs-bar-track { background: rgba(241,245,249,0.1); }
+	.gs-bar-fill { height: 100%; border-radius: 999px; background: #2196f3; min-width: 4px; transition: width 0.4s ease; }
+	.gs-bar-count { font-size: 11.5px; font-weight: 600; color: rgba(18, 25, 38, 0.5); text-align: right; }
+	:global([data-theme='dark']) .gs-bar-count { color: rgba(241,245,249,0.45); }
+
+	.gs-bottom-row { flex-direction: row !important; gap: 8px !important; align-items: stretch; }
+	.gs-stat-box {
+		flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+		padding: 10px 12px; border-radius: 12px;
+		background: rgba(18, 25, 38, 0.04); border: 1px solid rgba(18, 25, 38, 0.07);
+	}
+	:global([data-theme='dark']) .gs-stat-box { background: rgba(241,245,249,0.05); border-color: rgba(241,245,249,0.08); }
+	.gs-stat-value { display: flex; align-items: center; gap: 3px; font-size: 18px; font-weight: 800; color: rgba(18, 25, 38, 0.88); line-height: 1; }
+	:global([data-theme='dark']) .gs-stat-value { color: rgba(241,245,249,0.9); }
+	.gs-star { width: 14px; height: 14px; color: #f59e0b; flex-shrink: 0; }
+	.gs-stat-label { font-size: 10.5px; color: rgba(18, 25, 38, 0.42); white-space: nowrap; }
+	:global([data-theme='dark']) .gs-stat-label { color: rgba(241,245,249,0.38); }
+
+	.gs-top-item {
+		flex: 1 1 0; display: flex; flex-direction: column; justify-content: center; gap: 2px;
+		padding: 10px 12px; border-radius: 12px;
+		background: rgba(18, 25, 38, 0.04); border: 1px solid rgba(18, 25, 38, 0.07);
+		min-width: 0;
+	}
+	:global([data-theme='dark']) .gs-top-item { background: rgba(241,245,249,0.05); border-color: rgba(241,245,249,0.08); }
+	.gs-top-label { font-size: 10px; font-weight: 600; color: #f59e0b; text-transform: uppercase; letter-spacing: 0.04em; }
+	.gs-top-name { font-size: 12.5px; font-weight: 700; color: rgba(18, 25, 38, 0.85); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+	:global([data-theme='dark']) .gs-top-name { color: rgba(241,245,249,0.85); }
+	.gs-top-meta { font-size: 11px; color: rgba(18, 25, 38, 0.45); }
+	:global([data-theme='dark']) .gs-top-meta { color: rgba(241,245,249,0.4); }
+
+	.gs-highlight-card { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; border: 1px solid transparent; }
+	.gs-recent-card  { background: rgba(33, 150, 243, 0.07); border-color: rgba(33, 150, 243, 0.16); }
+	.gs-longest-card { background: rgba(245, 158, 11, 0.07); border-color: rgba(245, 158, 11, 0.18); }
+	.gs-value-card   { background: rgba(26, 140, 82, 0.07); border-color: rgba(26, 140, 82, 0.18); }
+	:global([data-theme='dark']) .gs-recent-card  { background: rgba(33,150,243,0.1); border-color: rgba(33,150,243,0.2); }
+	:global([data-theme='dark']) .gs-longest-card { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.22); }
+	:global([data-theme='dark']) .gs-value-card   { background: rgba(26,140,82,0.1); border-color: rgba(26,140,82,0.22); }
+	.gs-hl-icon { font-size: 20px; line-height: 1; flex-shrink: 0; }
+	.gs-hl-body { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+	.gs-hl-name { font-size: 13px; font-weight: 700; color: rgba(18, 25, 38, 0.88); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+	:global([data-theme='dark']) .gs-hl-name { color: rgba(241,245,249,0.88); }
+	.gs-hl-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+	.gs-hl-tag { padding: 1px 6px; border-radius: 999px; background: rgba(33, 150, 243, 0.12); font-size: 11px; font-weight: 600; color: #2196f3; }
+	:global([data-theme='dark']) .gs-hl-tag { background: rgba(126,203,255,0.14); color: #7ecbff; }
+	.gs-hl-date { font-size: 11px; color: rgba(18, 25, 38, 0.42); }
+	:global([data-theme='dark']) .gs-hl-date { color: rgba(241,245,249,0.38); }
+	.gs-longest-duration { padding: 1px 6px; border-radius: 999px; background: rgba(245, 158, 11, 0.12); font-size: 11px; font-weight: 700; color: #b07a00; }
+	:global([data-theme='dark']) .gs-longest-duration { background: rgba(245,158,11,0.15); color: #fbbf24; }
+</style>

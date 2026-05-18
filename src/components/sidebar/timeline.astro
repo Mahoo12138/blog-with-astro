@@ -1,0 +1,11 @@
+---
+/**
+ * `timeline` 与 `recent` 渲染一致，直接复用 recent widget。
+ */
+import Recent from './recent.astro';
+import type { WidgetProps } from './types';
+
+const props = Astro.props as WidgetProps;
+---
+
+<Recent {...props} />

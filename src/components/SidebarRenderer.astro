@@ -1,0 +1,37 @@
+---
+/**
+ * 通用侧边栏 widget 渲染器
+ *
+ * 自动扫描 `src/components/sidebar/*.astro`，按文件名（不含扩展名）
+ * 作为 widget id，与 `widget.layout` 匹配。新增 widget 只需在
+ * `sidebar/` 目录下创建对应文件，无需修改本文件、左/右侧边栏代码。
+ */
+import type { SidebarWidgetConfig } from '../config/stellar';
+import type { SidebarSide, SidebarContext } from './sidebar/types';
+
+interface Props {
+	widgets?: SidebarWidgetConfig[];
+	side: SidebarSide;
+	context?: SidebarContext;
+}
+
+const { widgets = [], side, context = {} } = Astro.props;
+
+// 静态扫描，构建 id -> Astro 组件 的注册表
+const modules = import.meta.glob<{ default: any }>('./sidebar/*.astro', { eager: true });
+const registry: Record<string, any> = {};
+for (const [path, mod] of Object.entries(modules)) {
+	const match = path.match(/\/([^/]+)\.astro$/);
+	if (match && mod && mod.default) {
+		registry[match[1]] = mod.default;
+	}
+}
+---
+
+{
+	widgets.map((widget) => {
+		const Comp = registry[widget.layout];
+		if (!Comp) return null;
+		return <Comp widget={widget} side={side} context={context} />;
+	})
+}

@@ -4,6 +4,7 @@ import type {
   ExploreContentLayoutKey,
   ExploreInternalItem,
 } from "../config/explore";
+import type { SidebarValue } from "../config/stellar";
 import BlankShell from "./BlankShell.astro";
 import StellarShell from "./StellarShell.astro";
 import WideShell from "./WideShell.astro";
@@ -11,9 +12,10 @@ import * as styles from "../styles/explore.css";
 
 interface Props {
   item: ExploreInternalItem;
+  rightbar?: SidebarValue;
 }
 
-const { item } = Astro.props;
+const { item, rightbar } = Astro.props;
 const shells = {
   default: StellarShell,
   wide: WideShell,
@@ -28,6 +30,7 @@ const shellProps =
         description: item.description,
         siteTree: "explore" as const,
         mainClass: styles.pageMain,
+        ...(rightbar !== undefined ? { rightbar } : {}),
       };
 ---
 

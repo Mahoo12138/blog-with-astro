@@ -79,6 +79,7 @@ export const explorePageConfig: ExplorePageConfig = {
 			href: '/gallery/',
 			icon: 'photo',
 			layout: 'wide',
+			routeKind: 'file',
 		},
 	],
 };

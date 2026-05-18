@@ -7,7 +7,7 @@ const M = '16px';
 
 const slideLeft = keyframes({
 	from: { opacity: 0, transform: 'translate3d(16px, 0, 0)' },
-	to: { opacity: 1, transform: 'translate3d(0, 0, 0)' },
+	to: { opacity: 1, transform: 'none' },
 });
 
 export const body = style({
@@ -44,33 +44,30 @@ export const glowRight = style({
 	filter: 'blur(12px)',
 });
 
-/* 宽版：左栏 + 宽主栏 + 占位列（右侧空白） */
+/* 宽版：两端留白 + 左侧固定侧边栏 + 内容占满剩余宽度 */
 export const shell = style({
 	position: 'relative',
 	zIndex: 1,
-	width: '100%',
+	maxWidth: '1800px',
+	margin: '0 auto',
+	padding: `0 ${GAP}`,
+	boxSizing: 'border-box',
 	display: 'grid',
-	gridTemplateColumns: '288px minmax(240px, 960px) minmax(0, 1fr)',
+	gridTemplateColumns: '288px 1fr',
 	gap: GAP,
 	alignItems: 'start',
 	'@media': {
-		'screen and (min-width: 2048px)': {
-			gridTemplateColumns: '288px minmax(240px, 1040px) minmax(0, 1fr)',
-		},
-		'screen and (min-width: 3840px)': {
-			gridTemplateColumns: '288px minmax(240px, 1160px) minmax(0, 1fr)',
-		},
 		'screen and (max-width: 1440px)': {
+			padding: `0 ${COMPACT_GAP}`,
 			gap: COMPACT_GAP,
 		},
 		[`screen and (max-width: ${breakpoints.laptop})`]: {
-			width: 'min(100%, calc(100% - 1rem))',
-			gridTemplateColumns: '288px minmax(0, 960px)',
+			padding: `0 ${M}`,
 			gap: M,
 		},
 		[`screen and (max-width: ${breakpoints.mobile})`]: {
 			display: 'block',
-			width: 'min(100%, calc(100% - 1rem))',
+			padding: `0 ${M}`,
 		},
 	},
 });
@@ -81,14 +78,13 @@ export const left = style({
 	justifySelf: 'right',
 	position: 'sticky',
 	top: `calc(${M} * 2)`,
-	margin: `calc(${M} * 2) ${M}`,
-	transform: 'translateX(-32px)',
+	margin: `calc(${M} * 2) 0`,
 	alignSelf: 'start',
 	zIndex: 8,
 	'@media': {
 		[`screen and (max-width: ${breakpoints.mobile})`]: {
 			position: 'fixed',
-			transform: 'translateX(-320px)',
+			transform: 'translateX(-300px)',
 			transition: 'transform 0.38s ease-out',
 			margin: 0,
 			left: '8px',
@@ -151,7 +147,7 @@ export const mainMask = style({
 
 export const floatPanel = style({
 	position: 'sticky',
-	gridColumnEnd: 'span 3',
+	gridColumnEnd: 'span 2',
 	right: 0,
 	bottom: '4rem',
 	marginLeft: 'auto',

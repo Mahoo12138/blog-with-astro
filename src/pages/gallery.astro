@@ -1,0 +1,176 @@
+---
+import { getExploreInternalItemByHref } from '../config/explore';
+import ExploreShell from '../layouts/ExploreShell.astro';
+import { loadGalleryPhotos } from '../lib/immich';
+import * as styles from '../styles/gallery.css';
+
+const item = getExploreInternalItemByHref('/gallery/');
+if (!item) {
+	throw new Error('Explore item for /gallery/ was not found.');
+}
+
+const { photos, album, error } = await loadGalleryPhotos();
+if (error) {
+	console.warn('[gallery]', error);
+}
+
+// 基准行高（与 CSS 中的 .tile height 保持一致）
+const BASE_ROW_HEIGHT = 240;
+
+function formatDate(input?: string): string {
+	if (!input) return '';
+	const d = new Date(input);
+	if (Number.isNaN(d.getTime())) return '';
+	const y = d.getFullYear();
+	const m = String(d.getMonth() + 1).padStart(2, '0');
+	const day = String(d.getDate()).padStart(2, '0');
+	return `${y}.${m}.${day}`;
+}
+---
+
+<ExploreShell item={item} siteTree="gallery">
+	<section class={styles.pageRoot}>
+		<header class={styles.header}>
+			<div>
+				<p class={styles.kicker}><span>Gallery</span> · 影像日志</p>
+				<h1 class={styles.title}>{album?.albumName ?? item.title}</h1>
+				<p class={styles.description}>
+					{album?.description?.trim() ? album.description : item.description}
+				</p>
+			</div>
+			<div class={styles.meta}>
+				<span class={styles.metaCount}>{String(photos.length).padStart(2, '0')}</span>
+				<small class={styles.metaLabel}>Photographs</small>
+			</div>
+		</header>
+
+		{error && <div class={styles.errorBox}>相册加载失败：{error}</div>}
+
+		{!error && photos.length === 0 && (
+			<div class={styles.empty}>相册暂时还没有照片。</div>
+		)}
+
+		{photos.length > 0 && (
+			<div class={styles.masonry}>
+				{photos.map((photo, index) => {
+					const ratio = photo.aspectRatio || 1;
+					// flex-basis 设置为「以基准行高显示时的图片宽度」，flex-grow 同比例
+					const basis = Math.round(ratio * BASE_ROW_HEIGHT);
+					const date = formatDate(photo.takenAt);
+					const indexLabel = String(index + 1).padStart(2, '0');
+					const totalLabel = String(photos.length).padStart(2, '0');
+					return (
+						<figure
+							class={styles.tile}
+							data-photo
+							data-full={photo.previewUrl}
+							data-caption={photo.originalFileName ?? ''}
+							data-date={date}
+							style={`flex: ${ratio.toFixed(4)} 1 ${basis}px; animation-delay: ${Math.min(index, 12) * 40}ms;`}
+						>
+							<span class={styles.tileIndex} aria-hidden="true">{indexLabel} / {totalLabel}</span>
+							<img
+								class={styles.image}
+								src={photo.thumbnailUrl}
+								alt={photo.description ?? photo.originalFileName ?? '相册照片'}
+								loading={index < 6 ? 'eager' : 'lazy'}
+								decoding="async"
+								width={photo.width}
+								height={photo.height}
+							/>
+							<figcaption class={styles.tileCaption}>
+								<span class={styles.tileCaptionDate}>{date || '—'}</span>
+								<span class={styles.tileCaptionDims}>{photo.width}×{photo.height}</span>
+							</figcaption>
+						</figure>
+					);
+				})}
+				{/* 占位元素，吸收末行的剩余空间，避免最后一张图被过度拉伸 */}
+				<span class={styles.spacer} aria-hidden="true"></span>
+			</div>
+		)}
+
+		<div class={styles.lightbox} data-lightbox role="dialog" aria-modal="true" aria-label="照片预览">
+			<button class={styles.lightboxClose} type="button" data-lightbox-close aria-label="关闭">×</button>
+			<button class={styles.lightboxPrev} type="button" data-lightbox-prev aria-label="上一张">&#8249;</button>
+			<img class={styles.lightboxImage} data-lightbox-image src="" alt="" />
+			<button class={styles.lightboxNext} type="button" data-lightbox-next aria-label="下一张">&#8250;</button>
+			<div class={styles.lightboxInfo}>
+				<span class={styles.lightboxCounter} data-lightbox-counter></span>
+				<span class={styles.lightboxCaption} data-lightbox-caption></span>
+			</div>
+		</div>
+	</section>
+</ExploreShell>
+
+<script is:inline>
+	(() => {
+		const lightbox = document.querySelector('[data-lightbox]');
+		if (!lightbox) return;
+
+		// 移到 <body> 直接子级，避免祖先 transform/backdrop-filter 限制 position:fixed 范围
+		document.body.appendChild(lightbox);
+
+		const img = lightbox.querySelector('[data-lightbox-image]');
+		const closeBtn = lightbox.querySelector('[data-lightbox-close]');
+		const prevBtn = lightbox.querySelector('[data-lightbox-prev]');
+		const nextBtn = lightbox.querySelector('[data-lightbox-next]');
+		const counterEl = lightbox.querySelector('[data-lightbox-counter]');
+		const captionEl = lightbox.querySelector('[data-lightbox-caption]');
+
+		const tiles = Array.from(document.querySelectorAll('[data-photo]'));
+		let current = -1;
+
+		const updateNav = () => {
+			if (prevBtn) prevBtn.disabled = current <= 0;
+			if (nextBtn) nextBtn.disabled = current >= tiles.length - 1;
+			if (counterEl) {
+				const idx = String(current + 1).padStart(2, '0');
+				const total = String(tiles.length).padStart(2, '0');
+				counterEl.textContent = `${idx} / ${total}`;
+			}
+		};
+
+		const openAt = (index) => {
+			if (index < 0 || index >= tiles.length) return;
+			current = index;
+			const tile = tiles[index];
+			const full = tile.getAttribute('data-full');
+			const caption = tile.getAttribute('data-caption') || '';
+			if (img) {
+				img.setAttribute('data-loading', 'true');
+				img.setAttribute('src', full || '');
+				img.setAttribute('alt', caption);
+				img.onload = () => img.removeAttribute('data-loading');
+				img.onerror = () => img.removeAttribute('data-loading');
+			}
+			if (captionEl) captionEl.textContent = caption;
+			updateNav();
+			lightbox.setAttribute('data-open', 'true');
+			document.body.style.overflow = 'hidden';
+		};
+
+		const close = () => {
+			lightbox.removeAttribute('data-open');
+			if (img) { img.setAttribute('src', ''); img.removeAttribute('data-loading'); }
+			document.body.style.overflow = '';
+			current = -1;
+		};
+
+		tiles.forEach((tile, i) => {
+			tile.addEventListener('click', () => openAt(i));
+		});
+
+		prevBtn?.addEventListener('click', (e) => { e.stopPropagation(); openAt(current - 1); });
+		nextBtn?.addEventListener('click', (e) => { e.stopPropagation(); openAt(current + 1); });
+		closeBtn?.addEventListener('click', close);
+		lightbox.addEventListener('click', (e) => { if (e.target === lightbox) close(); });
+
+		document.addEventListener('keydown', (e) => {
+			if (lightbox.getAttribute('data-open') !== 'true') return;
+			if (e.key === 'Escape') close();
+			else if (e.key === 'ArrowLeft') openAt(current - 1);
+			else if (e.key === 'ArrowRight') openAt(current + 1);
+		});
+	})();
+</script>

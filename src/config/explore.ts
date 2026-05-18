@@ -64,6 +64,7 @@ export const explorePageConfig: ExplorePageConfig = {
 			href: '/my-goods/',
 			icon: 'goods',
 			layout: 'default',
+			routeKind: 'file',
 		},
 		{
 			title: '我的穿搭',

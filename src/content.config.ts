@@ -99,4 +99,19 @@ const notes = defineCollection({
 		}),
 });
 
-export const collections = { blog, wiki, columns, notes };
+const goods = defineCollection({
+	loader: glob({ base: './src/content/goods', pattern: '**/*.{yaml,yml}' }),
+	schema: z.object({
+		name: z.string(),
+		description: z.string(),
+		category: z.enum(['电子产品', '生活用品', '数码配件']),
+		price: z.number(),
+		rating: z.number(),
+		reviewCount: z.number().int(),
+		purchaseDate: z.coerce.date(),
+		status: z.enum(['仍在使用', '已废置', '偶尔使用']),
+		image: z.string().optional(),
+	}),
+});
+
+export const collections = { blog, wiki, columns, notes, goods };

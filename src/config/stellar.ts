@@ -1,7 +1,7 @@
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 
 export type MenuId = 'post' | 'columns' | 'explore' | 'about' | 'rss' | 'wiki' | 'notebooks';
-export type SidebarWidgetId = 'welcome' | 'recent' | 'related' | 'timeline' | 'media' | 'toc' | 'ghrepo';
+export type SidebarWidgetId = 'welcome' | 'recent' | 'related' | 'timeline' | 'media' | 'toc' | 'ghrepo' | 'goods-stats';
 export type SiteTreeKey = 'home' | 'index_blog' | 'index_topic' | 'explore' | 'post' | 'topic' | 'wiki' | 'notebooks' | 'notes' | 'note' | 'author' | 'error_page' | 'page';
 
 export interface MenubarItem {
@@ -134,6 +134,7 @@ export const stellarConfig = {
 		media: { id: 'media', layout: 'media', title: '精选文章' },
 		toc: { id: 'toc', layout: 'toc', title: '本文目录' },
 		ghrepo: { id: 'ghrepo', layout: 'ghrepo', title: '仓库' },
+		'goods-stats': { id: 'goods-stats', layout: 'goods-stats', title: '好物统计' },
 	} satisfies Record<SidebarWidgetId, SidebarWidgetConfig>,
 	siteTree: {
 		home: { menuId: 'post', leftbar: ['welcome', 'recent'], rightbar: null },

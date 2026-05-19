@@ -5,12 +5,12 @@ const gapMargin = '16px';
 const gapPadding = '16px';
 const borderCardSmall = '12px';
 const borderBar = '8px';
-const bgA20 = 'rgba(255, 255, 255, 0.2)';
-const bgA50 = 'rgba(255, 255, 255, 0.5)';
-const bgA100 = 'rgba(255, 255, 255, 1)';
-const textP1 = 'rgba(18, 25, 38, 0.8)';
-const textP2 = 'rgba(18, 25, 38, 0.7)';
-const textP3 = 'rgba(18, 25, 38, 0.5)';
+const bgA20 = vars.color.surfaceMuted;
+const bgA50 = vars.color.surface;
+const bgA100 = vars.color.surfaceStrong;
+const textP1 = vars.color.text;
+const textP2 = vars.color.textMuted;
+const textP3 = vars.color.textMeta;
 
 export const root = style({
 	overflow: 'visible',
@@ -55,7 +55,7 @@ export const capAction = style({
 			opacity: 1,
 		},
 		'&[aria-pressed="true"]': {
-			background: 'rgba(18, 25, 38, 0.08)',
+			background: vars.color.border,
 			color: vars.color.accentStrong,
 			opacity: 1,
 		},
@@ -147,7 +147,7 @@ export const tocLink = style({
 	lineHeight: 1.45,
 	selectors: {
 		'&:hover': {
-			background: 'rgba(18, 25, 38, 0.08)',
+			background: vars.color.border,
 			color: vars.color.textStrong,
 		},
 		'&.active': {
@@ -242,7 +242,7 @@ globalStyle(`${tocBody}::before`, {
 	left: 0,
 	width: '4px',
 	borderRadius: '4px',
-	background: 'rgba(18, 25, 38, 0.08)',
+	background: vars.color.border,
 });
 globalStyle(`${tocList}::-webkit-scrollbar`, { display: 'none' });
 globalStyle(`${tocLink}.active::before`, {

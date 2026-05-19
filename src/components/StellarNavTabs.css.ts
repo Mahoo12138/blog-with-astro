@@ -11,7 +11,7 @@ export const blur = style({
 	margin: `0 ${vars.space.lg}`,
 	borderRadius: '64px',
 	position: 'relative',
-	background: 'rgba(255, 255, 255, 0.5)',
+	background: vars.color.surface,
 	boxShadow: vars.shadow.head,
 	backdropFilter: 'saturate(300%) blur(18px)',
 	WebkitBackdropFilter: 'saturate(300%) blur(18px)',
@@ -56,7 +56,7 @@ export const item = style({
 });
 
 export const active = style({
-	background: 'rgba(255, 255, 255, 0.6)',
+	background: vars.color.surfaceStrong,
 	color: vars.color.textStrong,
 	boxShadow: '0 0 1px rgba(0, 0, 0, 0.04), 0 0 2px rgba(0, 0, 0, 0.04), 0 0 4px rgba(0, 0, 0, 0.08)',
 	cursor: 'default',

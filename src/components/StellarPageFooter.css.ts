@@ -1,9 +1,9 @@
 import { globalStyle, style } from '@vanilla-extract/css';
 import { vars } from '../styles/theme.css';
 
-const textP1 = 'rgba(18, 25, 38, 0.8)';
-const textP2 = 'rgba(18, 25, 38, 0.62)';
-const blockBorder = 'rgba(18, 25, 38, 0.10)';
+const textP1 = vars.color.text;
+const textP2 = vars.color.textMuted;
+const blockBorder = vars.color.borderStrong;
 
 export const root = style({
 	margin: '4rem 1rem 3rem',

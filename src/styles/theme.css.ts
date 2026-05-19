@@ -60,6 +60,28 @@ export const vars = createGlobalTheme(':root', {
 	},
 });
 
+const lightThemeVars = {
+	[vars.color.accent]: '#2196f3',
+	[vars.color.accentStrong]: '#3367d6',
+	[vars.color.accentSoft]: 'rgba(33, 150, 243, 0.12)',
+	[vars.color.background]: '#f4f7fb',
+	[vars.color.backgroundElevated]: '#edf3fb',
+	[vars.color.surface]: 'rgba(255, 255, 255, 0.82)',
+	[vars.color.surfaceStrong]: '#ffffff',
+	[vars.color.surfaceMuted]: 'rgba(255, 255, 255, 0.62)',
+	[vars.color.textStrong]: 'rgba(18, 25, 38, 0.96)',
+	[vars.color.text]: 'rgba(18, 25, 38, 0.82)',
+	[vars.color.textMuted]: 'rgba(18, 25, 38, 0.62)',
+	[vars.color.textMeta]: 'rgba(18, 25, 38, 0.34)',
+	[vars.color.border]: 'rgba(18, 25, 38, 0.10)',
+	[vars.color.borderStrong]: 'rgba(18, 25, 38, 0.16)',
+	[vars.color.codeBackground]: 'rgba(33, 150, 243, 0.10)',
+	[vars.color.codeText]: 'rgba(13, 35, 64, 0.92)',
+	[vars.shadow.head]: '0 16px 40px rgba(15, 23, 42, 0.08)',
+	[vars.shadow.card]: '0 22px 48px rgba(15, 23, 42, 0.10)',
+	[vars.shadow.focus]: '0 0 0 4px rgba(33, 150, 243, 0.18)',
+};
+
 const darkThemeVars = {
 	[vars.color.accent]: '#7ecbff',
 	[vars.color.accentStrong]: '#a8ddff',
@@ -91,6 +113,25 @@ globalStyle(':root', {
 	},
 });
 
+globalStyle(':root[data-theme="light"]', {
+	colorScheme: 'light',
+	vars: lightThemeVars,
+});
+
+globalStyle(':root[data-theme="dark"]', {
+	colorScheme: 'dark',
+	vars: darkThemeVars,
+});
+
+const lightBodyBackground =
+	'radial-gradient(circle at top left, rgba(33, 150, 243, 0.18), transparent 24rem), radial-gradient(circle at top right, rgba(70, 136, 241, 0.10), transparent 18rem), linear-gradient(180deg, #fbfdff 0%, #f4f7fb 42%, #eef3f9 100%)';
+
+const darkBodyBackground =
+	'radial-gradient(circle at top left, rgba(126, 203, 255, 0.12), transparent 22rem), radial-gradient(circle at top right, rgba(51, 103, 214, 0.12), transparent 18rem), linear-gradient(180deg, #0b1118 0%, #0f1722 46%, #111b29 100%)';
+
+const lightCodeBackground = 'rgba(15, 23, 42, 0.94)';
+const darkCodeBackground = 'rgba(2, 6, 23, 0.92)';
+
 globalStyle('*', {
 	boxSizing: 'border-box',
 });
@@ -115,17 +156,23 @@ globalStyle('body', {
 	textRendering: 'optimizeLegibility',
 	wordBreak: 'normal',
 	overflowWrap: 'break-word',
-	background:
-		'radial-gradient(circle at top left, rgba(33, 150, 243, 0.18), transparent 24rem), radial-gradient(circle at top right, rgba(70, 136, 241, 0.10), transparent 18rem), linear-gradient(180deg, #fbfdff 0%, #f4f7fb 42%, #eef3f9 100%)',
+	background: lightBodyBackground,
 	'@media': {
 		'(prefers-color-scheme: dark)': {
-			background:
-				'radial-gradient(circle at top left, rgba(126, 203, 255, 0.12), transparent 22rem), radial-gradient(circle at top right, rgba(51, 103, 214, 0.12), transparent 18rem), linear-gradient(180deg, #0b1118 0%, #0f1722 46%, #111b29 100%)',
+			background: darkBodyBackground,
 		},
 		[`screen and (max-width: ${breakpoints.tablet})`]: {
 			fontSize: '17px',
 		},
 	},
+});
+
+globalStyle(':root[data-theme="light"] body', {
+	background: lightBodyBackground,
+});
+
+globalStyle(':root[data-theme="dark"] body', {
+	background: darkBodyBackground,
 });
 
 
@@ -216,13 +263,21 @@ globalStyle('pre', {
 	padding: vars.space.xl,
 	borderRadius: vars.radius.lg,
 	overflowX: 'auto',
-	backgroundColor: 'rgba(15, 23, 42, 0.94)',
+	backgroundColor: lightCodeBackground,
 	boxShadow: vars.shadow.card,
 	'@media': {
 		'(prefers-color-scheme: dark)': {
-			backgroundColor: 'rgba(2, 6, 23, 0.92)',
+			backgroundColor: darkCodeBackground,
 		},
 	},
+});
+
+globalStyle(':root[data-theme="light"] pre', {
+	backgroundColor: lightCodeBackground,
+});
+
+globalStyle(':root[data-theme="dark"] pre', {
+	backgroundColor: darkCodeBackground,
 });
 
 globalStyle('pre > code', {

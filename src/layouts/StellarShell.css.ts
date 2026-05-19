@@ -190,7 +190,7 @@ export const floatPanel = style({
 	flexDirection: 'column',
 	borderRadius: '64px',
 	overflow: 'hidden',
-	background: 'rgba(255, 255, 255, 0.55)',
+	background: vars.color.surface,
 	boxShadow: '0 8px 30px rgba(15, 23, 42, 0.10)',
 	backdropFilter: 'saturate(300%) blur(18px)',
 	WebkitBackdropFilter: 'saturate(300%) blur(18px)',

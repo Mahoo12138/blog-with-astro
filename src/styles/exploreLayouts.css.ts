@@ -1,6 +1,9 @@
 import { style } from '@vanilla-extract/css';
 import { breakpoints, vars } from './theme.css';
 
+const lightLoveBackground = 'linear-gradient(135deg, #fff8fb 0%, #f7fbff 52%, #eef9f3 100%)';
+const darkLoveBackground = 'linear-gradient(135deg, #17131b 0%, #0c1420 54%, #0d1a18 100%)';
+
 export const kicker = style({
 	margin: `0 0 ${vars.space.sm}`,
 	fontSize: '12px',
@@ -160,10 +163,18 @@ export const loveScreen = style({
 	display: 'grid',
 	placeItems: 'center',
 	padding: 'clamp(24px, 6vw, 80px)',
-	background: 'linear-gradient(135deg, #fff8fb 0%, #f7fbff 52%, #eef9f3 100%)',
+	background: lightLoveBackground,
+	selectors: {
+		':root[data-theme="light"] &': {
+			background: lightLoveBackground,
+		},
+		':root[data-theme="dark"] &': {
+			background: darkLoveBackground,
+		},
+	},
 	'@media': {
 		'(prefers-color-scheme: dark)': {
-			background: 'linear-gradient(135deg, #17131b 0%, #0c1420 54%, #0d1a18 100%)',
+			background: darkLoveBackground,
 		},
 	},
 });

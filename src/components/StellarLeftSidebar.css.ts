@@ -1,4 +1,4 @@
-import { globalStyle, style } from '@vanilla-extract/css';
+import { createVar, globalStyle, style } from '@vanilla-extract/css';
 import { vars } from '../styles/theme.css';
 
 const gapMargin = '16px';
@@ -9,12 +9,14 @@ const borderCardLarge = '24px';
 const borderCardSmall = '12px';
 const borderBar = '8px';
 const sidebarHeight = `calc(100vh - ${gapMargin} * 2 - 96px)`;
-const bgA20 = 'rgba(255, 255, 255, 0.2)';
-const bgA50 = 'rgba(255, 255, 255, 0.5)';
-const bgA100 = 'rgba(255, 255, 255, 1)';
-const textP1 = 'rgba(18, 25, 38, 0.8)';
-const textP2 = 'rgba(18, 25, 38, 0.7)';
-const textP3 = 'rgba(18, 25, 38, 0.5)';
+const sidebarGlassBackground = createVar();
+const sidebarGlassGlow = createVar();
+const bgA20 = vars.color.surfaceMuted;
+const bgA50 = vars.color.surface;
+const bgA100 = vars.color.surfaceStrong;
+const textP1 = vars.color.text;
+const textP2 = vars.color.textMuted;
+const textP3 = vars.color.textMeta;
 const sidebarBackgroundImage = 'url(https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.13/image/sidebar-bg1@small.jpg)';
 
 /* root: 照抄 .l_left margin + border-radius，position:sticky 在 StellarShell 里管 */
@@ -51,6 +53,32 @@ export const container = style({
 	textAlign: 'justify',
 	borderRadius: borderCardLarge,
 	overflow: 'hidden',
+	vars: {
+		[sidebarGlassBackground]: 'rgba(255, 255, 255, 0.05)',
+		[sidebarGlassGlow]: 'rgba(255, 255, 255, 0.5)',
+	},
+	selectors: {
+		':root[data-theme="light"] &': {
+			vars: {
+				[sidebarGlassBackground]: 'rgba(255, 255, 255, 0.05)',
+				[sidebarGlassGlow]: 'rgba(255, 255, 255, 0.5)',
+			},
+		},
+		':root[data-theme="dark"] &': {
+			vars: {
+				[sidebarGlassBackground]: 'rgba(15, 23, 42, 0.18)',
+				[sidebarGlassGlow]: 'rgba(148, 163, 184, 0.18)',
+			},
+		},
+	},
+	'@media': {
+		'(prefers-color-scheme: dark)': {
+			vars: {
+				[sidebarGlassBackground]: 'rgba(15, 23, 42, 0.18)',
+				[sidebarGlassGlow]: 'rgba(148, 163, 184, 0.18)',
+			},
+		},
+	},
 	/* ::before — 玻璃效果 + mask 渐变淡出 (核心灵魂) */
 	'::before': {
 		content: '',
@@ -58,8 +86,8 @@ export const container = style({
 		pointerEvents: 'none',
 		top: 0, bottom: 0, left: 0, right: 0,
 		borderRadius: borderCardLarge,
-		background: 'rgba(255,255,255,0.05)',
-		boxShadow: 'inset 0 0 32px 1px rgba(255,255,255,0.5)',
+		background: sidebarGlassBackground,
+		boxShadow: `inset 0 0 32px 1px ${sidebarGlassGlow}`,
 		backdropFilter: 'saturate(300%)',
 		WebkitBackdropFilter: 'saturate(300%)',
 		mask: 'linear-gradient(black, rgba(0,0,0,0.5) 70%, transparent 90%, transparent)',
@@ -444,6 +472,50 @@ export const socialLink = style({
 			filter: 'unset',
 			background: bgA100,
 			color: vars.color.accentStrong,
+		},
+	},
+});
+
+export const themeToggle = style({
+	padding: '6px',
+	border: 0,
+	cursor: 'pointer',
+	selectors: {
+		'&:focus-visible': {
+			outline: 'none',
+			boxShadow: vars.shadow.focus,
+		},
+	},
+});
+
+export const themeStatusIcon = style({
+	display: 'none',
+});
+
+export const themeStatusSystem = style({
+	display: 'block',
+	selectors: {
+		[`${themeToggle}[data-theme-mode='light'] &`]: {
+			display: 'none',
+		},
+		[`${themeToggle}[data-theme-mode='dark'] &`]: {
+			display: 'none',
+		},
+	},
+});
+
+export const themeStatusLight = style({
+	selectors: {
+		[`${themeToggle}[data-theme-mode='light'] &`]: {
+			display: 'block',
+		},
+	},
+});
+
+export const themeStatusDark = style({
+	selectors: {
+		[`${themeToggle}[data-theme-mode='dark'] &`]: {
+			display: 'block',
 		},
 	},
 });

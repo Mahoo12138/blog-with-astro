@@ -7,12 +7,12 @@ const borderCard = '16px';
 const borderCardSmall = '12px';
 const borderBar = '8px';
 const borderImage = '24px';
-const textP1 = 'rgba(18, 25, 38, 0.82)';
-const textP2 = 'rgba(18, 25, 38, 0.62)';
-const textP3 = 'rgba(18, 25, 38, 0.42)';
-const block = 'rgba(18, 25, 38, 0.06)';
-const blockBorder = 'rgba(18, 25, 38, 0.10)';
-const card = 'rgba(255, 255, 255, 0.76)';
+const textP1 = vars.color.text;
+const textP2 = vars.color.textMuted;
+const textP3 = vars.color.textMeta;
+const block = vars.color.surfaceMuted;
+const blockBorder = vars.color.borderStrong;
+const card = vars.color.surface;
 
 export const main = style({
 	width: '100%',
@@ -337,7 +337,7 @@ globalStyle(`${prose} u`, { textDecoration: 'none', borderBottom: `2px solid ${v
 globalStyle(`${prose} kbd`, {
 	padding: '2px 4px 1px',
 	borderRadius: '4px',
-	border: '1px solid #d2d2d2',
+	border: `1px solid ${blockBorder}`,
 	borderBottomWidth: '2px',
 	background: card,
 	fontFamily: vars.font.mono,

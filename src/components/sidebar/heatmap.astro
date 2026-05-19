@@ -1,0 +1,159 @@
+---
+import { getCollection } from 'astro:content';
+import type { WidgetProps } from './types';
+import * as rightStyles from '../StellarRightSidebar.css';
+import { sortBlogPosts } from '../../utils/content';
+import * as styles from './heatmap.css';
+
+const { widget } = Astro.props as WidgetProps;
+
+const DAYS_PER_WEEK = 7;
+const DEFAULT_WEEK_COUNT = 8;
+const ONE_DAY = 24 * 60 * 60 * 1000;
+const weekCount = Math.max(1, Math.min(widget.limit ?? DEFAULT_WEEK_COUNT, DEFAULT_WEEK_COUNT));
+const weekdayLabels = ['一', '二', '三', '四', '五', '六', '日'];
+const levelClasses = [styles.level0, styles.level1, styles.level2, styles.level3, styles.level4];
+const numberFormatter = new Intl.NumberFormat('zh-CN');
+
+type HeatmapPost = {
+	title: string;
+	href: string;
+	words: number;
+};
+
+type HeatmapDay = {
+	dateKey: string;
+	count: number;
+	words: number;
+	posts: HeatmapPost[];
+	level: number;
+	href?: string;
+	label: string;
+};
+
+function toDateKey(timestamp: number) {
+	const date = new Date(timestamp);
+	const year = date.getFullYear();
+	const month = String(date.getMonth() + 1).padStart(2, '0');
+	const day = String(date.getDate()).padStart(2, '0');
+	return `${year}-${month}-${day}`;
+}
+
+function startOfDay(date: Date) {
+	return new Date(date.getFullYear(), date.getMonth(), date.getDate()).valueOf();
+}
+
+function getRecentSunday(today = new Date()) {
+	const todayTimestamp = startOfDay(today);
+	const dayOfWeek = new Date(todayTimestamp).getDay();
+	return todayTimestamp - dayOfWeek * ONE_DAY;
+}
+
+function countWords(value: unknown) {
+	if (typeof value !== 'string') return 0;
+
+	const content = value
+		.replace(/```[\s\S]*?```/g, ' ')
+		.replace(/`[^`]*`/g, ' ')
+		.replace(/<[^>]+>/g, ' ');
+	const cjkCount = content.match(/[\u3400-\u9fff]/g)?.length ?? 0;
+	const latinWordCount = content.match(/[A-Za-z0-9]+(?:[-'][A-Za-z0-9]+)*/g)?.length ?? 0;
+
+	return cjkCount + latinWordCount;
+}
+
+function getActivityLevel(count: number) {
+	if (count <= 0) return 0;
+	if (count === 1) return 1;
+	if (count === 2) return 2;
+	if (count <= 4) return 3;
+	return 4;
+}
+
+function formatNumber(value: number) {
+	return numberFormatter.format(value);
+}
+
+const posts = sortBlogPosts(await getCollection('blog'));
+const postsByDate = new Map<string, HeatmapPost[]>();
+
+for (const post of posts) {
+	const dateKey = toDateKey(post.data.pubDate.valueOf());
+	const entry: HeatmapPost = {
+		title: post.data.title,
+		href: `/blog/${post.id}/`,
+		words: countWords('body' in post ? post.body : ''),
+	};
+
+	postsByDate.set(dateKey, [...(postsByDate.get(dateKey) ?? []), entry]);
+}
+
+const endTimestamp = getRecentSunday();
+const startTimestamp = endTimestamp - (weekCount * DAYS_PER_WEEK - 1) * ONE_DAY;
+const days: HeatmapDay[] = Array.from({ length: weekCount * DAYS_PER_WEEK }, (_, index) => {
+	const dateKey = toDateKey(startTimestamp + index * ONE_DAY);
+	const dayPosts = postsByDate.get(dateKey) ?? [];
+	const words = dayPosts.reduce((total, post) => total + post.words, 0);
+	const count = dayPosts.length;
+	const label = count > 0 ? `${dateKey} 发布 ${count} 篇文章，共 ${formatNumber(words)} 字` : `${dateKey} 没有发布文章`;
+
+	return {
+		dateKey,
+		count,
+		words,
+		posts: dayPosts,
+		level: getActivityLevel(count),
+		href: dayPosts[0]?.href,
+		label,
+	};
+});
+const weeks = Array.from({ length: weekCount }, (_, index) => days.slice(index * DAYS_PER_WEEK, (index + 1) * DAYS_PER_WEEK));
+const totalText = posts.length > 0 ? `写写停停，博主已记录 ${formatNumber(posts.length)} 篇文章！` : '还在酝酿第一篇文章。';
+---
+
+<section class:list={[rightStyles.widget, styles.widget]} aria-labelledby="writing-heatmap-title">
+	<div class={rightStyles.widgetHeader}><span id="writing-heatmap-title">{widget.title}</span></div>
+	<div class={styles.body}>
+		<div class={styles.chart} aria-label={`最近 ${weekCount} 周文章发布热力图`}>
+			<div class={styles.weeks}>
+				{
+					weeks.map((week) => (
+						<div class={styles.week}>
+							{week.map((day) => {
+								const cellClasses = [styles.cell, levelClasses[day.level]];
+								const visiblePosts = day.posts.slice(0, 4);
+								const extraCount = day.posts.length - visiblePosts.length;
+								const tooltip = (
+									<span class={styles.tooltip} role="tooltip">
+										<time class={styles.tooltipDate} datetime={day.dateKey}>{day.dateKey}</time>
+										<span class={styles.tooltipStats}>{day.count > 0 ? `# ${day.count} 篇，${formatNumber(day.words)} 字` : '没有发布'}</span>
+										{visiblePosts.length > 0 && (
+											<span class={styles.tooltipPosts}>
+												{visiblePosts.map((post) => <span class={styles.tooltipPost}>· {post.title}</span>)}
+												{extraCount > 0 && <span class={styles.tooltipPost}>· 另有 {extraCount} 篇</span>}
+											</span>
+										)}
+									</span>
+								);
+
+								return day.href ? (
+									<a class:list={cellClasses} href={day.href} aria-label={day.label} title={day.label}>
+										{tooltip}
+									</a>
+								) : (
+									<span class:list={cellClasses} role="img" aria-label={day.label} title={day.label}>
+										{tooltip}
+									</span>
+								);
+							})}
+						</div>
+					))
+				}
+			</div>
+			<div class={styles.weekdays} aria-hidden="true">
+				{weekdayLabels.map((label) => <span class={styles.weekday}>{label}</span>)}
+			</div>
+		</div>
+		<p class={styles.summary}>{totalText}</p>
+	</div>
+</section>

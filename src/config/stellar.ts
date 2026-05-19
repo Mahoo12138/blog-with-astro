@@ -1,7 +1,7 @@
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 
 export type MenuId = 'post' | 'columns' | 'explore' | 'about' | 'rss' | 'wiki' | 'notebooks';
-export type SidebarWidgetId = 'welcome' | 'recent' | 'related' | 'timeline' | 'media' | 'toc' | 'ghrepo' | 'goods-stats' | 'gallery-info' | 'gallery-albums';
+export type SidebarWidgetId = 'welcome' | 'recent' | 'related' | 'timeline' | 'media' | 'toc' | 'ghrepo' | 'heatmap' | 'goods-stats' | 'gallery-info' | 'gallery-albums';
 export type SiteTreeKey = 'home' | 'index_blog' | 'index_topic' | 'explore' | 'gallery' | 'post' | 'topic' | 'wiki' | 'notebooks' | 'notes' | 'note' | 'author' | 'error_page' | 'page';
 
 export interface MenubarItem {
@@ -134,12 +134,13 @@ export const stellarConfig = {
 		media: { id: 'media', layout: 'media', title: '精选文章' },
 		toc: { id: 'toc', layout: 'toc', title: '本文目录' },
 		ghrepo: { id: 'ghrepo', layout: 'ghrepo', title: '仓库' },
+		heatmap: { id: 'heatmap', layout: 'heatmap', title: '热力图', limit: 8 },
 		'goods-stats': { id: 'goods-stats', layout: 'goods-stats', title: '好物统计' },
 		'gallery-info': { id: 'gallery-info', layout: 'gallery-info', title: '我的相册', body: '这里是我的日常生活记录，用镜头记下每一个小确幸。' },
 		'gallery-albums': { id: 'gallery-albums', layout: 'gallery-albums', title: '相册列表' },
 	} satisfies Record<SidebarWidgetId, SidebarWidgetConfig>,
 	siteTree: {
-		home: { menuId: 'post', leftbar: ['welcome', 'recent'], rightbar: null },
+		home: { menuId: 'post', leftbar: ['welcome', 'recent'], rightbar: ['heatmap'] },
 		index_blog: { menuId: 'post', leftbar: ['welcome', 'recent'], rightbar: null },
 		index_topic: { menuId: 'columns', leftbar: ['welcome', 'recent'], rightbar: null },
 		explore: { menuId: 'explore', leftbar: ['welcome', 'recent'], rightbar: null },

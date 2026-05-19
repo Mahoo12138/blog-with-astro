@@ -6,7 +6,7 @@ import type { WidgetProps } from './types';
 import * as styles from '../StellarRightSidebar.css';
 
 const { widget } = Astro.props as WidgetProps;
-const recentPosts = (await getCollection('blog'))
+const recentPosts = (await getCollection('posts'))
 	.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
 	.slice(0, 3);
 const featuredPost = recentPosts.find((post) => post.data.heroImage) ?? recentPosts[0];

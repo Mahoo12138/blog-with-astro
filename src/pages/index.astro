@@ -7,7 +7,7 @@ import StellarShell from '../layouts/StellarShell.astro';
 import * as styles from '../styles/homeFeed.css';
 import { getPhotoIndex, sortBlogPosts } from '../utils/content';
 
-const posts = sortBlogPosts(await getCollection('blog'));
+const posts = sortBlogPosts(await getCollection('posts'));
 const photoIndex = getPhotoIndex(posts);
 ---
 

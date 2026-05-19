@@ -6,7 +6,7 @@ import StellarShell from '../../layouts/StellarShell.astro';
 import * as styles from '../../styles/taxonomy.css';
 import { buildTaxonomyBuckets, sortBlogPosts } from '../../utils/content';
 
-const posts = sortBlogPosts(await getCollection('blog'));
+const posts = sortBlogPosts(await getCollection('posts'));
 const tags = buildTaxonomyBuckets(posts, 'tags');
 ---
 

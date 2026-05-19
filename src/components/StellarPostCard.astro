@@ -7,12 +7,12 @@ import StellarIcon from './StellarIcon.astro';
 import * as styles from './StellarPostCard.css';
 
 interface Props {
-	post: CollectionEntry<'blog'>;
+	post: CollectionEntry<'posts'>;
 	variant?: 'default' | 'photo';
 }
 
 const { post, variant = 'default' } = Astro.props;
-const href = `/blog/${post.id}/`;
+const href = `/post/${post.id}/`;
 const excerpt = post.data.description || '';
 const heroImage = post.data.heroImage as ImageMetadata | undefined;
 const primaryCategory = post.data.categories?.[0];

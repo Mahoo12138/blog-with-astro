@@ -1,6 +1,6 @@
 import type { CollectionEntry } from 'astro:content';
 
-type BlogPost = CollectionEntry<'blog'>;
+type BlogPost = CollectionEntry<'posts'>;
 type ColumnEntry = CollectionEntry<'columns'>;
 
 export type TaxonomyKey = 'categories' | 'tags';

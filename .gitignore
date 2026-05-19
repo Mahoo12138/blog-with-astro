@@ -23,3 +23,5 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 hexo-theme-stellar
+.agents
+skills-lock.json

@@ -74,14 +74,14 @@ function formatNumber(value: number) {
 	return numberFormatter.format(value);
 }
 
-const posts = sortBlogPosts(await getCollection('blog'));
+const posts = sortBlogPosts(await getCollection('posts'));
 const postsByDate = new Map<string, HeatmapPost[]>();
 
 for (const post of posts) {
 	const dateKey = toDateKey(post.data.pubDate.valueOf());
 	const entry: HeatmapPost = {
 		title: post.data.title,
-		href: `/blog/${post.id}/`,
+		href: `/post/${post.id}/`,
 		words: countWords('body' in post ? post.body : ''),
 	};
 

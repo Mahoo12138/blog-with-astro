@@ -8,7 +8,7 @@ import * as styles from '../../styles/taxonomy.css';
 import { buildColumnBuckets, getPhotoIndex, sortBlogPosts, type ColumnBucket } from '../../utils/content';
 
 export async function getStaticPaths() {
-	const posts = sortBlogPosts(await getCollection('blog'));
+	const posts = sortBlogPosts(await getCollection('posts'));
 	const columns = await getCollection('columns');
 
 	return buildColumnBuckets(posts, columns)

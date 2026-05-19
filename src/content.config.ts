@@ -19,23 +19,62 @@ const mediaFields = (image: () => z.ZodTypeAny) => ({
 	banner: image().optional(),
 });
 
-const blog = defineCollection({
-	// Load Markdown and MDX files in the `src/content/blog/` directory.
-	loader: glob({ base: './src/content/blog', pattern: '**/*.{md,mdx}' }),
+const post = defineCollection({
+	loader: glob({ base: './src/content/post', pattern: '**/*.{md,mdx}' }),
+	schema: ({ image }) =>
+		z
+			.object({
+				title: z.string(),
+				description: z.string().default(''),
+				pubDate: z.coerce.date().optional(),
+				date: z.coerce.date().optional(),
+				author: z.string().default(''),
+				layout: z.string().optional(),
+				columnId: z.string().optional(),
+				img: z.string().optional(),
+				mathjax: z.boolean().default(false),
+				topic: z.string().optional(),
+				updated: z.coerce.date().optional(),
+				...taxonomyFields,
+				...publicationFields,
+				...mediaFields(image),
+			})
+			.transform((data) => ({
+				...data,
+				pubDate: data.pubDate ?? data.date ?? new Date(0),
+				updatedDate: data.updatedDate ?? data.updated,
+			})),
+});
+
+const posts = defineCollection({
+	// Load Markdown and MDX files in the `src/content/posts/` directory.
+	loader: glob({ base: './src/content/posts', pattern: '**/*.{md,mdx}' }),
 	// Type-check frontmatter using a schema
 	schema: ({ image }) =>
-		z.object({
-			title: z.string(),
-			description: z.string().default(''),
-			// Transform string to Date object
-			pubDate: z.coerce.date(),
-			author: z.string().default(''),
-			layout: z.string().optional(),
-			columnId: z.string().optional(),
-			...taxonomyFields,
-			...publicationFields,
-			...mediaFields(image),
-		}),
+		z
+			.object({
+				title: z.string(),
+				description: z.string().default(''),
+				// Accept both Astro-style pubDate and Hexo-style date
+				pubDate: z.coerce.date().optional(),
+				date: z.coerce.date().optional(),
+				author: z.string().default(''),
+				layout: z.string().optional(),
+				columnId: z.string().optional(),
+				// Hexo fields
+				img: z.string().optional(), // Hexo cover image URL
+				mathjax: z.boolean().default(false),
+				topic: z.string().optional(),
+				updated: z.coerce.date().optional(), // Hexo alias for updatedDate
+				...taxonomyFields,
+				...publicationFields,
+				...mediaFields(image),
+			})
+			.transform((data) => ({
+				...data,
+				pubDate: data.pubDate ?? data.date ?? new Date(0),
+				updatedDate: data.updatedDate ?? data.updated,
+			})),
 });
 
 const wiki = defineCollection({
@@ -114,4 +153,4 @@ const goods = defineCollection({
 	}),
 });
 
-export const collections = { blog, wiki, columns, notes, goods };
+export const collections = { post, posts, wiki, columns, notes, goods };

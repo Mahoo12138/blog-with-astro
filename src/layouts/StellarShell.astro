@@ -38,11 +38,11 @@ const hasRightbarContent = shellConfig.rightbar.length > 0 || hasRightbar;
 			<div class={styles.glowRight}></div>
 		</div>
 		<div class={styles.shell} data-stellar-shell>
-			<aside class={styles.left}>
+			<aside class={styles.left} data-pagefind-ignore>
 				<StellarLeftSidebar menuId={shellConfig.menuId} widgets={shellConfig.leftbar} />
 				{hasLeftbar && <slot name="leftbar" />}
 			</aside>
-			<main class={styles.mainArea}>
+			<main class={styles.mainArea} data-pagefind-body>
 				<div class:list={[styles.mainContent, mainClass]}>
 					{hasLead && <div class={styles.lead}><slot name="lead" /></div>}
 					<slot />
@@ -50,13 +50,13 @@ const hasRightbarContent = shellConfig.rightbar.length > 0 || hasRightbar;
 				</div>
 			</main>
 			{hasRightbarContent && (
-				<aside class={styles.right}>
+				<aside class={styles.right} data-pagefind-ignore>
 					<StellarRightSidebar widgets={shellConfig.rightbar} headings={tocHeadings} />
 					{hasRightbar && <slot name="rightbar" />}
 				</aside>
 			)}
-			<button class={styles.mainMask} type="button" data-sidebar-dismiss aria-label="Close sidebar"></button>
-			<div class={styles.floatPanel}>
+			<button class={styles.mainMask} type="button" data-sidebar-dismiss aria-label="Close sidebar" data-pagefind-ignore></button>
+			<div class={styles.floatPanel} data-pagefind-ignore>
 				{hasRightbarContent && (
 					<button class:list={[styles.floatButton, styles.rightbarToggle]} type="button" data-sidebar-toggle="rightbar" aria-label="Toggle right sidebar">
 						<StellarIcon name="default:rightbar" class={styles.floatIcon} />

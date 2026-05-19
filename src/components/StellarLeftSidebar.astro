@@ -13,6 +13,7 @@ interface Props {
 
 const { menuId = 'post', widgets = [] } = Astro.props;
 const pathname = Astro.url.pathname;
+const searchQuery = pathname.replace(/\/+$/, '') === '/search' ? Astro.url.searchParams.get('q')?.trim() ?? '' : '';
 
 function isActive(id: MenuId, href: string) {
 	if (id === menuId) {
@@ -62,11 +63,11 @@ const socialItems = stellarConfig.footer.social;
 		<div class={styles.inner}>
 			<div class={styles.widgets}>
 				<div class={styles.searchWrapper} id="search-wrapper">
-					<form class={styles.searchForm} action="/blog">
+					<form class={styles.searchForm} action="/search/" method="get" role="search" data-site-search-form>
 						<button class={styles.searchButton} type="submit" aria-label="站内搜索">
 							<StellarIcon name="default:search" class={styles.searchIcon} />
 						</button>
-						<input class={styles.searchInput} type="text" placeholder="站内搜索" />
+						<input class={styles.searchInput} type="search" name="q" value={searchQuery} placeholder="站内搜索" aria-label="站内搜索" autocomplete="off" data-site-search-input />
 					</form>
 					<div class={styles.searchNoResult}>没有找到内容</div>
 				</div>
@@ -109,6 +110,41 @@ const socialItems = stellarConfig.footer.social;
 		</footer>
 	</div>
 </div>
+
+<script is:inline>
+	(() => {
+		const isSearchPage = window.location.pathname.replace(/\/+$/, '') === '/search';
+		const pageQuery = isSearchPage ? new URLSearchParams(window.location.search).get('q')?.trim() ?? '' : '';
+
+		document.querySelectorAll('[data-site-search-form]').forEach((form) => {
+			if (!(form instanceof HTMLFormElement)) {
+				return;
+			}
+
+			const input = form.querySelector('[data-site-search-input]');
+			if (!(input instanceof HTMLInputElement)) {
+				return;
+			}
+
+			if (pageQuery) {
+				input.value = pageQuery;
+			}
+
+			form.addEventListener('submit', (event) => {
+				const query = input.value.trim();
+				const target = new URL(form.action || '/search/', window.location.origin);
+				target.search = '';
+
+				if (query) {
+					target.searchParams.set('q', query);
+				}
+
+				event.preventDefault();
+				window.location.assign(target.toString());
+			});
+		});
+	})();
+</script>
 
 <script is:inline>
 	(() => {

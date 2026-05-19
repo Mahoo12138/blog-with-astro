@@ -1,0 +1,191 @@
+---
+import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import StellarShell from '../layouts/StellarShell.astro';
+import * as styles from '../styles/search.css';
+---
+
+<StellarShell title={`站内搜索 · ${SITE_TITLE}`} description={SITE_DESCRIPTION} mainClass={styles.main} siteTree="index_blog">
+	<section class={styles.root} data-pagefind-ignore>
+		<header class={styles.header}>
+			<div>
+				<p class={styles.kicker}>Search</p>
+				<h1 class={styles.title}>站内搜索</h1>
+			</div>
+			<form class={styles.form} action="/search/" method="get" role="search" data-search-page-form>
+				<input class={styles.input} type="search" name="q" placeholder="输入关键词" aria-label="站内搜索" autocomplete="off" data-search-page-input />
+				<button class={styles.submit} type="submit">搜索</button>
+			</form>
+			<p class={styles.status} data-search-status aria-live="polite">输入关键词开始搜索</p>
+		</header>
+
+		<ol class={styles.results} data-search-results></ol>
+		<section class={styles.empty} data-search-empty hidden>没有找到内容</section>
+		<button class={styles.more} type="button" data-search-more hidden>加载更多</button>
+	</section>
+</StellarShell>
+
+<script is:inline>
+	(() => {
+		const form = document.querySelector('[data-search-page-form]');
+		const input = document.querySelector('[data-search-page-input]');
+		const status = document.querySelector('[data-search-status]');
+		const results = document.querySelector('[data-search-results]');
+		const empty = document.querySelector('[data-search-empty]');
+		const more = document.querySelector('[data-search-more]');
+
+		if (!(form instanceof HTMLFormElement) || !(input instanceof HTMLInputElement) || !(results instanceof HTMLOListElement)) {
+			return;
+		}
+
+		const pageSize = 10;
+		let pagefindPromise;
+		let resultHandles = [];
+		let loadedCount = 0;
+		let activeSearchId = 0;
+
+		const setHidden = (element, hidden) => {
+			if (element instanceof HTMLElement) {
+				element.hidden = hidden;
+			}
+		};
+
+		const setStatus = (text) => {
+			if (status) {
+				status.textContent = text;
+			}
+		};
+
+		const loadPagefind = () => {
+			pagefindPromise ??= import('/pagefind/pagefind.js').then((module) => module.default ?? module);
+			return pagefindPromise;
+		};
+
+		const clearResults = () => {
+			results.replaceChildren();
+			setHidden(empty, true);
+			setHidden(more, true);
+		};
+
+		const createResultItem = (result) => {
+			const item = document.createElement('li');
+			item.className = 'search-result-item';
+
+			const link = document.createElement('a');
+			link.className = 'search-result-link';
+			link.href = result.url;
+
+			const title = document.createElement('h2');
+			title.className = 'search-result-title';
+			title.textContent = result.meta?.title || result.title || result.url;
+
+			const url = document.createElement('span');
+			url.className = 'search-result-url';
+			url.textContent = result.url;
+
+			const excerpt = document.createElement('p');
+			excerpt.className = 'search-result-excerpt';
+			excerpt.innerHTML = result.excerpt || '';
+
+			link.append(title, url, excerpt);
+			item.append(link);
+			return item;
+		};
+
+		const updateMoreButton = () => {
+			setHidden(more, loadedCount >= resultHandles.length);
+			if (more instanceof HTMLButtonElement) {
+				more.disabled = false;
+			}
+		};
+
+		const renderNextResults = async (searchId) => {
+			const nextHandles = resultHandles.slice(loadedCount, loadedCount + pageSize);
+			if (nextHandles.length === 0) {
+				updateMoreButton();
+				return;
+			}
+
+			if (more instanceof HTMLButtonElement) {
+				more.disabled = true;
+			}
+
+			const resultData = await Promise.all(nextHandles.map((result) => result.data()));
+			if (searchId !== activeSearchId) {
+				return;
+			}
+
+			const fragment = document.createDocumentFragment();
+			resultData.forEach((result) => {
+				fragment.append(createResultItem(result));
+			});
+			results.append(fragment);
+			loadedCount += resultData.length;
+
+			const suffix = loadedCount < resultHandles.length ? `，已显示 ${loadedCount} 条` : '';
+			setStatus(`找到 ${resultHandles.length} 条结果${suffix}`);
+			updateMoreButton();
+		};
+
+		const runSearch = async (query) => {
+			const searchId = activeSearchId + 1;
+			activeSearchId = searchId;
+			resultHandles = [];
+			loadedCount = 0;
+			clearResults();
+
+			if (!query) {
+				setStatus('输入关键词开始搜索');
+				return;
+			}
+
+			setStatus('正在搜索...');
+
+			try {
+				const pagefind = await loadPagefind();
+				const search = await pagefind.search(query);
+				if (searchId !== activeSearchId) {
+					return;
+				}
+
+				resultHandles = search.results;
+				if (resultHandles.length === 0) {
+					setStatus(`搜索“${query}”：没有找到内容`);
+					setHidden(empty, false);
+					return;
+				}
+
+				setStatus(`搜索“${query}”：找到 ${resultHandles.length} 条结果`);
+				await renderNextResults(searchId);
+			} catch {
+				if (searchId !== activeSearchId) {
+					return;
+				}
+
+				setStatus('搜索索引暂不可用，请先完成站点构建。');
+			}
+		};
+
+		const setUrlQuery = (query) => {
+			const target = new URL('/search/', window.location.origin);
+			if (query) {
+				target.searchParams.set('q', query);
+			}
+			window.history.replaceState(null, '', target);
+		};
+
+		form.addEventListener('submit', (event) => {
+			event.preventDefault();
+			const query = input.value.trim();
+			setUrlQuery(query);
+			runSearch(query);
+		});
+
+		more?.addEventListener('click', () => {
+			renderNextResults(activeSearchId);
+		});
+
+		const initialQuery = new URLSearchParams(window.location.search).get('q')?.trim() ?? '';
+		input.value = initialQuery;
+		runSearch(initialQuery);
+	})();
+</script>

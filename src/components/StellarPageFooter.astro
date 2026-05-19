@@ -10,7 +10,7 @@ const content = stellarConfig.footer.content
 	.replace('{site.title}', SITE_TITLE);
 ---
 
-<footer class:list={[styles.root, 'page-footer', 'footnote']}>
+<footer class:list={[styles.root, 'page-footer', 'footnote']} data-pagefind-ignore>
 	<hr />
 	{
 		sitemap.length > 0 && (

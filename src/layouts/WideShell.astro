@@ -33,19 +33,19 @@ const shellConfig = resolveShellConfig(siteTree, { menuId, leftbar });
 			<div class={styles.glowRight}></div>
 		</div>
 		<div class={styles.shell} data-stellar-shell>
-			<aside class={styles.left}>
+			<aside class={styles.left} data-pagefind-ignore>
 				<StellarLeftSidebar menuId={shellConfig.menuId} widgets={shellConfig.leftbar} />
 				<slot name="leftbar" />
 			</aside>
-			<main class={styles.mainArea}>
+			<main class={styles.mainArea} data-pagefind-body>
 				<div class:list={[styles.mainContent, mainClass]}>
 					{hasLead && <div class={styles.lead}><slot name="lead" /></div>}
 					<slot />
 					<StellarPageFooter />
 				</div>
 			</main>
-			<button class={styles.mainMask} type="button" data-sidebar-dismiss aria-label="Close sidebar"></button>
-			<div class={styles.floatPanel}>
+			<button class={styles.mainMask} type="button" data-sidebar-dismiss aria-label="Close sidebar" data-pagefind-ignore></button>
+			<div class={styles.floatPanel} data-pagefind-ignore>
 				<button class:list={[styles.floatButton, styles.leftbarToggle]} type="button" data-sidebar-toggle="leftbar" aria-label="Toggle left sidebar">
 					<StellarIcon name="default:leftbar" class={styles.floatIcon} />
 				</button>

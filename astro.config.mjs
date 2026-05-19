@@ -3,6 +3,7 @@
 import mdx from '@astrojs/mdx';
 import react from '@astrojs/react';
 import sitemap from '@astrojs/sitemap';
+import pagefind from 'astro-pagefind';
 import { defineConfig, fontProviders } from 'astro/config';
 import { vanillaExtractPlugin } from '@vanilla-extract/vite-plugin';
 
@@ -10,7 +11,7 @@ import { vanillaExtractPlugin } from '@vanilla-extract/vite-plugin';
 export default defineConfig({
 	output: 'static',
 	site: 'https://example.com',
-	integrations: [mdx(), react(), sitemap()],
+	integrations: [mdx(), react(), sitemap(), pagefind()],
 	vite: {
 		plugins: [vanillaExtractPlugin({ identifiers: 'debug' })],
 	},

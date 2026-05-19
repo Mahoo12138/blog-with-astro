@@ -17,7 +17,7 @@ const { title, description, lang = 'en' } = Astro.props;
 		<BaseHead title={title} description={description} />
 	</head>
 	<body class={styles.body}>
-		<main class={styles.main}>
+		<main class={styles.main} data-pagefind-body>
 			<slot />
 		</main>
 	</body>

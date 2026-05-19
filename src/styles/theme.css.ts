@@ -139,7 +139,6 @@ globalStyle('*', {
 globalStyle('html', {
 	backgroundColor: vars.color.background,
 	scrollBehavior: 'smooth',
-	// @ts-expect-error — scrollbar-gutter not yet in TS CSS types
 	scrollbarGutter: 'stable',
 	scrollbarWidth: 'thin',
 	scrollbarColor: `${vars.color.borderStrong} transparent`,

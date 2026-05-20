@@ -33,14 +33,19 @@ export function getPhotoIndex(posts: BlogPost[]) {
 }
 
 export function slugifySegment(value: string) {
-	const slug = value
-		.toLowerCase()
+	const normalized = value.trim().toLowerCase().normalize('NFKC');
+	const slug = normalized
+		.replace(/["'’]+/g, '')
+		.replace(/[^\p{Letter}\p{Number}]+/gu, '-')
+		.replace(/^-+|-+$/g, '');
+	const asciiSlug = slug
 		.normalize('NFKD')
 		.replace(/[\u0300-\u036f]/g, '')
-		.replace(/[^a-z0-9]+/g, '-')
+		.replace(/[^\x00-\x7F]+/g, '')
+		.replace(/-+/g, '-')
 		.replace(/^-+|-+$/g, '');
 
-	return slug || encodeURIComponent(value.trim().toLowerCase());
+	return asciiSlug || slug || normalized.replace(/\s+/g, '-');
 }
 
 function normalizeValues(values: string[]) {

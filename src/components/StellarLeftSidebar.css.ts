@@ -136,6 +136,13 @@ export const avatar = style({
 	boxShadow: 'none',
 	objectFit: 'cover',
 	flexShrink: 0,
+	transformOrigin: 'center',
+	transition: 'transform 560ms cubic-bezier(0.22, 1, 0.36, 1)',
+	selectors: {
+		'&:hover': {
+			transform: 'rotate(1turn)',
+		},
+	},
 });
 
 export const titleWrap = style({
@@ -187,7 +194,7 @@ export const menuLink = style({
 	width: '100%',
 	minHeight: '40px',
 	borderRadius: borderBar,
-	background: bgA50,
+	background: bgA20,
 	color: textP3,
 	fontSize: '15px',
 	fontWeight: 500,
@@ -412,20 +419,22 @@ export const widgetLink = style({
 
 export const recentList = style({
 	display: 'block',
+	paddingRight: '8px',
 });
 
 export const recentItem = style({
 	display: 'flex',
 	justifyContent: 'space-between',
 	alignItems: 'center',
+	gap: '8px',
 	padding: `6px ${gapPadding}`,
 	borderRadius: borderBar,
 	color: textP1,
 	fontSize: '14px',
 	lineHeight: 1.2,
+	minWidth: 0,
 	overflow: 'hidden',
-	textOverflow: 'ellipsis',
-	whiteSpace: 'nowrap',
+	transition: 'background-color 160ms ease, color 160ms ease',
 	selectors: {
 		'& + &': {
 			marginTop: '2px',
@@ -435,6 +444,15 @@ export const recentItem = style({
 			color: textP1,
 		},
 	},
+});
+
+export const recentItemTitle = style({
+	display: 'block',
+	minWidth: 0,
+	flex: '1 1 auto',
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
+	whiteSpace: 'nowrap',
 });
 
 export const footer = style({

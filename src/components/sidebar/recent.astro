@@ -17,7 +17,9 @@ const posts = (await getCollection('posts'))
 			<div class={leftStyles.widgetTitle}><span>{widget.title}</span></div>
 			<div class={leftStyles.recentList}>
 				{posts.map((post) => (
-					<a class={leftStyles.recentItem} href={`/blog/${post.id}/`}>{post.data.title}</a>
+					<a class={leftStyles.recentItem} href={`/blog/${post.id}/`}>
+						<span class={leftStyles.recentItemTitle}>{post.data.title}</span>
+					</a>
 				))}
 			</div>
 		</section>

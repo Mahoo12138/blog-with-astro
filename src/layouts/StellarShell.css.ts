@@ -3,6 +3,7 @@ import { breakpoints, vars } from '../styles/theme.css';
 
 const stellarGapMargin = '16px';
 const stellarSidebarWidth = '288px';
+const stellarNarrowInset = 'clamp(16px, 4vw, 24px)';
 
 export const body = style({
 	minHeight: '100vh',
@@ -56,10 +57,10 @@ export const shell = style({
 		},
 		/* 平板：左栏 + 主栏两列 */
 		[`screen and (max-width: ${breakpoints.laptop})`]: {
-			width: 'min(100%, calc(100% - 1rem))',
+			width: '100%',
 			gridTemplateColumns: `${stellarSidebarWidth} minmax(0, 720px)`,
 			gap: stellarGapMargin,
-			padding: 0,
+			padding: `0 ${stellarNarrowInset}`,
 		},
 		[`screen and (max-width: ${breakpoints.mobile})`]: {
 			display: 'block',
@@ -79,15 +80,25 @@ export const left = style({
 	alignSelf: 'start',
 	zIndex: 8,
 	'@media': {
+		[`screen and (max-width: ${breakpoints.laptop})`]: {
+			margin: `calc(${stellarGapMargin} * 2) 0 0`,
+		},
 		[`screen and (max-width: ${breakpoints.mobile})`]: {
 			position: 'fixed',
-			transform: 'translateX(-320px)',
+			transform: `translateX(calc(-100% - ${stellarNarrowInset}))`,
 			transition: 'transform 0.38s ease-out',
 			margin: 0,
-			left: '8px',
+			left: stellarNarrowInset,
+			width: `min(${stellarSidebarWidth}, calc(100vw - ${stellarNarrowInset} * 2))`,
 			top: `calc(${stellarGapMargin} * 2)`,
 			maxHeight: `calc(100vh - ${stellarGapMargin} * 2 - 96px)`,
-			boxShadow: '0 12px 16px -4px rgba(0, 0, 0, 0.2)',
+			borderRadius: vars.radius.lg,
+			background: vars.color.backgroundElevated,
+			border: `1px solid ${vars.color.borderStrong}`,
+			overflow: 'hidden',
+			boxShadow: vars.shadow.card,
+			backdropFilter: 'saturate(180%) blur(22px)',
+			WebkitBackdropFilter: 'saturate(180%) blur(22px)',
 			zIndex: 10,
 		},
 	},
@@ -160,7 +171,9 @@ export const mainMask = style({
 	height: '100%',
 	padding: 0,
 	border: 0,
-	background: 'rgba(0, 0, 0, 0.1)',
+	background: 'rgba(15, 23, 42, 0.18)',
+	backdropFilter: 'blur(8px) saturate(120%)',
+	WebkitBackdropFilter: 'blur(8px) saturate(120%)',
 	zIndex: 9,
 	opacity: 0,
 	transition: 'opacity 0.2s ease',

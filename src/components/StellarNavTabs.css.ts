@@ -1,10 +1,16 @@
 import { style } from '@vanilla-extract/css';
-import { vars } from '../styles/theme.css';
+import { breakpoints, vars } from '../styles/theme.css';
 
 export const root = style({
 	position: 'sticky',
 	top: vars.space.xxl,
 	zIndex: 8,
+	'@media': {
+		[`screen and (max-width: ${breakpoints.tablet})`]: {
+			top: 0,
+			paddingTop: 'calc(env(safe-area-inset-top, 0px) + 10px)',
+		},
+	},
 });
 
 export const blur = style({
@@ -15,6 +21,11 @@ export const blur = style({
 	boxShadow: vars.shadow.head,
 	backdropFilter: 'saturate(300%) blur(18px)',
 	WebkitBackdropFilter: 'saturate(300%) blur(18px)',
+	'@media': {
+		[`screen and (max-width: ${breakpoints.tablet})`]: {
+			margin: '0 clamp(12px, 4vw, 20px)',
+		},
+	},
 });
 
 export const inner = style({

@@ -1,14 +1,19 @@
 ---
+import { resolveColor } from './utils';
+
 interface Props {
 	checked?: boolean;
 	color?: string;
 	interactive?: boolean;
+	inline?: boolean;
+	name?: string;
+	value?: string;
 }
 
-const { checked = false, color = '#2196f3', interactive = false } = Astro.props;
+const { checked = false, color = 'accent', interactive = false, inline = false, name, value } = Astro.props;
 ---
 
-<label class="tag-plugin checkbox" style={`--theme:${color};`}>
-	<input type="checkbox" checked={checked} disabled={!interactive} />
+<label class="tag-plugin checkbox" data-inline={inline} style={`--theme:${resolveColor(color)};`}>
+	<input type="checkbox" checked={checked} disabled={!interactive} name={name} value={value} />
 	<span><slot /></span>
 </label>

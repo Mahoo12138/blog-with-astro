@@ -1,0 +1,18 @@
+---
+import { resolveColor, styleVars, translucent } from './utils';
+
+interface Props {
+	cite?: string;
+	color?: string;
+}
+
+const { cite, color = 'accent' } = Astro.props;
+const accent = resolveColor(color);
+---
+
+<blockquote class="tag-plugin blockquote-card" style={styleVars({ '--quote-color': accent, '--quote-bg': translucent(accent, 8) })}>
+	<div class="blockquote-content">
+		<slot />
+	</div>
+	{cite && <cite class="blockquote-cite">{cite}</cite>}
+</blockquote>

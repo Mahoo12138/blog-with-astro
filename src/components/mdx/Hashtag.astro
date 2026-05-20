@@ -1,11 +1,14 @@
 ---
+import { resolveColor, translucent } from './utils';
+
 interface Props {
 	href?: string;
 	color?: string;
 }
 
-const { href, color = '#2196f3' } = Astro.props;
-const style = `--theme:${color};--theme-block:${color}1f;`;
+const { href, color = 'accent' } = Astro.props;
+const accent = resolveColor(color);
+const style = `--theme:${accent};--theme-block:${translucent(accent, 12)};`;
 ---
 
 {

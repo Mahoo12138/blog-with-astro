@@ -1,0 +1,20 @@
+---
+import { resolveColor, styleVars } from './utils';
+
+interface Props {
+	checked?: boolean;
+	color?: string;
+	interactive?: boolean;
+	inline?: boolean;
+	name?: string;
+	value?: string;
+}
+
+const { checked = false, color = 'accent', interactive = false, inline = false, name, value } = Astro.props;
+const accent = resolveColor(color);
+---
+
+<label class="tag-plugin radio" data-inline={inline} style={styleVars({ '--theme': accent, '--radio-surface': '#fff' })}>
+	<input type="radio" checked={checked} disabled={!interactive} name={name} value={value} />
+	<span><slot /></span>
+</label>

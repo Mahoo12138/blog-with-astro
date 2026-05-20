@@ -1,8 +1,12 @@
 ---
+import { resolveColor, translucent } from './utils';
+
 const tones = {
 	info: ['#2196f3', 'rgba(33, 150, 243, 0.12)', 'rgba(33, 150, 243, 0.24)'],
+	tip: ['#22c55e', 'rgba(34, 197, 94, 0.12)', 'rgba(34, 197, 94, 0.24)'],
 	success: ['#3aa757', 'rgba(58, 167, 87, 0.12)', 'rgba(58, 167, 87, 0.24)'],
 	warning: ['#ff9800', 'rgba(255, 152, 0, 0.14)', 'rgba(255, 152, 0, 0.26)'],
+	warn: ['#ff9800', 'rgba(255, 152, 0, 0.14)', 'rgba(255, 152, 0, 0.26)'],
 	danger: ['#f44336', 'rgba(244, 67, 54, 0.12)', 'rgba(244, 67, 54, 0.24)'],
 	purple: ['#9c27b0', 'rgba(156, 39, 176, 0.12)', 'rgba(156, 39, 176, 0.24)'],
 } as const;
@@ -14,7 +18,9 @@ interface Props {
 }
 
 const { title, tone = 'info', color } = Astro.props;
-const [theme, themeBlock, themeBorder] = color ? [color, `${color}1f`, `${color}3d`] : tones[tone];
+const theme = color ? resolveColor(color) : tones[tone][0];
+const themeBlock = color ? translucent(theme, 12) : tones[tone][1];
+const themeBorder = color ? translucent(theme, 24) : tones[tone][2];
 ---
 
 <aside class="tag-plugin colorful note" data-color={tone} style={`--theme:${theme};--theme-block:${themeBlock};--theme-border:${themeBorder};`}>

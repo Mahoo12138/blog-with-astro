@@ -129,9 +129,6 @@ const lightBodyBackground =
 const darkBodyBackground =
 	'radial-gradient(circle at top left, rgba(126, 203, 255, 0.12), transparent 22rem), radial-gradient(circle at top right, rgba(51, 103, 214, 0.12), transparent 18rem), linear-gradient(180deg, #0b1118 0%, #0f1722 46%, #111b29 100%)';
 
-const lightCodeBackground = 'rgba(15, 23, 42, 0.94)';
-const darkCodeBackground = 'rgba(2, 6, 23, 0.92)';
-
 globalStyle('*', {
 	boxSizing: 'border-box',
 });
@@ -260,29 +257,42 @@ globalStyle('code', {
 
 globalStyle('pre', {
 	padding: vars.space.xl,
-	borderRadius: vars.radius.lg,
+	borderRadius: vars.radius.md,
+	border: `1px solid ${vars.color.borderStrong}`,
 	overflowX: 'auto',
-	backgroundColor: lightCodeBackground,
-	boxShadow: vars.shadow.card,
-	'@media': {
-		'(prefers-color-scheme: dark)': {
-			backgroundColor: darkCodeBackground,
-		},
-	},
-});
-
-globalStyle(':root[data-theme="light"] pre', {
-	backgroundColor: lightCodeBackground,
-});
-
-globalStyle(':root[data-theme="dark"] pre', {
-	backgroundColor: darkCodeBackground,
+	whiteSpace: 'pre-wrap',
+	overflowWrap: 'anywhere',
+	backgroundColor: vars.color.surfaceStrong,
+	boxShadow: 'none',
+	color: vars.color.codeText,
 });
 
 globalStyle('pre > code', {
 	all: 'unset',
 	fontFamily: vars.font.mono,
-	color: '#e2e8f0',
+	color: vars.color.codeText,
+	fontSize: '0.9rem',
+	lineHeight: 1.65,
+});
+
+globalStyle(':root:not([data-theme="light"]) .astro-code, :root:not([data-theme="light"]) .astro-code span', {
+	'@media': {
+		'(prefers-color-scheme: dark)': {
+			backgroundColor: 'var(--shiki-dark-bg) !important',
+			color: 'var(--shiki-dark) !important',
+			fontStyle: 'var(--shiki-dark-font-style) !important',
+			fontWeight: 'var(--shiki-dark-font-weight) !important',
+			textDecoration: 'var(--shiki-dark-text-decoration) !important',
+		},
+	},
+});
+
+globalStyle(':root[data-theme="dark"] .astro-code, :root[data-theme="dark"] .astro-code span', {
+	backgroundColor: 'var(--shiki-dark-bg) !important',
+	color: 'var(--shiki-dark) !important',
+	fontStyle: 'var(--shiki-dark-font-style) !important',
+	fontWeight: 'var(--shiki-dark-font-weight) !important',
+	textDecoration: 'var(--shiki-dark-text-decoration) !important',
 });
 
 globalStyle('blockquote', {

@@ -1,0 +1,14 @@
+---
+interface Props {
+	align?: 'left' | 'center' | 'right';
+}
+
+const { align = 'left' } = Astro.props;
+const lineClass = ['paper-line'];
+if (align === 'right') lineClass.push('paper-line-right');
+if (align === 'center') lineClass.push('paper-line-center');
+---
+
+<div class={lineClass.join(' ')} data-align={align}>
+	<slot />
+</div>

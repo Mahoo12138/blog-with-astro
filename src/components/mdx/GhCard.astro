@@ -1,0 +1,90 @@
+---
+import { iconSvg } from './icons';
+import { linkAttrs } from './utils';
+
+interface Props {
+	type?: 'repo' | 'user';
+	mode?: 'repo' | 'user';
+	repo?: string;
+	user?: string;
+	bio?: string;
+	avatar?: boolean;
+}
+
+const { type, mode, repo, user, bio = '', avatar = true } = Astro.props;
+const cardType = mode ?? type ?? (repo ? 'repo' : 'user');
+const name = cardType === 'repo' ? repo : user;
+const href = cardType === 'repo' ? `https://github.com/${repo}` : `https://github.com/${user}`;
+const attrs = linkAttrs(href, true);
+const api = cardType === 'repo' && repo ? `https://api.github.com/repos/${repo}` : user ? `https://api.github.com/users/${user}` : '';
+const tagsApi = cardType === 'repo' && repo ? `https://api.github.com/repos/${repo}/tags` : '';
+---
+
+<div class="tag-plugin gh-card" data-gh-card={cardType} data-api={api} data-tags-api={tagsApi || undefined}>
+	{name ? (
+		<a href={href} target={attrs.target} rel={attrs.rel}>
+			<div class="gh-header">
+				{cardType === 'user' && avatar && <img class="gh-avatar" src={`https://github.com/${user}.png`} alt={user} loading="lazy" data-gh-avatar />}
+				<span set:html={cardType === 'repo' ? iconSvg.git : iconSvg.info}></span>
+				<span data-gh-key={cardType === 'repo' ? 'full_name' : 'name'}>{name}</span>
+			</div>
+			<div class="gh-description" data-gh-key={cardType === 'repo' ? 'description' : 'bio'}>{bio || 'Loading GitHub data...'}</div>
+			<div class="gh-stats">
+				{cardType === 'repo' ? (
+					<>
+						<span class="gh-stat">★ <span data-gh-key="stargazers_count">0</span></span>
+						<span class="gh-stat">Fork <span data-gh-key="forks_count">0</span></span>
+						<span class="gh-stat">Tag <span data-gh-key="latest_tag">-</span></span>
+					</>
+				) : (
+					<>
+						<span class="gh-stat"><span data-gh-key="followers">0</span> followers</span>
+						<span class="gh-stat"><span data-gh-key="following">0</span> following</span>
+						<span class="gh-stat"><span data-gh-key="public_repos">0</span> repos</span>
+					</>
+				)}
+			</div>
+		</a>
+	) : (
+		<div class="gh-description">Pass a valid <code>repo</code> or <code>user</code> prop.</div>
+	)}
+</div>
+
+<script is:inline>
+	(() => {
+		if (window.__mdxGhCardReady) return;
+		window.__mdxGhCardReady = true;
+
+		function formatNumber(value) {
+			const number = Number(value || 0);
+			return number >= 1000 ? `${(number / 1000).toFixed(1)}k` : String(number);
+		}
+
+		document.querySelectorAll('[data-gh-card][data-api]').forEach(async (card) => {
+			if (card.dataset.ready || !card.dataset.api) return;
+			card.dataset.ready = 'true';
+			try {
+				const data = await fetch(card.dataset.api).then((response) => response.json());
+				card.querySelectorAll('[data-gh-key]').forEach((node) => {
+					const key = node.getAttribute('data-gh-key');
+					if (!key || key === 'latest_tag') return;
+					const value = data[key];
+					if (value !== undefined && value !== null && value !== '') {
+						node.textContent = typeof value === 'number' ? formatNumber(value) : String(value);
+					}
+				});
+
+				const avatar = card.querySelector('[data-gh-avatar]');
+				if (avatar && data.avatar_url) avatar.src = data.avatar_url;
+
+				const latestTag = card.querySelector('[data-gh-key="latest_tag"]');
+				if (latestTag && card.dataset.tagsApi) {
+					const tags = await fetch(card.dataset.tagsApi).then((response) => response.json());
+					latestTag.textContent = Array.isArray(tags) && tags[0]?.name ? tags[0].name : '-';
+				}
+			} catch {
+				card.setAttribute('data-state', 'error');
+			}
+		});
+	})();
+</script>

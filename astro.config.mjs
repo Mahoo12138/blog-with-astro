@@ -12,6 +12,24 @@ export default defineConfig({
 	output: 'static',
 	site: 'https://example.com',
 	integrations: [mdx(), react(), sitemap(), pagefind()],
+	markdown: {
+		shikiConfig: {
+			themes: {
+				light: 'github-light',
+				dark: 'github-dark',
+			},
+			langAlias: {
+				C: 'c',
+				Kotlin: 'kotlin',
+				ejs: 'html',
+				env: 'dotenv',
+				error: 'plaintext',
+				react: 'jsx',
+				ty: 'plaintext',
+			},
+			wrap: true,
+		},
+	},
 	vite: {
 		plugins: [vanillaExtractPlugin({ identifiers: 'debug' })],
 	},

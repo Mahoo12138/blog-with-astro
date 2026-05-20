@@ -1,0 +1,29 @@
+---
+import { styleVars } from './utils';
+
+const sources = {
+	qq: 'https://gcore.jsdelivr.net/gh/cdn-x/emoticons@3.1/qq/{name}.gif',
+	aru: 'https://gcore.jsdelivr.net/gh/cdn-x/emoticons@3.1/aru/{name}.gif',
+	tieba: 'https://gcore.jsdelivr.net/gh/cdn-x/emoticons@3.1/tieba/{name}.png',
+	blobcat: 'https://gcore.jsdelivr.net/gh/cdn-x/emoticons@3.1/blobcat/{name}.gif',
+	twemoji: 'https://gcore.jsdelivr.net/gh/twitter/twemoji/assets/svg/{name}.svg',
+} as const;
+
+interface Props {
+	name?: string;
+	src?: string;
+	source?: keyof typeof sources | string;
+	height?: string;
+	alt?: string;
+}
+
+const { name, src, source = 'qq', height = '1.75em', alt } = Astro.props;
+const slotContent = Astro.slots.has('default') ? await Astro.slots.render('default') : '';
+const slotText = (name ?? slotContent).trim() || 'emoji';
+const template = sources[source as keyof typeof sources] ?? source;
+const imageSrc = src ?? template.replace('{name}', slotText);
+---
+
+<span class="tag-inline emoji" style={styleVars({ '--emoji-height': height })}>
+	<img src={imageSrc} alt={alt ?? slotText} loading="lazy" />
+</span>

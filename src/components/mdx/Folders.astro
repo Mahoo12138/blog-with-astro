@@ -1,0 +1,23 @@
+---
+interface Props {
+	openFirst?: boolean;
+}
+
+const { openFirst = false } = Astro.props;
+---
+
+<div class="tag-plugin folders" data-open-first={openFirst}>
+	<slot />
+</div>
+
+{
+	openFirst && (
+		<script is:inline>
+			document.querySelectorAll('.tag-plugin.folders[data-open-first="true"]').forEach((folders) => {
+				if (folders.dataset.ready) return;
+				folders.dataset.ready = 'true';
+				folders.querySelector('.folder')?.setAttribute('open', '');
+			});
+		</script>
+	)
+}

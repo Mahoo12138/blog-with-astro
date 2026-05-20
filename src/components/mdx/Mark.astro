@@ -1,11 +1,15 @@
 ---
+import { resolveColor, translucent } from './utils';
+
 interface Props {
 	color?: string;
 }
 
-const { color = 'rgba(255, 230, 89, 0.55)' } = Astro.props;
+const { color = 'yellow' } = Astro.props;
+const accent = resolveColor(color);
+const background = color.startsWith('rgba') || color.startsWith('color') ? color : translucent(accent, 42);
 ---
 
-<mark class="tag-plugin mark" style={`--theme-mark:${color};`}>
+<mark class="tag-plugin mark" style={`--theme-mark:${background};`}>
 	<slot />
 </mark>

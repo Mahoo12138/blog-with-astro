@@ -4,15 +4,27 @@ interface Props {
 	alt?: string;
 	caption?: string;
 	width?: string;
+	height?: string;
+	ratio?: string;
+	bg?: string;
+	padding?: string;
+	fit?: 'cover' | 'contain';
 	download?: boolean;
 }
 
-const { src, alt = '', caption, width = '100%', download = true } = Astro.props;
+const { src, alt = '', caption, width = '100%', height, ratio, bg, padding, fit = 'contain', download = true } = Astro.props;
+const imageStyle = [
+	`--image-width:${width};`,
+	height ? `--image-height:${height};` : '',
+	ratio ? `--image-ratio:${ratio};` : '',
+	bg ? `--image-bg:${bg};` : '',
+	padding ? `--image-padding:${padding};` : '',
+].join('');
 ---
 
 <figure class="tag-plugin image">
-	<div class="image-bg" style={`width:${width};`}>
-		<img src={src} alt={alt} />
+	<div class="image-bg" style={imageStyle} data-fit={fit}>
+		<img src={src} alt={alt} loading="lazy" decoding="async" />
 		{download && <a class="image-download" href={src} download aria-label="Download image">↓</a>}
 	</div>
 	{caption && <figcaption class="image-meta"><span class="image-caption">{caption}</span></figcaption>}

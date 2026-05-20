@@ -1,0 +1,90 @@
+---
+import { styleVars } from './utils';
+
+interface Props {
+	name: string;
+	role?: string;
+	bg?: string;
+	bgImage?: string;
+	bgGradient?: string;
+	bgMode?: 'full' | 'left' | 'right';
+	bgOverlay?: 'dark' | 'light' | 'none' | string;
+	text?: 'auto' | 'light' | 'dark' | string;
+	accent?: string;
+	icon?: string;
+	logo?: string;
+	logoShape?: 'circle' | 'rounded' | 'square';
+	nameColor?: string;
+	roleColor?: string;
+	fontName?: string;
+	fontBody?: string;
+	qr?: string;
+	contact?: string;
+}
+
+const {
+	name,
+	role,
+	bg,
+	bgImage,
+	bgGradient,
+	bgMode = 'full',
+	bgOverlay = bgImage ? 'dark' : 'none',
+	text = 'auto',
+	accent = '#2196f3',
+	icon,
+	logo,
+	logoShape = 'circle',
+	nameColor,
+	roleColor,
+	fontName,
+	fontBody,
+	qr,
+	contact,
+} = Astro.props;
+const overlay = bgOverlay === 'dark'
+	? 'linear-gradient(180deg, rgba(0,0,0,0.55), rgba(0,0,0,0.32), rgba(0,0,0,0.68))'
+	: bgOverlay === 'light'
+		? 'linear-gradient(180deg, rgba(255,255,255,0.62), rgba(255,255,255,0.42), rgba(255,255,255,0.72))'
+		: bgOverlay === 'none'
+			? 'transparent'
+			: bgOverlay;
+const textColor = text === 'light' || (text === 'auto' && bgImage && bgOverlay !== 'light') ? '#fff' : text === 'dark' ? 'rgba(15,23,42,0.94)' : undefined;
+const cardIcon = icon?.includes('zap') ? '⚡' : icon?.includes('spark') ? '✦' : icon;
+---
+
+<section
+	class="tag-plugin yo-card"
+	data-bg-mode={bgMode}
+	style={styleVars({
+		'--yc-bg-color': bg,
+		'--yc-bg-gradient': bgGradient ? (bgGradient.includes('gradient(') ? bgGradient : `linear-gradient(${bgGradient})`) : undefined,
+		'--yc-bg-image-layer': bgImage ? `url(${bgImage})` : undefined,
+		'--yc-overlay': overlay,
+		'--yc-text': textColor,
+		'--yc-name-color': nameColor,
+		'--yc-role-color': roleColor,
+		'--yc-font-name': fontName,
+		'--yc-font-body': fontBody,
+	})}
+>
+	{logo && <img class="yo-card-logo" src={logo} alt="" loading="lazy" data-shape={logoShape} />}
+	<div class="yo-card-body">
+		<header>
+			<div class="yo-card-name">{name}</div>
+			{role && <div class="yo-card-role">{role}</div>}
+		</header>
+		<div class="yo-card-bio">
+			<slot />
+		</div>
+		{(contact || qr || Astro.slots.has('contact')) && (
+			<footer class="yo-card-contact">
+				<div>
+					{cardIcon && <div style={`color:${accent};font-weight:900;`}>{cardIcon}</div>}
+					{contact ? <span>{contact}</span> : <slot name="contact" />}
+				</div>
+				{qr && <a class="yo-card-qr" href={qr} target="_blank" rel="external nofollow noopener noreferrer">QR</a>}
+			</footer>
+		)}
+	</div>
+</section>

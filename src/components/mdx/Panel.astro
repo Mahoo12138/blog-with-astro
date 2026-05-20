@@ -1,0 +1,20 @@
+---
+interface Props {
+	title?: string;
+	right?: string;
+}
+
+const { title, right } = Astro.props;
+---
+
+<section class="tag-plugin panel">
+	{(title || right) && (
+		<header class="panel-header">
+			<span>{title}</span>
+			{right && <span>{right}</span>}
+		</header>
+	)}
+	<div class="panel-body">
+		<slot />
+	</div>
+</section>

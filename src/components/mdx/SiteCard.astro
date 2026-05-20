@@ -1,0 +1,37 @@
+---
+import { linkAttrs } from './utils';
+
+interface Props {
+	title: string;
+	url: string;
+	description?: string;
+	icon?: string;
+	cover?: string;
+	labels?: { name: string; color?: string }[];
+}
+
+const { title, url, description, icon, cover, labels = [] } = Astro.props;
+const attrs = linkAttrs(url, true);
+let fallbackIcon = icon ?? '/favicon.svg';
+try {
+	fallbackIcon = icon ?? `${new URL(url).origin}/favicon.ico`;
+} catch {}
+---
+
+<a class="site-card" href={url} target={attrs.target} rel={attrs.rel}>
+	<div class="site-cover">
+		{cover && <img src={cover} alt="" loading="lazy" />}
+	</div>
+	<div class="site-info">
+		<img class="site-icon" src={fallbackIcon} alt="" loading="lazy" />
+		<div>
+			<div class="site-title">{title}</div>
+			<div class="site-desc">{description ?? url}</div>
+		</div>
+		{labels.length > 0 && (
+			<div class="site-labels">
+				{labels.map((label) => <span class="site-label" style={`background:${label.color ?? '#3b82f6'};color:#fff;`}>{label.name}</span>)}
+			</div>
+		)}
+	</div>
+</a>

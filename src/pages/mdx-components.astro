@@ -1,0 +1,318 @@
+---
+import BlogPost from '../layouts/BlogPost.astro';
+import {
+	Audio,
+	Banner,
+	Blockquote,
+	Blur,
+	Button,
+	Callout,
+	Checkbox,
+	Copy,
+	Deleted,
+	Emoji,
+	Emphasis,
+	Fold,
+	Folder,
+	Folders,
+	Frame,
+	Gallery,
+	GalleryImage,
+	GhCard,
+	Grid,
+	Hashtag,
+	ImageCard,
+	Kbd,
+	Label,
+	LinkCard,
+	Mark,
+	Note,
+	Panel,
+	PanelSegment,
+	Paper,
+	PaperLine,
+	PaperSection,
+	Password,
+	Photo,
+	Poster,
+	Posters,
+	Poetry,
+	Private,
+	Quot,
+	Radio,
+	Rating,
+	Reel,
+	SiteCard,
+	Sites,
+	Step,
+	Sub,
+	Sup,
+	Tab,
+	Tabs,
+	Terminal,
+	Timeline,
+	TimeNode,
+	Title,
+	Underline,
+	Wavy,
+	YoCard,
+} from '../components/mdx-components';
+
+const imageOne = 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=1200&q=80';
+const imageTwo = 'https://images.unsplash.com/photo-1493246507139-91e8fad9978e?w=1200&q=80';
+const imageThree = 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1200&q=80';
+const portrait = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=800&q=80';
+const audioSample = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
+---
+
+<BlogPost
+	title="MDX 组件展示"
+	description="以显式 Astro 组件形式展示博客可用的 MDX 内容组件。"
+	pubDate={new Date('2026-05-20')}
+	siteTree="page"
+>
+	<p>
+		这一页集中展示当前博客可在 MDX 中使用的组件。组件都可以从 <code>src/components/mdx-components.ts</code> 命名导入，写作时能看到 props 类型提示；文章渲染时也会通过全局组件映射自动可用。
+	</p>
+
+	<Title text="块级提示" icon="01" />
+	<Tabs>
+		<Tab label="演示效果">
+			<Callout type="info">这是一条信息提示，适合补充背景和上下文。</Callout>
+			<Callout type="tip" title="小技巧">通过 <code>type</code> 和 <code>title</code> 定制提示块。</Callout>
+			<Callout type="warn">这里放需要读者谨慎处理的内容。</Callout>
+			<Callout type="danger" title="危险操作">执行前请先备份数据。</Callout>
+			<Note title="主题色 Note" tone="purple">轻量提示块适合短说明，也支持列表、链接和行内代码。</Note>
+			<Fold title="默认展开的折叠块" open tone="tip">
+				<p>折叠块可以承载较长解释、代码或步骤。</p>
+			</Fold>
+		</Tab>
+		<Tab label="示例代码">
+			<pre><code>{`<Callout type="tip" title="小技巧">
+通过 type 和 title 定制提示块。
+</Callout>
+
+<Note title="主题色 Note" tone="purple">
+轻量提示块适合短说明。
+</Note>
+
+<Fold title="查看详情" open tone="tip">
+折叠块内容。
+</Fold>`}</code></pre>
+		</Tab>
+	</Tabs>
+
+	<Title text="结构排版" icon="02" />
+	<Tabs>
+		<Tab label="演示效果">
+			<Folders openFirst>
+				<Folder title="第一章：基础概念">
+					<p>Folders 用于把多个相关段落组织成手风琴式折叠组。</p>
+				</Folder>
+				<Folder title="第二章：组件系统">
+					<p>每个 Folder 都是独立组件，因此 props 会有清晰提示。</p>
+				</Folder>
+			</Folders>
+
+			<Grid columns={2} bg="card">
+				<Step number="1" title="收集上下文">先读源码和已有组件。</Step>
+				<Step number="2" title="组件化实现">把 directive 语法改成 Astro 组件。</Step>
+			</Grid>
+
+			<Timeline>
+				<TimeNode title="2026-05-20" highlight>补齐组件清单。</TimeNode>
+				<TimeNode title="下一步">在文章中按需导入和使用。</TimeNode>
+			</Timeline>
+		</Tab>
+		<Tab label="示例代码">
+			<pre><code>{`<Folders openFirst>
+  <Folder title="第一章：基础概念">内容</Folder>
+  <Folder title="第二章：组件系统">内容</Folder>
+</Folders>
+
+<Grid columns={2} bg="card">
+  <Step number="1" title="收集上下文" />
+  <Step number="2" title="组件化实现" />
+</Grid>`}</code></pre>
+		</Tab>
+	</Tabs>
+
+	<Title text="文本与引用" icon="03" />
+	<Tabs>
+		<Tab label="演示效果">
+			<p>
+				行内组件包括 <Mark>高亮</Mark>、<Kbd>Ctrl</Kbd> + <Kbd>K</Kbd>、<Underline color="green">下划线</Underline>、<Emphasis color="red">强调</Emphasis>、<Wavy color="purple">波浪线</Wavy>、<Deleted>删除线</Deleted>、上标<Sup>1</Sup>、下标<Sub>n</Sub>、<Blur>点击显示的模糊文字</Blur> 和 <Password>点击显示的隐私文字</Password>。
+			</p>
+			<p>
+				<Hashtag color="cyan" href="/tags/mdx/">MDX</Hashtag> <Label tone="success">Typed</Label> <Emoji src="/avatar/a-me.webp" alt="custom emoji" />
+			</p>
+			<Quot as="h2">组件化以后，写作语法和类型提示终于站在同一边。</Quot>
+			<Blockquote cite="MDX Components" color="purple">
+				<p>适合展示段落引用，也能保留普通 Markdown 内容的节奏。</p>
+			</Blockquote>
+			<Poetry title="短歌" author="佚名" date="今日" footer="展示用">
+				<p>山光落在页面里，组件把句子轻轻托住。</p>
+			</Poetry>
+		</Tab>
+		<Tab label="示例代码">
+			<pre><code>{`<p>
+  <Mark>高亮</Mark>
+  <Kbd>Ctrl</Kbd>
+  <Blur>点击显示</Blur>
+  <Password>隐私文字</Password>
+</p>
+
+<Blockquote cite="MDX Components">
+  段落引用内容。
+</Blockquote>`}</code></pre>
+		</Tab>
+	</Tabs>
+
+	<Title text="卡片与代码" icon="04" />
+	<Tabs>
+		<Tab label="演示效果">
+			<Copy label="pnpm" value="pnpm run build" />
+			<Terminal title="Install" value={`pnpm install\npnpm run dev`} />
+			<Panel>
+				<PanelSegment label="开发环境" right="dev.yaml" copy={`database: localhost:5432
+debug: true
+log_level: debug`}>
+					<pre><code>{`database: localhost:5432
+debug: true
+log_level: debug`}</code></pre>
+				</PanelSegment>
+				<PanelSegment label="生产环境" right="prod.yaml" copy={`database: prod.db.internal:5432
+debug: false
+log_level: warn`}>
+					<pre><code>{`database: prod.db.internal:5432
+debug: false
+log_level: warn`}</code></pre>
+				</PanelSegment>
+			</Panel>
+			<LinkCard href="https://astro.build" title="Astro" desc="The web framework for content-driven websites." />
+			<GhCard type="repo" repo="withastro/astro" />
+		</Tab>
+		<Tab label="示例代码">
+			<pre><code>{`<Copy label="pnpm" value="pnpm run build" />
+
+<Terminal title="Install" value={\`pnpm install\npnpm run dev\`} />
+
+<Panel>
+	<PanelSegment label="开发环境" right="dev.yaml" copy="database: localhost:5432">
+		\`\`\`yaml
+		database: localhost:5432
+		debug: true
+		log_level: debug
+		\`\`\`
+  </PanelSegment>
+</Panel>
+
+<GhCard type="repo" repo="withastro/astro" />`}</code></pre>
+		</Tab>
+	</Tabs>
+
+	<Title text="媒体组件" icon="05" />
+	<Tabs>
+		<Tab label="演示效果">
+			<ImageCard src={imageOne} alt="山谷与湖面" caption="普通图片组件，支持背景、留白、比例和下载。" ratio="16/9" fit="cover" />
+			<Gallery size="m" ratio="square">
+				<GalleryImage src={imageOne} alt="湖面" />
+				<GalleryImage src={imageTwo} alt="森林" />
+				<GalleryImage src={imageThree} alt="星空" />
+			</Gallery>
+			<Photo src={imageTwo} alt="森林照片" type="watermark" brand="FUJIFILM" model="X100V" focal="35mm" aperture="f/2" shutter="1/250" iso="ISO 200" datetime="2026-05-20" />
+			<Audio src={audioSample} title="SoundHelix Song 1" artist="SoundHelix" cover={imageThree} />
+			<Frame src={portrait} alt="头像预览" />
+		</Tab>
+		<Tab label="示例代码">
+			<pre><code>{`<ImageCard src="/image.jpg" caption="图片说明" ratio="16/9" fit="cover" />
+
+<Gallery size="m" ratio="square">
+  <GalleryImage src="/a.jpg" alt="A" />
+  <GalleryImage src="/b.jpg" alt="B" />
+</Gallery>
+
+<Photo src="/photo.jpg" type="watermark" brand="FUJIFILM" model="X100V" />
+
+<Audio src="/song.mp3" title="Song" artist="Artist" />`}</code></pre>
+		</Tab>
+	</Tabs>
+
+	<Title text="展示卡片" icon="06" />
+	<Tabs>
+		<Tab label="演示效果">
+			<Banner title="MDX Components" subtitle="Typed content blocks" bg={imageThree} avatar={portrait} href="/mdx-components/" />
+			<Sites>
+				<SiteCard title="Astro" url="https://astro.build" description="Content-driven websites" cover={imageOne} labels={[{ name: 'Framework', color: '#3b82f6' }]} />
+				<SiteCard title="MDX" url="https://mdxjs.com" description="Markdown for the component era" cover={imageTwo} labels={[{ name: 'Writing', color: '#22c55e' }]} />
+			</Sites>
+			<Posters columns={3} ratio="portrait">
+				<Poster title="Forest" cover={imageTwo} />
+				<Poster title="Stars" cover={imageThree} />
+				<Poster title="Lake" cover={imageOne} />
+			</Posters>
+			<YoCard
+				name="Ethan Donovan"
+				role="Web Developer · Blogger"
+				bgImage={imageThree}
+				bgOverlay="dark"
+				logo={portrait}
+				qr="https://example.com"
+				contact="hello@example.com"
+			>
+				<p>把个人介绍、联系方式和视觉背景压进一张可复用名片。</p>
+			</YoCard>
+		</Tab>
+		<Tab label="示例代码">
+			<pre><code>{`<Banner title="MDX Components" bg="/cover.jpg" avatar="/avatar.jpg" />
+
+<Sites>
+  <SiteCard title="Astro" url="https://astro.build" description="Content-driven websites" />
+</Sites>
+
+<Posters columns={3} ratio="portrait">
+  <Poster title="Forest" cover="/forest.jpg" />
+</Posters>
+
+<YoCard name="Ethan Donovan" role="Web Developer" bgImage="/cover.jpg">
+  <p>个人介绍内容。</p>
+</YoCard>`}</code></pre>
+		</Tab>
+	</Tabs>
+
+	<Title text="私密内容与表单状态" icon="07" />
+	<Tabs>
+		<Tab label="演示效果">
+			<Private password="hello2026" hint="hello + year">
+				<p>这段内容在构建时加密，页面里只保留密文。试用密码：<code>hello2026</code>。</p>
+			</Private>
+			<Checkbox checked>已完成的事项</Checkbox>
+			<Checkbox color="green" interactive>可交互复选框</Checkbox>
+			<Radio checked name="demo">选项 A</Radio>
+			<Radio name="demo" color="purple">选项 B</Radio>
+			<Rating title="阅读体验" value={4} footer="静态评分展示" />
+			<p><Button href="/mdx-components/" icon="arrow">查看当前页面</Button></p>
+		</Tab>
+		<Tab label="示例代码">
+			<pre><code>{`<Private password="hello2026" hint="hello + year">
+  私密内容会在构建时加密。
+</Private>
+
+<Checkbox checked>已完成</Checkbox>
+<Radio checked name="demo">选项 A</Radio>
+<Rating title="阅读体验" value={4} />
+<Button href="/mdx-components/" icon="arrow">查看当前页面</Button>`}</code></pre>
+		</Tab>
+	</Tabs>
+
+	<Paper title="纸张组件" author="博客" date="2026" footer="Paper + PaperSection + PaperLine">
+		<PaperSection title="说明">
+			<p>Paper 适合展示信纸、摘录、长引用和轻量文档。</p>
+		</PaperSection>
+		<PaperLine align="right"><p>组件化写作，清清楚楚。</p></PaperLine>
+	</Paper>
+
+	<Reel title="卷轴组件" author="示例" date="2026-05-20" footer="Reel">
+		<p>卷轴适合更有仪式感的段落展示。</p>
+	</Reel>
+</BlogPost>

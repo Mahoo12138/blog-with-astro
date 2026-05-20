@@ -1,8 +1,12 @@
 ---
+import { resolveColor, translucent } from './utils';
+
 const tones = {
 	info: '#2196f3',
+	tip: '#22c55e',
 	success: '#3aa757',
 	warning: '#ff9800',
+	warn: '#ff9800',
 	danger: '#f44336',
 	purple: '#9c27b0',
 } as const;
@@ -13,9 +17,9 @@ interface Props {
 }
 
 const { tone = 'info', color } = Astro.props;
-const theme = color ?? tones[tone];
+const theme = resolveColor(color ?? tones[tone]);
 ---
 
-<span class="tag-plugin mark" style={`--theme:${theme};--theme-mark:${theme}33;`}>
+<span class="tag-plugin mark" style={`--theme:${theme};--theme-mark:${translucent(theme, 20)};`}>
 	<slot />
 </span>

@@ -1,0 +1,11 @@
+---
+import { resolveColor, styleVars } from './utils';
+
+interface Props {
+	color?: string;
+}
+
+const { color = 'accent' } = Astro.props;
+---
+
+<span class="tag-inline wavy" style={styleVars({ '--tag-color': resolveColor(color) })}><slot /></span>

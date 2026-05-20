@@ -1,0 +1,37 @@
+---
+import { iconSvg } from './icons';
+import { resolveTone, styleVars, translucent, type ToneName } from './utils';
+
+interface Props {
+	type?: ToneName;
+	tone?: ToneName;
+	title?: string;
+	icon?: string;
+}
+
+const { type, tone, title, icon } = Astro.props;
+const resolvedTone = resolveTone(tone ?? type);
+const iconKey = resolvedTone.name === 'danger' ? 'danger' : resolvedTone.name === 'warn' ? 'warn' : resolvedTone.name === 'tip' || resolvedTone.name === 'success' ? 'tip' : 'info';
+const iconHtml = icon ?? iconSvg[iconKey];
+const displayTitle = title ?? resolvedTone.label;
+const accent = resolvedTone.color;
+---
+
+<aside
+	class="tag-plugin callout"
+	data-tone={resolvedTone.name}
+	style={styleVars({
+		'--callout-color': accent,
+		'--callout-bg': translucent(accent, 10),
+		'--callout-border': translucent(accent, 24),
+		'--callout-surface': 'var(--color-surface-strong, rgba(255,255,255,0.72))',
+	})}
+>
+	<span class="callout-icon" set:html={iconHtml || resolvedTone.symbol}></span>
+	<div class="callout-main">
+		<div class="callout-title">{displayTitle}</div>
+		<div class="callout-body">
+			<slot />
+		</div>
+	</div>
+</aside>

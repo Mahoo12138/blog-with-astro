@@ -1,0 +1,37 @@
+---
+interface Props {
+	src: string;
+	alt?: string;
+	type?: 'blur' | 'watermark';
+	brand?: string;
+	logo?: string;
+	model?: string;
+	focal?: string;
+	aperture?: string;
+	shutter?: string;
+	iso?: string;
+	datetime?: string;
+}
+
+const { src, alt = '', type = 'blur', brand, logo, model, focal, aperture, shutter, iso, datetime } = Astro.props;
+const exif = [focal, aperture, shutter, iso].filter(Boolean).join(' ');
+const logoText = logo ?? brand;
+---
+
+<figure class="tag-plugin photo" data-type={type}>
+	{type === 'blur' && <div class="photo-bg" style={`background-image:url(${src});`}></div>}
+	<div class="photo-image-wrap">
+		<img class="photo-image" src={src} alt={alt} loading="lazy" decoding="async" />
+	</div>
+	<div class="photo-bar">
+		<div class="photo-left">
+			{brand && <div class="photo-brand">{brand}</div>}
+			{model && <div>{model}</div>}
+		</div>
+		<div class="photo-center">{logoText}</div>
+		<div class="photo-right">
+			{exif && <div>{exif}</div>}
+			{datetime && <div>{datetime}</div>}
+		</div>
+	</div>
+</figure>

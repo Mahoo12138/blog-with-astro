@@ -294,8 +294,11 @@ globalStyle(`${prose} pre`, {
 	borderRadius: borderCardSmall,
 	border: `1px solid ${blockBorder}`,
 	boxShadow: 'none',
-	background: 'rgba(15, 23, 42, 0.94)',
+	background: vars.color.surfaceStrong,
+	color: vars.color.codeText,
 	lineHeight: 1.55,
+	whiteSpace: 'pre-wrap',
+	overflowWrap: 'anywhere',
 });
 
 globalStyle(`${prose} code`, {
@@ -310,7 +313,8 @@ globalStyle(`${prose} pre > code`, {
 	all: 'unset',
 	fontFamily: vars.font.mono,
 	fontSize: '0.9rem',
-	color: '#e2e8f0',
+	color: vars.color.codeText,
+	lineHeight: 1.65,
 });
 
 globalStyle(`${prose} table`, {
@@ -476,11 +480,12 @@ globalStyle(`${prose} .tag-plugin.checkbox input`, { appearance: 'none', positio
 globalStyle(`${prose} .tag-plugin.checkbox input:checked`, { background: 'var(--theme)' });
 globalStyle(`${prose} .tag-plugin.checkbox input:checked::after`, { content: '', position: 'absolute', left: '3px', top: '0px', width: '4px', height: '9px', border: 'solid white', borderWidth: '0 2px 2px 0', transform: 'rotate(45deg)' });
 
-globalStyle(`${prose} .tag-plugin.copy`, { display: 'flex', justifyContent: 'space-between', width: '100%', minWidth: '200px', overflow: 'hidden', borderRadius: borderBar, border: `1px solid ${blockBorder}`, background: card });
-globalStyle(`${prose} .tag-plugin.copy span`, { padding: '0.25rem 0.5rem', margin: 'auto 0.5rem', lineHeight: 1, borderRadius: '4px', background: vars.color.accentSoft, color: 'var(--theme)', fontFamily: vars.font.mono, fontSize: '13px', fontWeight: 700, flexShrink: 0 });
-globalStyle(`${prose} .tag-plugin.copy input.copy-area`, { display: 'inline-block', padding: 0, width: '100%', border: 0, outline: 0, background: 'transparent', color: textP2, lineHeight: 3, textIndent: '1rem' });
-globalStyle(`${prose} .tag-plugin.copy button.copy-btn`, { margin: '2px 2px 2px 0', border: 0, borderRadius: '6px', display: 'inline-block', minWidth: '64px', background: block, color: textP2, lineHeight: 1, padding: '0 0.75rem', cursor: 'pointer', whiteSpace: 'nowrap', fontSize: '13px' });
-globalStyle(`${prose} .tag-plugin.copy button.copy-btn:hover`, { color: 'var(--theme)', background: vars.color.accentSoft });
+globalStyle(`${prose} .tag-plugin.copy`, { display: 'grid', gridTemplateColumns: 'auto minmax(0, 1fr) auto', alignItems: 'center', columnGap: '0.55rem', width: '100%', minWidth: '200px', padding: '0.3rem', overflow: 'hidden', borderRadius: borderBar, border: `1px solid ${blockBorder}`, background: card });
+globalStyle(`${prose} .tag-plugin.copy span`, { padding: '0.3rem 0.55rem', margin: 0, lineHeight: 1, borderRadius: '6px', background: vars.color.accentSoft, color: 'var(--theme)', fontFamily: vars.font.mono, fontSize: '12px', fontWeight: 700, flexShrink: 0, alignSelf: 'center' });
+globalStyle(`${prose} .tag-plugin.copy input.copy-area`, { display: 'block', minWidth: 0, width: '100%', padding: '0.45rem 0', border: 0, outline: 0, background: 'transparent', color: textP2, lineHeight: 1.35, fontSize: '0.92rem', alignSelf: 'center' });
+globalStyle(`${prose} .tag-plugin.copy button.copy-btn`, { alignSelf: 'center', justifySelf: 'end', margin: 0, border: 0, borderRadius: '8px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem', minWidth: 0, height: '2rem', background: block, color: textP2, lineHeight: 1, padding: '0 0.7rem', cursor: 'pointer', whiteSpace: 'nowrap', fontSize: '12px', fontWeight: 700, transition: 'transform 180ms ease, background 180ms ease, color 180ms ease, box-shadow 180ms ease' });
+globalStyle(`${prose} .tag-plugin.copy button.copy-btn:hover`, { transform: 'translateY(-1px)', color: 'var(--theme)', background: vars.color.accentSoft, boxShadow: '0 6px 16px rgba(15, 23, 42, 0.08)' });
+globalStyle(`${prose} .tag-plugin.copy button.copy-btn .copy-btn-text`, { lineHeight: 1 });
 
 globalStyle(`${prose} .tag-plugin.hashtag`, { display: 'inline-flex', alignItems: 'center', margin: '2px 0', padding: '0 8px', borderRadius: '100px', background: 'var(--theme-block)', color: textP2, fontSize: '0.92rem', fontWeight: 500 });
 globalStyle(`${prose} .tag-plugin.hashtag:hover`, { background: textP2, color: 'var(--theme-block)' });

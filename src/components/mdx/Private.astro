@@ -1,0 +1,126 @@
+---
+import crypto from 'node:crypto';
+import { iconSvg } from './icons';
+
+interface Props {
+	password?: string;
+	hint?: string;
+	title?: string;
+	description?: string;
+}
+
+const {
+	password,
+	hint,
+	title = 'Private Content',
+	description = 'This content is encrypted. Enter the password to view it.',
+} = Astro.props;
+
+function encryptContent(content: string, passphrase: string) {
+	const salt = crypto.randomBytes(16);
+	const iv = crypto.randomBytes(16);
+	const key = crypto.pbkdf2Sync(passphrase, salt, 100000, 32, 'sha256');
+	const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
+	const encrypted = Buffer.concat([cipher.update(content, 'utf8'), cipher.final()]);
+	return Buffer.concat([salt, iv, encrypted]).toString('base64');
+}
+
+const encryptedPayload = password ? encryptContent(await Astro.slots.render('default'), password) : '';
+---
+
+<section class="tag-plugin private" data-private-payload={encryptedPayload || undefined}>
+	{password ? (
+		<>
+			<div class="private-locked">
+				<span class="private-icon" set:html={iconSvg.lock}></span>
+				<div class="private-title">{title}</div>
+				<div class="private-desc">{description}</div>
+				{hint && <div class="private-hint">Hint: {hint}</div>}
+				<div class="private-form">
+					<input class="private-input" type="password" placeholder="Enter password" autocomplete="current-password" />
+					<button class="private-button" type="button" data-private-unlock>View</button>
+				</div>
+				<div class="private-error">Incorrect password, please try again.</div>
+			</div>
+			<div class="private-unlocked" hidden>
+				<div class="private-unlocked-header">
+					<span>Unlocked</span>
+					<button class="mdx-copy-button" type="button" data-private-lock>Lock</button>
+				</div>
+				<div class="private-content"></div>
+			</div>
+		</>
+	) : (
+		<div class="private-locked">
+			<span class="private-icon" set:html={iconSvg.lock}></span>
+			<div class="private-title">Missing password</div>
+			<div class="private-desc">Pass a <code>password</code> prop to encrypt this content at build time.</div>
+		</div>
+	)}
+</section>
+
+<script is:inline>
+	(() => {
+		if (window.__mdxPrivateReady) return;
+		window.__mdxPrivateReady = true;
+
+		const encoder = new TextEncoder();
+		const decoder = new TextDecoder();
+
+		function base64ToBytes(value) {
+			const binary = atob(value);
+			const bytes = new Uint8Array(binary.length);
+			for (let index = 0; index < binary.length; index += 1) {
+				bytes[index] = binary.charCodeAt(index);
+			}
+			return bytes;
+		}
+
+		async function decryptPayload(payload, password) {
+			const bytes = base64ToBytes(payload);
+			const salt = bytes.slice(0, 16);
+			const iv = bytes.slice(16, 32);
+			const encrypted = bytes.slice(32);
+			const keyMaterial = await crypto.subtle.importKey('raw', encoder.encode(password), 'PBKDF2', false, ['deriveKey']);
+			const key = await crypto.subtle.deriveKey(
+				{ name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' },
+				keyMaterial,
+				{ name: 'AES-CBC', length: 256 },
+				false,
+				['decrypt'],
+			);
+			const decrypted = await crypto.subtle.decrypt({ name: 'AES-CBC', iv }, key, encrypted);
+			return decoder.decode(decrypted);
+		}
+
+		document.addEventListener('click', async (event) => {
+			const unlockButton = event.target.closest('[data-private-unlock]');
+			const lockButton = event.target.closest('[data-private-lock]');
+
+			if (lockButton) {
+				const root = lockButton.closest('.tag-plugin.private');
+				root?.querySelector('.private-unlocked')?.setAttribute('hidden', '');
+				root?.querySelector('.private-locked')?.removeAttribute('hidden');
+				root?.querySelector('.private-content')?.replaceChildren();
+				return;
+			}
+
+			if (!unlockButton) return;
+			const root = unlockButton.closest('.tag-plugin.private');
+			if (!root) return;
+			const payload = root.getAttribute('data-private-payload') || '';
+			const input = root.querySelector('.private-input');
+			const password = input?.value || '';
+
+			try {
+				const html = await decryptPayload(payload, password);
+				root.removeAttribute('data-error');
+				root.querySelector('.private-content').innerHTML = html;
+				root.querySelector('.private-locked')?.setAttribute('hidden', '');
+				root.querySelector('.private-unlocked')?.removeAttribute('hidden');
+			} catch {
+				root.setAttribute('data-error', 'true');
+			}
+		});
+	})();
+</script>

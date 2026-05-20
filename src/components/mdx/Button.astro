@@ -1,16 +1,23 @@
 ---
+import { iconSvg } from './icons';
+import { linkAttrs, resolveColor } from './utils';
+
 interface Props {
 	href: string;
-	size?: 'xs' | 'sm' | 'md';
+	size?: 'xs' | 'sm' | 'md' | 'lg';
 	color?: string;
 	external?: boolean;
+	icon?: keyof typeof iconSvg | string;
 }
 
-const { href, size = 'md', color = '#2196f3', external = href.includes('://') } = Astro.props;
-const rel = external ? 'external nofollow noopener noreferrer' : undefined;
-const target = external ? '_blank' : undefined;
+const { href, size = 'md', color = 'accent', external, icon } = Astro.props;
+const attrs = linkAttrs(href, external);
+const iconHtml = icon && icon in iconSvg ? iconSvg[icon as keyof typeof iconSvg] : undefined;
 ---
 
-<a class="tag-plugin button" href={href} data-size={size} style={`--theme:${color};`} target={target} rel={rel}>
-	<span><slot /></span>
+<a class="tag-plugin button" href={href} data-size={size} style={`--theme:${resolveColor(color)};`} target={attrs.target} rel={attrs.rel}>
+	<span>
+		{iconHtml ? <span class="button-icon" set:html={iconHtml}></span> : icon && <span class="button-icon">{icon}</span>}
+		<slot />
+	</span>
 </a>

@@ -1,0 +1,49 @@
+---
+export interface SiteItem {
+	title: string;
+	url: string;
+	description?: string;
+	icon?: string;
+	cover?: string;
+	labels?: { name: string; color?: string }[];
+}
+
+interface Props {
+	items?: SiteItem[];
+}
+
+const { items = [] } = Astro.props;
+
+function faviconFor(url: string) {
+	try {
+		return `${new URL(url).origin}/favicon.ico`;
+	} catch {
+		return '/favicon.svg';
+	}
+}
+---
+
+<div class="tag-plugin sites">
+	<div class="sites-grid">
+		{items.map((item) => (
+			<a class="site-card" href={item.url} target="_blank" rel="external nofollow noopener noreferrer">
+				<div class="site-cover">
+					{item.cover ? <img src={item.cover} alt="" loading="lazy" /> : <span></span>}
+				</div>
+				<div class="site-info">
+					<img class="site-icon" src={item.icon ?? faviconFor(item.url)} alt="" loading="lazy" />
+					<div>
+						<div class="site-title">{item.title}</div>
+						<div class="site-desc">{item.description ?? item.url}</div>
+					</div>
+					{item.labels && item.labels.length > 0 && (
+						<div class="site-labels">
+							{item.labels.map((label) => <span class="site-label" style={`background:${label.color ?? '#3b82f6'};color:#fff;`}>{label.name}</span>)}
+						</div>
+					)}
+				</div>
+			</a>
+		))}
+		<slot />
+	</div>
+</div>

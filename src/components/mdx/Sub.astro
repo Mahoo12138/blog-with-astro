@@ -1,0 +1,12 @@
+---
+import { resolveColor, styleVars, translucent } from './utils';
+
+interface Props {
+	color?: string;
+}
+
+const { color = 'accent' } = Astro.props;
+const accent = resolveColor(color);
+---
+
+<sub class="tag-inline sub" style={styleVars({ '--tag-color': accent, '--tag-bg': translucent(accent, 14) })}><slot /></sub>

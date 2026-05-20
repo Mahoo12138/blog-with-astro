@@ -9,6 +9,6 @@ const { src, alt = '', layout = 'grid' } = Astro.props;
 ---
 
 <div class={`${layout}-cell lazy-box`}>
-	<img src={src} alt={alt} />
+	<img src={src} alt={alt} loading="lazy" decoding="async" />
 	<div class="image-meta">{alt && <span class="image-caption">{alt}</span>}</div>
 </div>

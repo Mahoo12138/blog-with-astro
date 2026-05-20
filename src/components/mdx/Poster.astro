@@ -1,0 +1,20 @@
+---
+import { linkAttrs } from './utils';
+
+interface Props {
+	title?: string;
+	url?: string;
+	cover?: string;
+}
+
+const { title, url, cover } = Astro.props;
+const attrs = url ? linkAttrs(url, true) : undefined;
+const Element = url ? 'a' : 'div';
+---
+
+<Element class="poster-card" href={url} target={attrs?.target} rel={attrs?.rel}>
+	<div class="poster-cover">
+		{cover && <img src={cover} alt={title ?? ''} loading="lazy" />}
+	</div>
+	{title && <span class="poster-title">{title}</span>}
+</Element>

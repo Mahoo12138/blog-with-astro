@@ -1,19 +1,28 @@
 ---
+import { resolveColor, resolveTone, translucent, type ToneName } from './utils';
+
 const tones = {
 	info: ['#2196f3', 'rgba(33, 150, 243, 0.12)', 'rgba(33, 150, 243, 0.24)'],
+	tip: ['#22c55e', 'rgba(34, 197, 94, 0.12)', 'rgba(34, 197, 94, 0.24)'],
 	success: ['#3aa757', 'rgba(58, 167, 87, 0.12)', 'rgba(58, 167, 87, 0.24)'],
 	warning: ['#ff9800', 'rgba(255, 152, 0, 0.14)', 'rgba(255, 152, 0, 0.26)'],
+	warn: ['#ff9800', 'rgba(255, 152, 0, 0.14)', 'rgba(255, 152, 0, 0.26)'],
 	danger: ['#f44336', 'rgba(244, 67, 54, 0.12)', 'rgba(244, 67, 54, 0.24)'],
 } as const;
 
 interface Props {
 	title: string;
 	open?: boolean;
-	tone?: keyof typeof tones;
+	tone?: keyof typeof tones | ToneName;
+	color?: string;
 }
 
-const { title, open = false, tone = 'info' } = Astro.props;
-const [theme, themeBlock, themeBorder] = tones[tone];
+const { title, open = false, tone = 'info', color } = Astro.props;
+const preset = color ? undefined : tones[tone as keyof typeof tones];
+const resolved = resolveTone(tone as ToneName);
+const theme = color ? resolveColor(color) : preset?.[0] ?? resolved.color;
+const themeBlock = color ? translucent(theme, 12) : preset?.[1] ?? translucent(theme, 12);
+const themeBorder = color ? translucent(theme, 24) : preset?.[2] ?? translucent(theme, 24);
 ---
 
 <details class="tag-plugin colorful folding" open={open} style={`--theme:${theme};--theme-block:${themeBlock};--theme-border:${themeBorder};`}>

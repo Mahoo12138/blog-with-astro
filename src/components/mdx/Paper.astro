@@ -1,0 +1,33 @@
+---
+interface Props {
+	title?: string;
+	author?: string;
+	date?: string;
+	footer?: string;
+	variant?: 'letter' | 'plain';
+}
+
+const { title, author, date, footer, variant = 'letter' } = Astro.props;
+const hasMeta = Boolean(author || date);
+const hasFooter = Boolean(hasMeta || footer);
+---
+
+<section class="tag-plugin paper" data-variant={variant}>
+	<div class="paper-content">
+		{title && <div class="paper-title">{title}</div>}
+		<div class="paper-body">
+			<slot />
+		</div>
+		{hasFooter && (
+			<div class="paper-footer">
+				{hasMeta && (
+					<div class="paper-author-date">
+						{author && <span class="paper-author">{author}</span>}
+						{date && <span class="paper-date">{date}</span>}
+					</div>
+				)}
+				{footer && <div class="paper-footer-note">{footer}</div>}
+			</div>
+		)}
+	</div>
+</section>

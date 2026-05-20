@@ -1,0 +1,40 @@
+---
+import { styleVars } from './utils';
+
+export interface PosterItem {
+	title?: string;
+	url?: string;
+	cover?: string;
+}
+
+interface Props {
+	items?: PosterItem[];
+	ratio?: 'portrait' | 'square' | string;
+	columns?: number;
+	min?: string;
+}
+
+const { items = [], ratio = 'portrait', columns, min = '8rem' } = Astro.props;
+const ratioValue = ratio === 'square' ? '1 / 1' : ratio === 'portrait' ? '2 / 3' : ratio;
+---
+
+<div class="tag-plugin posters" style={styleVars({ '--poster-ratio': ratioValue, '--poster-cols': columns, '--poster-min': min })}>
+	<div class="posters-grid">
+		{items.map((item) => (
+			<Fragment>
+				{item.url ? (
+					<a class="poster-card" href={item.url} target="_blank" rel="external nofollow noopener noreferrer">
+						<div class="poster-cover">{item.cover && <img src={item.cover} alt={item.title ?? ''} loading="lazy" />}</div>
+						{item.title && <span class="poster-title">{item.title}</span>}
+					</a>
+				) : (
+					<div class="poster-card">
+						<div class="poster-cover">{item.cover && <img src={item.cover} alt={item.title ?? ''} loading="lazy" />}</div>
+						{item.title && <span class="poster-title">{item.title}</span>}
+					</div>
+				)}
+			</Fragment>
+		))}
+		<slot />
+	</div>
+</div>

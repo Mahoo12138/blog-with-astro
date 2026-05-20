@@ -1,0 +1,66 @@
+---
+import { iconSvg } from './icons';
+
+interface Props {
+	label?: string;
+	right?: string;
+	copy?: string;
+}
+
+const { label, right, copy } = Astro.props;
+---
+
+<section class="panel-segment">
+	{(label || right || copy) && (
+		<header class="panel-segment-header">
+			{label && <span class="panel-segment-label">{label}</span>}
+			<span class="panel-segment-meta">
+				{right && <span class="panel-segment-right">{right}</span>}
+				{copy && <button class="mdx-copy-button panel-segment-copy" type="button" data-copy-value={copy} data-copy-success-icon={iconSvg.check} aria-label="Copy" set:html={iconSvg.copy}></button>}
+			</span>
+		</header>
+	)}
+	<div class="panel-segment-body">
+		<slot />
+	</div>
+</section>
+
+{
+	copy && (
+		<script is:inline>
+			(() => {
+				if (window.__mdxCopyReady) return;
+				window.__mdxCopyReady = true;
+				document.addEventListener('click', async (event) => {
+					const button = event.target.closest('[data-copy-value]');
+					if (!button) return;
+					const value = button.getAttribute('data-copy-value') || '';
+					const label = button.querySelector('.copy-btn-text');
+					const restoreLabel = button.getAttribute('data-copy-label') || label?.textContent || 'Copy';
+					const restoreAria = button.getAttribute('aria-label') || 'Copy';
+					const timer = Number(button.dataset.copyTimer || 0);
+					const restoreIcon = button.dataset.copyIcon || button.innerHTML;
+					const successIcon = button.getAttribute('data-copy-success-icon') || restoreIcon;
+					if (!button.dataset.copyIcon) button.dataset.copyIcon = restoreIcon;
+					if (timer) window.clearTimeout(timer);
+					try {
+						await navigator.clipboard?.writeText(value);
+						button.classList.remove('is-copied');
+						void button.offsetWidth;
+						button.classList.add('is-copied');
+						if (label) label.textContent = 'Copied';
+						if (!label) button.innerHTML = successIcon;
+						if (!label) button.setAttribute('aria-label', 'Copied');
+						const nextTimer = window.setTimeout(() => {
+							button.classList.remove('is-copied');
+							if (label) label.textContent = restoreLabel;
+							if (!label) button.innerHTML = restoreIcon;
+							if (!label) button.setAttribute('aria-label', restoreAria);
+						}, 1200);
+						button.dataset.copyTimer = String(nextTimer);
+					} catch {}
+				});
+			})();
+		</script>
+	)
+}

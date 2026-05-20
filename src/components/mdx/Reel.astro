@@ -1,0 +1,24 @@
+---
+interface Props {
+	title?: string;
+	author?: string;
+	date?: string;
+	footer?: string;
+}
+
+const { title, author, date, footer } = Astro.props;
+---
+
+<section class="tag-plugin reel">
+	<div class="reel-content">
+		{title && <div class="reel-title">{title}</div>}
+		{author && <div class="reel-meta"><span>{author}</span></div>}
+		<div class="reel-body">
+			<div class="reel-main">
+				<slot />
+			</div>
+		</div>
+		{date && <div class="reel-date">{date}</div>}
+		{footer && <div class="reel-footer">{footer}</div>}
+	</div>
+</section>

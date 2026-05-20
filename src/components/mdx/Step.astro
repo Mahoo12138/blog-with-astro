@@ -1,0 +1,20 @@
+---
+import { resolveColor, styleVars, translucent } from './utils';
+
+interface Props {
+	number: string | number;
+	title?: string;
+	color?: string;
+}
+
+const { number, title, color = 'accent' } = Astro.props;
+const accent = resolveColor(color);
+---
+
+<div class="tag-plugin step" style={styleVars({ '--step-color': accent, '--step-bg': translucent(accent, 14) })}>
+	<span class="step-badge">{number}</span>
+	<div>
+		{title && <div class="step-title">{title}</div>}
+		<div class="step-body"><slot /></div>
+	</div>
+</div>

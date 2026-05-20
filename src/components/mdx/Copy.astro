@@ -1,28 +1,58 @@
 ---
+import { iconSvg } from './icons';
+import { resolveColor } from './utils';
+
 interface Props {
 	value: string;
 	label?: string;
 	color?: string;
+	buttonText?: string;
 }
 
-const { value, label, color = '#2196f3' } = Astro.props;
+const { value, label, color = 'accent', buttonText = 'Copy' } = Astro.props;
 ---
 
-<div class="tag-plugin copy" style={`--theme:${color};`}>
-	{label && <span>{label}</span>}
+<div class="tag-plugin copy" style={`--theme:${resolveColor(color)};`}>
+	{label && <span class="copy-label">{label}</span>}
 	<input class="copy-area" value={value} readonly />
-	<button class="copy-btn" type="button" data-copy-value={value}>Copy</button>
+	<button class="copy-btn" type="button" data-copy-value={value} data-copy-label={buttonText} data-copy-success-icon={iconSvg.check} aria-label="Copy">
+		<i class="copy-icon" set:html={iconSvg.copy}></i>
+		<span class="copy-btn-text">{buttonText}</span>
+	</button>
 </div>
 
 <script is:inline>
-	document.querySelectorAll('[data-copy-value]').forEach((button) => {
-		if (button.dataset.ready) return;
-		button.dataset.ready = 'true';
-		button.addEventListener('click', async () => {
-			await navigator.clipboard?.writeText(button.getAttribute('data-copy-value') || '');
-			const oldText = button.textContent;
-			button.textContent = 'Copied';
-			setTimeout(() => { button.textContent = oldText; }, 1200);
+	(() => {
+		if (window.__mdxCopyReady) return;
+		window.__mdxCopyReady = true;
+		document.addEventListener('click', async (event) => {
+			const button = event.target.closest('[data-copy-value]');
+			if (!button) return;
+			const value = button.getAttribute('data-copy-value') || '';
+			const label = button.querySelector('.copy-btn-text');
+			const restoreLabel = button.getAttribute('data-copy-label') || label?.textContent || 'Copy';
+			const restoreAria = button.getAttribute('aria-label') || 'Copy';
+			const timer = Number(button.dataset.copyTimer || 0);
+			const restoreIcon = button.dataset.copyIcon || button.innerHTML;
+			const successIcon = button.getAttribute('data-copy-success-icon') || restoreIcon;
+			if (!button.dataset.copyIcon) button.dataset.copyIcon = restoreIcon;
+			if (timer) window.clearTimeout(timer);
+			try {
+				await navigator.clipboard?.writeText(value);
+				button.classList.remove('is-copied');
+				void button.offsetWidth;
+				button.classList.add('is-copied');
+				if (label) label.textContent = 'Copied';
+				if (!label) button.innerHTML = successIcon;
+				if (!label) button.setAttribute('aria-label', 'Copied');
+				const nextTimer = window.setTimeout(() => {
+					button.classList.remove('is-copied');
+					if (label) label.textContent = restoreLabel;
+					if (!label) button.innerHTML = restoreIcon;
+					if (!label) button.setAttribute('aria-label', restoreAria);
+				}, 1200);
+				button.dataset.copyTimer = String(nextTimer);
+			} catch {}
 		});
-	});
+	})();
 </script>

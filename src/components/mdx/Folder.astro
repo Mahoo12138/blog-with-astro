@@ -1,0 +1,15 @@
+---
+interface Props {
+	title: string;
+	open?: boolean;
+}
+
+const { title, open = false } = Astro.props;
+---
+
+<details class="folder" open={open}>
+	<summary>{title}</summary>
+	<div class="folder-body">
+		<slot />
+	</div>
+</details>

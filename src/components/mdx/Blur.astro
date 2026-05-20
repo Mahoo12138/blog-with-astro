@@ -1,0 +1,23 @@
+---
+---
+
+<span class="tag-inline blur" tabindex="0" data-mdx-reveal><slot /></span>
+
+<script is:inline>
+	(() => {
+		if (window.__mdxRevealReady) return;
+		window.__mdxRevealReady = true;
+		document.addEventListener('click', (event) => {
+			const target = event.target.closest('[data-mdx-reveal]');
+			if (target) target.classList.toggle('is-revealed');
+		});
+		document.addEventListener('keydown', (event) => {
+			if (event.key !== 'Enter' && event.key !== ' ') return;
+			const target = event.target.closest('[data-mdx-reveal]');
+			if (target) {
+				event.preventDefault();
+				target.classList.toggle('is-revealed');
+			}
+		});
+	})();
+</script>

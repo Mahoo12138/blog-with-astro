@@ -1,0 +1,72 @@
+---
+import { iconSvg } from './icons';
+import { styleVars } from './utils';
+
+interface Props {
+	src?: string;
+	netease?: string | number;
+	voice?: string;
+	title?: string;
+	artist?: string;
+	cover?: string;
+	duration?: string;
+	align?: 'left' | 'center' | 'right';
+	width?: string;
+	mode?: 'mini' | 'card';
+	autoplay?: boolean;
+	preload?: 'none' | 'metadata' | 'auto';
+}
+
+const {
+	src,
+	netease,
+	voice,
+	title = 'Unknown',
+	artist = '',
+	cover,
+	duration,
+	align = 'left',
+	width,
+	mode = 'mini',
+	autoplay = false,
+	preload = 'none',
+} = Astro.props;
+const justify = align === 'center' ? 'center' : align === 'right' ? 'flex-end' : 'flex-start';
+const audioSrc = src ?? voice;
+const neteaseHeight = mode === 'card' ? 86 : 52;
+const neteasePlayerHeight = mode === 'card' ? 66 : 32;
+const neteaseWidth = mode === 'card' ? 330 : 298;
+---
+
+<div class="tag-plugin audio" style={styleVars({ '--audio-align': justify, '--audio-width': width })}>
+	{netease ? (
+		<div class="netease-wrap">
+			<iframe
+				src={`https://music.163.com/outchain/player?type=2&id=${netease}&auto=0&height=${neteasePlayerHeight}`}
+				frameborder="0"
+				width={neteaseWidth}
+				height={neteaseHeight}
+				title={title || 'Netease Music'}
+			></iframe>
+		</div>
+	) : audioSrc ? (
+		<div class="audio-card" data-kind={voice ? 'voice' : 'audio'}>
+			<div class="audio-cover">
+				{cover ? <img src={cover} alt={title} loading="lazy" /> : <span set:html={voice ? iconSvg.play : iconSvg.music}></span>}
+			</div>
+			<div class="audio-main">
+				<div class="audio-title">{title}{duration && <span> · {duration}</span>}</div>
+				{artist && <div class="audio-artist">{artist}</div>}
+				<audio controls src={audioSrc} autoplay={autoplay} preload={preload}></audio>
+			</div>
+		</div>
+	) : (
+		<div class="audio-card">
+			<div class="audio-cover" set:html={iconSvg.music}></div>
+			<div class="audio-main">
+				<div class="audio-title">Missing audio source</div>
+				<div class="audio-artist">Pass <code>src</code>, <code>voice</code>, or <code>netease</code>.</div>
+			</div>
+		</div>
+	)}
+</div>

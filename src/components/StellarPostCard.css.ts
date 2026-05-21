@@ -64,7 +64,6 @@ export const cap = style({
 	alignItems: 'center',
 	gap: '0.35rem',
 	maxWidth: '100%',
-	marginBottom: vars.space.sm,
 	padding: '0.2rem 0.48rem',
 	borderRadius: '8px',
 	background: vars.color.accentSoft,
@@ -72,6 +71,45 @@ export const cap = style({
 	fontSize: '0.72rem',
 	fontWeight: 700,
 	lineHeight: 1.4,
+});
+
+export const capRow = style({
+	display: 'flex',
+	flexWrap: 'wrap',
+	alignItems: 'center',
+	gap: '0.4rem',
+	marginBottom: vars.space.sm,
+});
+
+export const columnBadge = style({
+	display: 'inline-flex',
+	alignItems: 'center',
+	gap: '0.35rem',
+	maxWidth: '100%',
+	padding: '0.2rem 0.48rem',
+	borderRadius: '8px',
+	background: 'rgba(250, 100, 0, 0.12)',
+	color: '#FA6400',
+	fontSize: '0.72rem',
+	fontWeight: 700,
+	lineHeight: 1.4,
+	whiteSpace: 'nowrap',
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
+});
+
+export const columnBadgeIcon = style({
+	width: '0.9rem',
+	height: '0.9rem',
+	flexShrink: 0,
+});
+
+export const columnBadgeOnPhoto = style({
+	background: 'rgba(255, 255, 255, 0.22)',
+	color: '#fff',
+	marginBottom: vars.space.sm,
+	backdropFilter: 'blur(6px)',
+	WebkitBackdropFilter: 'blur(6px)',
 });
 
 export const capIcon = style({

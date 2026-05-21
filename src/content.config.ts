@@ -153,4 +153,38 @@ const goods = defineCollection({
 	}),
 });
 
-export const collections = { post, posts, wiki, columns, notes, goods };
+const cities = defineCollection({
+	loader: glob({ base: './src/content/cities', pattern: '**/*.{yaml,yml}' }),
+	schema: z.object({
+		name: z.string(),
+		nameEn: z.string().optional(),
+		country: z.string().default('中国'),
+		countryCode: z.string().optional(),
+		region: z.string().optional(),
+		lat: z.number(),
+		lng: z.number(),
+		visitedAt: z.coerce.date(),
+		revisits: z.array(z.coerce.date()).default([]),
+		note: z.string().optional(),
+		tags: z.array(z.string()).default([]),
+	}),
+});
+
+const residences = defineCollection({
+	loader: glob({ base: './src/content/residences', pattern: '**/*.{yaml,yml}' }),
+	schema: z.object({
+		name: z.string(),
+		nameEn: z.string().optional(),
+		country: z.string().default('中国'),
+		province: z.string().optional(),
+		lat: z.number(),
+		lng: z.number(),
+		since: z.coerce.date(),
+		until: z.coerce.date().optional(),
+		kind: z.enum(['birth', 'school', 'university', 'work', 'home']),
+		order: z.number().int().default(0),
+		note: z.string().optional(),
+	}),
+});
+
+export const collections = { post, posts, wiki, columns, notes, goods, cities, residences };

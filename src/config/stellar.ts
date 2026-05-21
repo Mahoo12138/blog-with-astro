@@ -1,8 +1,8 @@
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 
 export type MenuId = 'post' | 'columns' | 'explore' | 'about' | 'rss' | 'wiki' | 'notebooks';
-export type SidebarWidgetId = 'welcome' | 'recent' | 'related' | 'timeline' | 'media' | 'toc' | 'ghrepo' | 'heatmap' | 'goods-stats' | 'gallery-info' | 'gallery-albums' | 'column-info' | 'column-posts';
-export type SiteTreeKey = 'home' | 'index_blog' | 'index_topic' | 'explore' | 'gallery' | 'post' | 'topic' | 'column' | 'wiki' | 'notebooks' | 'notes' | 'note' | 'author' | 'error_page' | 'page';
+export type SidebarWidgetId = 'welcome' | 'recent' | 'related' | 'timeline' | 'media' | 'toc' | 'ghrepo' | 'heatmap' | 'goods-stats' | 'gallery-info' | 'gallery-albums' | 'column-info' | 'column-posts' | 'travel-stats' | 'travel-recent';
+export type SiteTreeKey = 'home' | 'index_blog' | 'index_topic' | 'explore' | 'gallery' | 'post' | 'topic' | 'column' | 'wiki' | 'notebooks' | 'notes' | 'note' | 'author' | 'error_page' | 'page' | 'travel';
 
 export interface MenubarItem {
 	id: MenuId;
@@ -140,6 +140,8 @@ export const stellarConfig = {
 		'gallery-albums': { id: 'gallery-albums', layout: 'gallery-albums', title: '相册列表' },
 		'column-info': { id: 'column-info', layout: 'column-info', title: '专栏简介' },
 		'column-posts': { id: 'column-posts', layout: 'column-posts', title: '专栏目录' },
+		'travel-stats': { id: 'travel-stats', layout: 'travel-stats', title: '足迹统计' },
+		'travel-recent': { id: 'travel-recent', layout: 'travel-recent', title: '最近点亮', limit: 6 },
 	} satisfies Record<SidebarWidgetId, SidebarWidgetConfig>,
 	siteTree: {
 		home: { menuId: 'post', leftbar: ['welcome', 'recent'], rightbar: ['heatmap'] },
@@ -150,6 +152,7 @@ export const stellarConfig = {
 		post: { menuId: 'post', leftbar: ['related', 'recent'], rightbar: ['ghrepo', 'toc'] },
 		topic: { menuId: 'post', leftbar: ['related', 'recent'], rightbar: ['ghrepo', 'toc'] },
 		column: { menuId: 'columns', leftbar: ['column-info', 'column-posts'], rightbar: ['toc'] },
+		travel: { menuId: 'explore', leftbar: ['travel-recent'], rightbar: ['travel-stats'] },
 		wiki: { menuId: 'wiki', leftbar: ['related', 'recent'], rightbar: ['ghrepo', 'toc'] },
 		notebooks: { menuId: 'notebooks', leftbar: ['recent'], rightbar: null },
 		notes: { menuId: 'notebooks', leftbar: ['recent'], rightbar: null },

@@ -1,0 +1,335 @@
+---
+import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import { SITE_TITLE } from '../consts';
+import StellarShell from '../layouts/StellarShell.astro';
+import travelBanner from '../assets/banners/travel.png';
+import * as bannerStyles from '../layouts/BlogPost.css';
+import * as styles from '../styles/travel.css';
+
+const PAGE_TITLE = '旅行地图';
+const PAGE_DESC = '点亮过的城市与时间';
+
+const cities = (await getCollection('cities')).sort((a, b) => a.data.visitedAt.valueOf() - b.data.visitedAt.valueOf());
+const residences = (await getCollection('residences')).sort((a, b) => {
+	if (a.data.order !== b.data.order) return a.data.order - b.data.order;
+	return a.data.since.valueOf() - b.data.since.valueOf();
+});
+
+function toDateStr(d: Date) {
+	const y = d.getFullYear();
+	const m = String(d.getMonth() + 1).padStart(2, '0');
+	const day = String(d.getDate()).padStart(2, '0');
+	return `${y}-${m}-${day}`;
+}
+
+const residenceKindLabel: Record<string, string> = {
+	birth: '出生地',
+	school: '学生时代',
+	university: '大学',
+	work: '工作',
+	home: '现居',
+};
+
+const residenceKindGlyph: Record<string, string> = {
+	birth: '出',
+	school: '学',
+	university: '大',
+	work: '工',
+	home: '居',
+};
+
+const residenceKindAccent: Record<string, string> = {
+	birth: '#FA6400',
+	school: '#FFB300',
+	university: '#32B67A',
+	work: '#1BCDFC',
+	home: '#F44336',
+};
+
+const markersData = cities.map((c) => ({
+	id: c.id,
+	name: c.data.name,
+	nameEn: c.data.nameEn ?? '',
+	country: c.data.country,
+	region: c.data.region ?? '',
+	lat: c.data.lat,
+	lng: c.data.lng,
+	visitedAt: toDateStr(c.data.visitedAt),
+	revisits: (c.data.revisits ?? []).map((d) => toDateStr(d)),
+	note: c.data.note ?? '',
+}));
+
+const residencesData = residences.map((r) => ({
+	id: r.id,
+	name: r.data.name,
+	nameEn: r.data.nameEn ?? '',
+	country: r.data.country,
+	province: r.data.province ?? '',
+	lat: r.data.lat,
+	lng: r.data.lng,
+	since: toDateStr(r.data.since),
+	until: r.data.until ? toDateStr(r.data.until) : '',
+	kind: r.data.kind,
+	kindLabel: residenceKindLabel[r.data.kind] ?? r.data.kind,
+	glyph: residenceKindGlyph[r.data.kind] ?? '·',
+	accent: residenceKindAccent[r.data.kind] ?? '#FA6400',
+	note: r.data.note ?? '',
+}));
+
+function durationLabel(since: Date, until?: Date) {
+	const end = until ?? new Date();
+	const months = Math.max(0, (end.getFullYear() - since.getFullYear()) * 12 + (end.getMonth() - since.getMonth()));
+	if (months >= 12) {
+		const years = Math.floor(months / 12);
+		const rem = months % 12;
+		return rem > 0 ? `${years} 年 ${rem} 个月` : `${years} 年`;
+	}
+	return `${months} 个月`;
+}
+---
+
+<StellarShell title={`${PAGE_TITLE} · ${SITE_TITLE}`} description={PAGE_DESC} mainClass={styles.main} siteTree="travel">
+	<article class={styles.article}>
+		<header class:list={[bannerStyles.banner, styles.banner, 'article', 'banner', 'top']}>
+			<Image class:list={[bannerStyles.bannerImage, styles.bannerImage, 'bg']} src={travelBanner} width={1280} height={420} alt="" />
+			<div class:list={[bannerStyles.bannerContent, bannerStyles.bannerContentWithImage, 'content']}>
+				<div class:list={[bannerStyles.bannerMeta, 'top', 'bread-nav', 'footnote']}>
+					<div class="left">
+						<div class="flex-row" id="breadcrumb">
+							<a class:list={[bannerStyles.breadcrumb, 'cap', 'breadcrumb']} href="/">Home</a>
+							<span class="sep">/</span>
+							<a class:list={[bannerStyles.breadcrumb, 'cap', 'breadcrumb']} href="/explore">探索</a>
+							<span class="sep">/</span>
+							<span class:list={[bannerStyles.breadcrumb, 'cap', 'breadcrumb']}>{PAGE_TITLE}</span>
+						</div>
+					</div>
+				</div>
+				<div class:list={[bannerStyles.bannerBottom, 'bottom', 'only-title']}>
+					<div class="text-area">
+						<h1 class:list={[bannerStyles.title, 'text', 'title']}><span>{PAGE_TITLE}</span></h1>
+						<p class={styles.subtitle}>已点亮 <strong>{cities.length}</strong> 座城市 · 走过 <strong>{residences.length}</strong> 段人生</p>
+					</div>
+				</div>
+			</div>
+		</header>
+		<section class={styles.mapSection}>
+			<div class={styles.mapCard}>
+				<div
+					id="travel-map"
+					class={styles.map}
+					data-cities={JSON.stringify(markersData)}
+					data-residences={JSON.stringify(residencesData)}
+					role="application"
+					aria-label="旅行地图"
+				></div>
+				<ul class={styles.legend} aria-label="图例">
+					<li class={styles.legendItem}>
+						<span class={styles.legendDotTravel} aria-hidden="true"></span>
+						<span>到访城市</span>
+					</li>
+					<li class={styles.legendItem}>
+						<span class={styles.legendDotResidence} aria-hidden="true"></span>
+						<span>人生足迹</span>
+					</li>
+				</ul>
+				<div class={styles.attribution}>
+					© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> · <a href="https://carto.com/attributions" target="_blank" rel="noopener noreferrer">CARTO</a>
+				</div>
+			</div>
+		</section>
+		<section class={styles.lifeline}>
+			<h2 class={styles.sectionTitle}>人生足迹</h2>
+			<ol class={styles.lifelineList}>
+				{residences.map((r, idx) => (
+					<li class={styles.lifelineItem} style={`--residence-accent:${residenceKindAccent[r.data.kind]};`}>
+						<span class={styles.lifelineGlyph} aria-hidden="true">{residenceKindGlyph[r.data.kind]}</span>
+						<div class={styles.lifelineBody}>
+							<div class={styles.lifelineHead}>
+								<span class={styles.lifelineKind}>{residenceKindLabel[r.data.kind]}</span>
+								<span class={styles.lifelineCity}>{r.data.name}</span>
+								{r.data.province && r.data.province !== r.data.name && <span class={styles.lifelineProvince}>{r.data.province}</span>}
+							</div>
+							<div class={styles.lifelineRange}>
+								<time datetime={toDateStr(r.data.since)}>{toDateStr(r.data.since)}</time>
+								<span class={styles.lifelineRangeSep}>→</span>
+								{r.data.until ? <time datetime={toDateStr(r.data.until)}>{toDateStr(r.data.until)}</time> : <span class={styles.lifelinePresent}>至今</span>}
+								<span class={styles.lifelineDuration}>{durationLabel(r.data.since, r.data.until)}</span>
+							</div>
+							{r.data.note && <p class={styles.lifelineNote}>{r.data.note}</p>}
+						</div>
+						{idx < residences.length - 1 && <span class={styles.lifelineConnector} aria-hidden="true"></span>}
+					</li>
+				))}
+			</ol>
+		</section>
+		<section class={styles.timeline}>
+			<h2 class={styles.sectionTitle}>城市清单</h2>
+			<ol class={styles.timelineList}>
+				{cities.map((c) => {
+					const visitCount = 1 + (c.data.revisits?.length ?? 0);
+					return (
+						<li class={styles.timelineItem}>
+							<span class={styles.timelineDate}>{toDateStr(c.data.visitedAt)}</span>
+							<div class={styles.timelineBody}>
+								<div class={styles.timelineHead}>
+									<span class={styles.timelineCity}>{c.data.name}</span>
+									{c.data.nameEn && <span class={styles.timelineCityEn}>{c.data.nameEn}</span>}
+									<span class={styles.timelineCountry}>{c.data.country}</span>
+									{visitCount > 1 && <span class={styles.timelineBadge}>×{visitCount}</span>}
+								</div>
+								{c.data.note && <p class={styles.timelineNote}>{c.data.note}</p>}
+							</div>
+						</li>
+					);
+				})}
+			</ol>
+		</section>
+	</article>
+</StellarShell>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+<script is:inline src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script is:inline>
+	(() => {
+		const TILE_LIGHT = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+		const TILE_DARK = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+
+		function getThemeMode() {
+			const explicit = document.documentElement.dataset.theme;
+			if (explicit === 'light' || explicit === 'dark') return explicit;
+			return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+		}
+
+		function readJson(el, attr) {
+			try { return JSON.parse(el.getAttribute(attr) || '[]'); } catch (e) { return []; }
+		}
+
+		function escape(s) {
+			return String(s).replace(/[&<>"']/g, (ch) => ({
+				'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+			}[ch]));
+		}
+
+		function init() {
+			const container = document.getElementById('travel-map');
+			if (!container || typeof window.L === 'undefined') return;
+			const L = window.L;
+			const cities = readJson(container, 'data-cities');
+			const residences = readJson(container, 'data-residences');
+
+			const map = L.map(container, {
+				zoomControl: true,
+				scrollWheelZoom: false,
+				attributionControl: false,
+				worldCopyJump: true,
+			}).setView([30, 110], 4);
+
+			let tileLayer = L.tileLayer(getThemeMode() === 'dark' ? TILE_DARK : TILE_LIGHT, {
+				maxZoom: 18,
+				subdomains: 'abcd',
+				detectRetina: true,
+				crossOrigin: true,
+			}).addTo(map);
+
+			const bounds = [];
+
+			cities.forEach((c) => {
+				const icon = L.divIcon({
+					className: 'travel-marker',
+					html: '<span class="pulse"></span><span class="dot"></span>',
+					iconSize: [14, 14],
+					iconAnchor: [7, 7],
+					popupAnchor: [0, -10],
+				});
+				const marker = L.marker([c.lat, c.lng], { icon, title: c.name }).addTo(map);
+				const revisitsCount = Array.isArray(c.revisits) ? c.revisits.length : 0;
+				const totalVisits = 1 + revisitsCount;
+				const popupHtml = [
+					'<div class="pop-head">',
+						'<span class="pop-city">', escape(c.name), '</span>',
+						c.nameEn ? '<span class="pop-en">' + escape(c.nameEn) + '</span>' : '',
+					'</div>',
+					'<div class="pop-row">点亮于 <strong>', escape(c.visitedAt), '</strong></div>',
+					totalVisits > 1 ? '<div class="pop-row">共到访 <strong>' + totalVisits + '</strong> 次</div>' : '',
+					c.region ? '<div class="pop-row">' + escape(c.region) + ' · ' + escape(c.country) + '</div>' : '<div class="pop-row">' + escape(c.country) + '</div>',
+					c.note ? '<p class="pop-note">' + escape(c.note) + '</p>' : '',
+				].join('');
+				marker.bindPopup(popupHtml);
+				bounds.push([c.lat, c.lng]);
+			});
+
+			const residencePath = [];
+			residences.forEach((r) => {
+				const html = '<span class="residence-ring" style="--ring:' + r.accent + ';"></span><span class="residence-dot" style="--accent:' + r.accent + ';">' + escape(r.glyph || '·') + '</span>';
+				const icon = L.divIcon({
+					className: 'residence-marker',
+					html,
+					iconSize: [34, 34],
+					iconAnchor: [17, 17],
+					popupAnchor: [0, -14],
+				});
+				const marker = L.marker([r.lat, r.lng], { icon, title: r.name, zIndexOffset: 500 }).addTo(map);
+				const rangeStr = escape(r.since) + ' → ' + (r.until ? escape(r.until) : '至今');
+				const popupHtml = [
+					'<div class="pop-head">',
+						'<span class="pop-tag" style="background:' + r.accent + '22;color:' + r.accent + ';">' + escape(r.kindLabel || '') + '</span>',
+						'<span class="pop-city">', escape(r.name), '</span>',
+						r.nameEn ? '<span class="pop-en">' + escape(r.nameEn) + '</span>' : '',
+					'</div>',
+					'<div class="pop-row">' + rangeStr + '</div>',
+					r.province ? '<div class="pop-row">' + escape(r.province) + ' · ' + escape(r.country) + '</div>' : '<div class="pop-row">' + escape(r.country) + '</div>',
+					r.note ? '<p class="pop-note">' + escape(r.note) + '</p>' : '',
+				].join('');
+				marker.bindPopup(popupHtml);
+				residencePath.push([r.lat, r.lng]);
+				bounds.push([r.lat, r.lng]);
+			});
+
+			if (residencePath.length > 1) {
+				L.polyline(residencePath, {
+					color: '#FA6400',
+					weight: 2.5,
+					opacity: 0.6,
+					dashArray: '6 6',
+					interactive: false,
+				}).addTo(map);
+			}
+
+			if (bounds.length === 1) {
+				map.setView(bounds[0], 6);
+			} else if (bounds.length > 1) {
+				map.fitBounds(bounds, { padding: [40, 40], maxZoom: 6 });
+			}
+
+			container.addEventListener('mouseenter', () => map.scrollWheelZoom.enable());
+			container.addEventListener('mouseleave', () => map.scrollWheelZoom.disable());
+
+			let currentMode = getThemeMode();
+			function swapTiles() {
+				const mode = getThemeMode();
+				if (mode === currentMode) return;
+				currentMode = mode;
+				map.removeLayer(tileLayer);
+				tileLayer = L.tileLayer(mode === 'dark' ? TILE_DARK : TILE_LIGHT, {
+					maxZoom: 18,
+					subdomains: 'abcd',
+					detectRetina: true,
+					crossOrigin: true,
+				}).addTo(map);
+			}
+			const observer = new MutationObserver(swapTiles);
+			observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+			window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+				if (document.documentElement.dataset.theme) return;
+				swapTiles();
+			});
+		}
+
+		if (document.readyState === 'loading') {
+			document.addEventListener('DOMContentLoaded', init, { once: true });
+		} else {
+			init();
+		}
+	})();
+</script>

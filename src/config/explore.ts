@@ -81,6 +81,14 @@ export const explorePageConfig: ExplorePageConfig = {
 			layout: 'wide',
 			routeKind: 'file',
 		},
+		{
+			title: '旅行地图',
+			description: '点亮过的城市与时间',
+			href: '/travel/',
+			icon: 'travel',
+			layout: 'default',
+			routeKind: 'file',
+		},
 	],
 };
 

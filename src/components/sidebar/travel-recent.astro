@@ -1,0 +1,53 @@
+---
+import { getCollection } from 'astro:content';
+import type { WidgetProps } from './types';
+import * as leftStyles from '../StellarLeftSidebar.css';
+import * as rightStyles from '../StellarRightSidebar.css';
+import * as travelStyles from './travel.css';
+
+const { widget, side } = Astro.props as WidgetProps;
+const cities = await getCollection('cities');
+
+const allVisits = cities.flatMap((c) => {
+	const dates = [c.data.visitedAt, ...(c.data.revisits ?? [])];
+	return dates.map((date) => ({
+		city: c.data.name,
+		country: c.data.country,
+		date: new Date(date),
+	}));
+});
+
+const limit = widget.limit ?? 6;
+const recent = allVisits
+	.sort((a, b) => b.date.valueOf() - a.date.valueOf())
+	.slice(0, limit);
+
+const headerClass = side === 'left' ? leftStyles.widgetTitle : rightStyles.widgetHeader;
+const widgetClass = side === 'left' ? leftStyles.widget : rightStyles.widget;
+
+function formatDate(d: Date) {
+	const y = d.getFullYear();
+	const m = String(d.getMonth() + 1).padStart(2, '0');
+	const day = String(d.getDate()).padStart(2, '0');
+	return `${y}-${m}-${day}`;
+}
+---
+
+{recent.length > 0 && (
+	<section class:list={[widgetClass, travelStyles.recentWidget]}>
+		<div class={headerClass}><span>{widget.title}</span></div>
+		<ul class={travelStyles.recentList}>
+			{recent.map((entry) => (
+				<li class={travelStyles.recentItem}>
+					<div class={travelStyles.recentLink}>
+						<span class={travelStyles.recentPin} aria-hidden="true">{entry.city.slice(0, 1)}</span>
+						<span class={travelStyles.recentMeta}>
+							<span class={travelStyles.recentName}>{entry.city}</span>
+							<span class={travelStyles.recentDate}>{formatDate(entry.date)}</span>
+						</span>
+					</div>
+				</li>
+			))}
+		</ul>
+	</section>
+)}

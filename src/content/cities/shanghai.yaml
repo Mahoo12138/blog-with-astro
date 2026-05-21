@@ -1,0 +1,15 @@
+name: 上海
+nameEn: Shanghai
+country: 中国
+countryCode: CN
+region: 华东
+lat: 31.2304
+lng: 121.4737
+visitedAt: 2018-05-10
+revisits:
+  - 2021-09-18
+  - 2023-10-01
+note: 外滩与陆家嘴的夜景，是对都市最初的想象。
+tags:
+  - 一线
+  - 沿海

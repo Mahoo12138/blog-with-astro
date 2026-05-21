@@ -4,6 +4,7 @@ import goodsIcon from './goods.svg?url';
 import loveIcon from './love.png';
 import memosIcon from './memos.png';
 import photoIcon from './photo.svg?url';
+import travelIcon from './travel.svg?url';
 
 export const exploreIconImages = {
 	bookmark: bookmarkIcon,
@@ -12,6 +13,7 @@ export const exploreIconImages = {
 	love: loveIcon.src,
 	memos: memosIcon.src,
 	photo: photoIcon,
+	travel: travelIcon,
 } as const;
 
 export type ExploreIconImageKey = keyof typeof exploreIconImages;

@@ -1,0 +1,59 @@
+---
+import { getCollection } from 'astro:content';
+import type { WidgetProps } from './types';
+import * as styles from '../StellarRightSidebar.css';
+import * as travelStyles from './travel.css';
+
+const { widget } = Astro.props as WidgetProps;
+const cities = await getCollection('cities');
+
+const totalCities = cities.length;
+const totalCountries = new Set(cities.map((c) => c.data.country)).size;
+const totalVisits = cities.reduce((sum, c) => sum + 1 + (c.data.revisits?.length ?? 0), 0);
+
+const allDates = cities.flatMap((c) => [c.data.visitedAt, ...(c.data.revisits ?? [])]);
+const earliestYear = allDates.length > 0 ? Math.min(...allDates.map((d) => new Date(d).getFullYear())) : new Date().getFullYear();
+const yearsCount = Math.max(1, new Date().getFullYear() - earliestYear + 1);
+
+const regionCounts = new Map<string, number>();
+for (const c of cities) {
+	const key = c.data.region ?? c.data.country;
+	regionCounts.set(key, (regionCounts.get(key) ?? 0) + 1);
+}
+const regions = [...regionCounts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6);
+---
+
+<section class:list={[styles.widget, travelStyles.statsWidget]}>
+	<div class={styles.widgetHeader}><span>{widget.title}</span></div>
+	<div class={travelStyles.statsGrid}>
+		<div class={travelStyles.statCard}>
+			<span class={travelStyles.statValue}>{totalCities}</span>
+			<span class={travelStyles.statLabel}>点亮城市</span>
+		</div>
+		<div class={travelStyles.statCard}>
+			<span class={travelStyles.statValue}>{totalCountries}</span>
+			<span class={travelStyles.statLabel}>到访国家</span>
+		</div>
+		<div class={travelStyles.statCard}>
+			<span class={travelStyles.statValue}>{totalVisits}</span>
+			<span class={travelStyles.statLabel}>累计行程</span>
+		</div>
+		<div class={travelStyles.statCard}>
+			<span class={travelStyles.statValue}>{yearsCount}</span>
+			<span class={travelStyles.statLabel}>跨度年份</span>
+		</div>
+	</div>
+	{regions.length > 0 && (
+		<ul class={travelStyles.regionsList}>
+			{regions.map(([name, count]) => (
+				<li class={travelStyles.regionItem}>
+					<span class={travelStyles.regionLabel}>
+						<span class={travelStyles.regionDot} aria-hidden="true"></span>
+						<span>{name}</span>
+					</span>
+					<span class={travelStyles.regionCount}>{count}</span>
+				</li>
+			))}
+		</ul>
+	)}
+</section>

@@ -1,0 +1,14 @@
+name: 成都
+nameEn: Chengdu
+country: 中国
+countryCode: CN
+region: 西南
+lat: 30.5728
+lng: 104.0668
+visitedAt: 2020-08-22
+revisits:
+  - 2022-11-05
+note: 火锅、盖碗茶、宽窄巷子，是一座可以慢下来的城市。
+tags:
+  - 美食
+  - 生活

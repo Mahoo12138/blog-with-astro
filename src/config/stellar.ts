@@ -1,8 +1,8 @@
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 
 export type MenuId = 'post' | 'columns' | 'explore' | 'about' | 'rss' | 'wiki' | 'notebooks';
-export type SidebarWidgetId = 'welcome' | 'recent' | 'related' | 'timeline' | 'media' | 'toc' | 'ghrepo' | 'heatmap' | 'goods-stats' | 'gallery-info' | 'gallery-albums';
-export type SiteTreeKey = 'home' | 'index_blog' | 'index_topic' | 'explore' | 'gallery' | 'post' | 'topic' | 'wiki' | 'notebooks' | 'notes' | 'note' | 'author' | 'error_page' | 'page';
+export type SidebarWidgetId = 'welcome' | 'recent' | 'related' | 'timeline' | 'media' | 'toc' | 'ghrepo' | 'heatmap' | 'goods-stats' | 'gallery-info' | 'gallery-albums' | 'column-info' | 'column-posts';
+export type SiteTreeKey = 'home' | 'index_blog' | 'index_topic' | 'explore' | 'gallery' | 'post' | 'topic' | 'column' | 'wiki' | 'notebooks' | 'notes' | 'note' | 'author' | 'error_page' | 'page';
 
 export interface MenubarItem {
 	id: MenuId;
@@ -138,6 +138,8 @@ export const stellarConfig = {
 		'goods-stats': { id: 'goods-stats', layout: 'goods-stats', title: '好物统计' },
 		'gallery-info': { id: 'gallery-info', layout: 'gallery-info', title: '我的相册', body: '这里是我的日常生活记录，用镜头记下每一个小确幸。' },
 		'gallery-albums': { id: 'gallery-albums', layout: 'gallery-albums', title: '相册列表' },
+		'column-info': { id: 'column-info', layout: 'column-info', title: '专栏简介' },
+		'column-posts': { id: 'column-posts', layout: 'column-posts', title: '专栏目录' },
 	} satisfies Record<SidebarWidgetId, SidebarWidgetConfig>,
 	siteTree: {
 		home: { menuId: 'post', leftbar: ['welcome', 'recent'], rightbar: ['heatmap'] },
@@ -147,6 +149,7 @@ export const stellarConfig = {
 		gallery: { menuId: 'explore', leftbar: ['gallery-info', 'gallery-albums'], rightbar: null },
 		post: { menuId: 'post', leftbar: ['related', 'recent'], rightbar: ['ghrepo', 'toc'] },
 		topic: { menuId: 'post', leftbar: ['related', 'recent'], rightbar: ['ghrepo', 'toc'] },
+		column: { menuId: 'columns', leftbar: ['column-info', 'column-posts'], rightbar: ['toc'] },
 		wiki: { menuId: 'wiki', leftbar: ['related', 'recent'], rightbar: ['ghrepo', 'toc'] },
 		notebooks: { menuId: 'notebooks', leftbar: ['recent'], rightbar: null },
 		notes: { menuId: 'notebooks', leftbar: ['recent'], rightbar: null },

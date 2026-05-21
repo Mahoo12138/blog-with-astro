@@ -5,6 +5,7 @@ import StellarIcon from '../components/StellarIcon.astro';
 import StellarPageFooter from '../components/StellarPageFooter.astro';
 import StellarRightSidebar from '../components/StellarRightSidebar.astro';
 import { resolveShellConfig, type MenuId, type SidebarValue, type SiteTreeKey } from '../config/stellar';
+import type { ColumnSidebarContext } from '../components/sidebar/types';
 import * as styles from './StellarShell.css';
 
 interface Props {
@@ -17,9 +18,10 @@ interface Props {
 	leftbar?: SidebarValue;
 	rightbar?: SidebarValue;
 	tocHeadings?: { depth: number; slug: string; text: string }[];
+	column?: ColumnSidebarContext;
 }
 
-const { title, description, lang = 'en', mainClass, siteTree = 'page', menuId, leftbar, rightbar, tocHeadings = [] } = Astro.props;
+const { title, description, lang = 'en', mainClass, siteTree = 'page', menuId, leftbar, rightbar, tocHeadings = [], column } = Astro.props;
 const hasLead = Astro.slots.has('lead');
 const hasLeftbar = Astro.slots.has('leftbar');
 const hasRightbar = Astro.slots.has('rightbar');
@@ -39,7 +41,7 @@ const hasRightbarContent = shellConfig.rightbar.length > 0 || hasRightbar;
 		</div>
 		<div class={styles.shell} data-stellar-shell>
 			<aside class={styles.left} data-pagefind-ignore>
-				<StellarLeftSidebar menuId={shellConfig.menuId} widgets={shellConfig.leftbar} />
+				<StellarLeftSidebar menuId={shellConfig.menuId} widgets={shellConfig.leftbar} column={column} />
 				{hasLeftbar && <slot name="leftbar" />}
 			</aside>
 			<main class={styles.mainArea} data-pagefind-body>
@@ -51,7 +53,7 @@ const hasRightbarContent = shellConfig.rightbar.length > 0 || hasRightbar;
 			</main>
 			{hasRightbarContent && (
 				<aside class={styles.right} data-pagefind-ignore>
-					<StellarRightSidebar widgets={shellConfig.rightbar} headings={tocHeadings} />
+					<StellarRightSidebar widgets={shellConfig.rightbar} headings={tocHeadings} column={column} />
 					{hasRightbar && <slot name="rightbar" />}
 				</aside>
 			)}

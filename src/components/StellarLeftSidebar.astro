@@ -4,14 +4,16 @@ import { stellarConfig, type MenuId, type SidebarWidgetConfig } from '../config/
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 import SidebarRenderer from './SidebarRenderer.astro';
 import StellarIcon from './StellarIcon.astro';
+import type { ColumnSidebarContext } from './sidebar/types';
 import * as styles from './StellarLeftSidebar.css';
 
 interface Props {
 	menuId?: MenuId;
 	widgets?: SidebarWidgetConfig[];
+	column?: ColumnSidebarContext;
 }
 
-const { menuId = 'post', widgets = [] } = Astro.props;
+const { menuId = 'post', widgets = [], column } = Astro.props;
 const pathname = Astro.url.pathname;
 const searchQuery = pathname.replace(/\/+$/, '') === '/search' ? Astro.url.searchParams.get('q')?.trim() ?? '' : '';
 
@@ -71,7 +73,7 @@ const socialItems = stellarConfig.footer.social;
 					</form>
 					<div class={styles.searchNoResult}>没有找到内容</div>
 				</div>
-				<SidebarRenderer widgets={widgets} side="left" context={{ pathname }} />
+				<SidebarRenderer widgets={widgets} side="left" context={{ pathname, column }} />
 			</div>
 		</div>
 

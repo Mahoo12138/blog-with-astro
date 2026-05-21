@@ -3,3 +3,5 @@
 
 export const SITE_TITLE = 'Astro Blog';
 export const SITE_DESCRIPTION = 'Welcome to my website!';
+
+export const POSTS_PER_PAGE = 10;

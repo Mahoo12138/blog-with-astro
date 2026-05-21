@@ -1,0 +1,38 @@
+---
+import * as styles from './Pagination.css';
+
+interface Props {
+	currentPage: number;
+	totalPages: number;
+	prevUrl?: string;
+	nextUrl?: string;
+}
+
+const { currentPage, totalPages, prevUrl, nextUrl } = Astro.props;
+---
+
+{totalPages > 1 && (
+	<nav class={styles.root} aria-label="Pagination">
+		<a
+			class:list={[styles.button, !prevUrl && styles.disabled]}
+			href={prevUrl ?? '#'}
+			aria-disabled={!prevUrl}
+			tabindex={prevUrl ? 0 : -1}
+			rel="prev"
+		>
+			<span aria-hidden="true">←</span>
+			<span>上一页</span>
+		</a>
+		<span class={styles.indicator}>第 {currentPage} 页 / 共 {totalPages} 页</span>
+		<a
+			class:list={[styles.button, !nextUrl && styles.disabled]}
+			href={nextUrl ?? '#'}
+			aria-disabled={!nextUrl}
+			tabindex={nextUrl ? 0 : -1}
+			rel="next"
+		>
+			<span>下一页</span>
+			<span aria-hidden="true">→</span>
+		</a>
+	</nav>
+)}

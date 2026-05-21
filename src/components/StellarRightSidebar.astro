@@ -1,16 +1,19 @@
 ---
 import type { SidebarWidgetConfig } from '../config/stellar';
+import type { ColumnSidebarContext } from './sidebar/types';
 import SidebarRenderer from './SidebarRenderer.astro';
 import * as styles from './StellarRightSidebar.css';
 
 interface Props {
 	widgets?: SidebarWidgetConfig[];
 	headings?: { depth: number; slug: string; text: string }[];
+	column?: ColumnSidebarContext;
 }
 
-const { widgets = [], headings = [] } = Astro.props;
+const { widgets = [], headings = [], column } = Astro.props;
+const pathname = Astro.url.pathname;
 ---
 
 <div class={styles.root}>
-	<SidebarRenderer widgets={widgets} side="right" context={{ headings }} />
+	<SidebarRenderer widgets={widgets} side="right" context={{ headings, column, pathname }} />
 </div>

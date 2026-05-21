@@ -1,0 +1,56 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import Pagination from '../../components/Pagination.astro';
+import StellarNavTabs from '../../components/StellarNavTabs.astro';
+import StellarPostCard from '../../components/StellarPostCard.astro';
+import { POSTS_PER_PAGE, SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
+import StellarShell from '../../layouts/StellarShell.astro';
+import * as styles from '../../styles/homeFeed.css';
+import { getPhotoIndex, sortBlogPosts } from '../../utils/content';
+
+export async function getStaticPaths() {
+	const allPosts = sortBlogPosts(await getCollection('posts'));
+	const totalPages = Math.max(1, Math.ceil(allPosts.length / POSTS_PER_PAGE));
+
+	const paths = [];
+	for (let page = 2; page <= totalPages; page += 1) {
+		const start = (page - 1) * POSTS_PER_PAGE;
+		paths.push({
+			params: { page: String(page) },
+			props: {
+				page,
+				totalPages,
+				posts: allPosts.slice(start, start + POSTS_PER_PAGE),
+			},
+		});
+	}
+	return paths;
+}
+
+interface Props {
+	page: number;
+	totalPages: number;
+	posts: CollectionEntry<'posts'>[];
+}
+
+const { page, totalPages, posts } = Astro.props as Props;
+const photoIndex = getPhotoIndex(posts);
+const prevUrl = page === 2 ? '/' : `/posts/${page - 1}`;
+const nextUrl = page < totalPages ? `/posts/${page + 1}` : undefined;
+---
+
+<StellarShell title={`第 ${page} 页 · ${SITE_TITLE}`} description={SITE_DESCRIPTION} mainClass={styles.main} siteTree="home">
+	<header class={styles.header}>
+		<StellarNavTabs active="home" />
+	</header>
+	<ul class={styles.list}>
+		{
+			posts.map((post, index) => (
+				<li class={styles.item}>
+					<StellarPostCard post={post} variant={index === photoIndex ? 'photo' : 'default'} />
+				</li>
+			))
+		}
+	</ul>
+	<Pagination currentPage={page} totalPages={totalPages} prevUrl={prevUrl} nextUrl={nextUrl} />
+</StellarShell>

@@ -1,0 +1,33 @@
+---
+import type { WidgetProps } from './types';
+import * as leftStyles from '../StellarLeftSidebar.css';
+import * as rightStyles from '../StellarRightSidebar.css';
+import * as columnStyles from './column.css';
+
+const { widget, side, context } = Astro.props as WidgetProps;
+const column = context.column;
+const orderedPosts = column ? [...column.posts].sort((a, b) => a.data.pubDate.valueOf() - b.data.pubDate.valueOf()) : [];
+const currentPath = (context.pathname ?? '').replace(/\/+$/, '');
+const s = side === 'left' ? leftStyles : rightStyles;
+const headerClass = side === 'left' ? leftStyles.widgetTitle : rightStyles.widgetHeader;
+---
+
+{orderedPosts.length > 0 && (
+	<section class:list={[s.widget, columnStyles.postsWidget]}>
+		<div class={headerClass}><span>{widget.title}</span></div>
+		<ol class={columnStyles.postList}>
+			{orderedPosts.map((post, index) => {
+				const href = `/post/${post.id}/`;
+				const isActive = currentPath === href.replace(/\/+$/, '');
+				return (
+					<li class={columnStyles.postItem}>
+						<a class:list={[columnStyles.postLink, isActive && columnStyles.postLinkActive]} href={href}>
+							<span class={columnStyles.postIndex}>{String(index + 1).padStart(2, '0')}</span>
+							<span class={columnStyles.postTitle}>{post.data.title}</span>
+						</a>
+					</li>
+				);
+			})}
+		</ol>
+	</section>
+)}

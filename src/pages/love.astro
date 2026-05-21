@@ -1,901 +1,948 @@
 ---
-import { getExploreInternalItemByHref } from '../config/explore';
-import ExploreShell from '../layouts/ExploreShell.astro';
+import { getCollection } from "astro:content";
+import { getExploreInternalItemByHref } from "../config/explore";
+import ExploreShell from "../layouts/ExploreShell.astro";
 
-const item = getExploreInternalItemByHref('/love/');
+const item = getExploreInternalItemByHref("/love/");
 
 if (!item) {
-	throw new Error('Explore item for /love/ was not found.');
+  throw new Error("Explore item for /love/ was not found.");
 }
 
-// ---- 配置区域 ----
-const START_DATE = '2025-12-06'; // 恋爱开始日期，格式 YYYY-MM-DD
+const sortById = <T extends { id: string }>(entries: T[]) =>
+  [...entries].sort((a, b) => a.id.localeCompare(b.id));
 
-const timeline = [
-	{ date: '2025-12-06', emoji: '💘', title: '在一起啦', desc: '这一天，我们决定在一起，开始了属于我们的故事。' },
-	{ date: '2026-03-20', emoji: '🌸', title: '第一次约会', desc: '春日里，我们手牵手逛了公园，吃了很多好吃的。' },
-	{ date: '2026-05-02', emoji: '🚆', title: '第一次旅行', desc: '一起去了南京，看了城墙和鸡鸣寺，拍了好多好看的照片。' },
-	// { date: '2026-05-20', emoji: '🎂', title: '520 纪念', desc: '收到了你亲手做的蛋糕，甜到心里去了。' },
-	// { date: '2026-07-07', emoji: '🎋', title: '七夕快乐', desc: '一起在桥上许愿，星空好美，你比星星还亮。' },
-	// { date: '2026-11-11', emoji: '🎁', title: '双十一互换礼物', desc: '互相知道对方想要什么，礼物超级合心意！' },
-	// { date: '2027-02-14', emoji: '🌹', title: '一周年纪念日', desc: '整整一年啦，感谢你一直在我身边。' },
-	// { date: '2027-08-18', emoji: '✈️', title: '第一次旅行', desc: '一起去了大理，看了苍山洱海，拍了好多好看的照片。' },
-	// { date: '2028-02-14', emoji: '💍', title: '两周年纪念日', desc: '两年了，爱你越来越深，期待更长的未来。' },
-];
+const [
+  timeline,
+  photos,
+  firsts,
+  stats,
+  traits,
+  destinations,
+  wishes,
+  promises,
+  dateIdeas,
+  loveNotes,
+] = await Promise.all([
+  getCollection("loveTimeline"),
+  getCollection("lovePhotos"),
+  getCollection("loveFirsts"),
+  getCollection("loveStats"),
+  getCollection("loveTraits"),
+  getCollection("loveDestinations"),
+  getCollection("loveWishes"),
+  getCollection("lovePromises"),
+  getCollection("loveDateIdeas"),
+  getCollection("loveNotes"),
+]);
 
-const activities = [
-	{ emoji: '🎬', label: '一起看电影', count: 4 },
-	{ emoji: '🍜', label: '一起吃饭', count: '20+' },
-	{ emoji: '🎮', label: '一起打游戏', count: '999+' },
-	{ emoji: '📸', label: '拍了多少张照片', count: '400+' },
-	{ emoji: '🚗', label: '一起出游', count: 2 },
-	{ emoji: '📞', label: '打过视频电话（次）', count: '999+' },
-	{ emoji: '🎁', label: '互赠礼物', count: 3 },
-	{ emoji: '☕', label: '一起喝奶茶', count: '10+' },
-];
+const meta = {
+  startDate: "2025-12-06",
+  anniversaryDate: "2026-12-06",
+  anniversaryLabel: "一周年 · 2026.12.06",
+  partners: {
+    left: { initial: "她", name: "小A" },
+    right: { initial: "他", name: "小B" },
+  },
+  song: {
+    title: "光年之外",
+    artist: "G.E.M. 邓紫棋",
+    note: '"第一次牵手的那天，这首歌刚好在播。"',
+    initialTime: "1:23",
+    totalTime: "3:43",
+    initialPercent: 37,
+  },
+  letter: {
+    date: "2026 · 05 · 20",
+    greeting: "亲爱的你，",
+    paragraphs: [
+      "想对你说的话有很多，却总是不知道从哪里开始。",
+      "喜欢你不是因为某一件事，而是你所有细小的样子加在一起，刚好成了我最想靠近的人。",
+      "喜欢你认真讲话时的样子，喜欢你笑起来的样子，喜欢你说\"我知道了\"却还是会忘记的样子。",
+      "谢谢你愿意留在我身边，谢谢你让我相信，平凡的日子也可以这么闪光。",
+      "希望我们可以一直这样下去，把所有的四季都过一遍，再过一遍。",
+    ],
+    signature: "— 永远爱你的我 ♡",
+  },
+};
 
-const noteMessages = [
-	{ text: '你是我每天睁开眼睛最想见到的人。' },
-	{ text: '有你陪着的日子，连失眠都变得可爱了。' },
-	{ text: '谢谢你把最好的时光都给了我。' },
-	{ text: '下辈子，还要找到你。' },
-	{ text: '想把每个普通的黄昏都分你一半。' },
-	{ text: '你一笑，我就觉得今天已经很好了。' },
-	{ text: '喜欢和你慢慢走，也喜欢和你突然奔跑。' },
-	{ text: '你的名字，是我心里最柔软的开关。' },
-	{ text: '今天也有偷偷多喜欢你一点。' },
-];
-const notesWithMeta = noteMessages.map((note, index) => ({
-	...note,
-	num: (index + 1 < 10 ? '0' : '') + (index + 1),
-	cls: index % 2 === 0 ? 'whisper whisper-a' : 'whisper whisper-b',
-	fromKind: index % 2 === 0 ? 'me' : 'you',
-	duplicate: false,
+const month = new Date().getMonth() + 1;
+const currentSeason =
+  month >= 3 && month <= 5
+    ? "spring"
+    : month >= 6 && month <= 8
+      ? "summer"
+      : month >= 9 && month <= 11
+        ? "autumn"
+        : "winter";
+
+const timelineEntries = sortById(timeline);
+const photoEntries = sortById(photos);
+const firstsEntries = sortById(firsts);
+const statsEntries = sortById(stats);
+const traitsEntries = sortById(traits);
+const destinationsEntries = sortById(destinations);
+const wishesEntries = sortById(wishes);
+const promisesEntries = sortById(promises);
+const dateIdeasEntries = sortById(dateIdeas);
+const notesEntries = sortById(loveNotes);
+
+const wishesDone = wishesEntries.filter((w) => w.data.done).length;
+
+const delayCls = (i: number, max = 9) => `d${(i % max) + 1}`;
+
+const dateIdeasPayload = dateIdeasEntries.map((d) => ({
+  ic: d.data.icon,
+  tt: d.data.title,
+  tx: d.data.description,
 }));
-const noteLoop = notesWithMeta;
 
-const heroAvatarGroups = [
-	{ me: '/avatar/a-me.webp', you: '/avatar/a-you.webp' },
-	{ me: '/avatar/b-me.webp', you: '/avatar/b-you.webp' },
-	{ me: '/avatar/c-me.webp', you: '/avatar/c-you.webp' },
-];
+const initialIdea = dateIdeasPayload[0];
 ---
 
 <ExploreShell item={item}>
-	<div class="love-page">
+  <div class="love-root" data-season={currentSeason} id="love-root">
+    <div id="cg"></div>
+    <canvas id="bg"></canvas>
+    <div id="prog"></div>
 
-		<!-- Floating petals -->
-		<div class="petals" aria-hidden="true">
-			<span class="petal petal-1">🌸</span>
-			<span class="petal petal-2">🌸</span>
-			<span class="petal petal-3">🌸</span>
-			<span class="petal petal-4">🌸</span>
-			<span class="petal petal-5">🌸</span>
-			<span class="petal petal-6">🌸</span>
-		</div>
+    <!-- HERO -->
+    <header class="hero">
+      <div class="h-grid"></div>
+      <div class="h-bg">LOVE</div>
+      <div class="orb o1"></div>
+      <div class="orb o2"></div>
+      <div class="orb o3"></div>
+      <div class="hc">
+        <p class="hen">Love Story · 恋爱纪念册</p>
+        <h1 class="htl">我们的故事</h1>
+        <p class="hsb">每一天都是礼物，每一刻都值得珍藏</p>
+        <div class="avs">
+          <div class="av">
+            <div class="av-ring"><div class="av-img">{meta.partners.left.initial}</div></div>
+            <div class="av-nm">{meta.partners.left.name}</div>
+          </div>
+          <div class="av-cn">
+            <div class="av-ht">♡</div>
+            <div class="av-dy" id="av-dy">···</div>
+          </div>
+          <div class="av">
+            <div class="av-ring"><div class="av-img">{meta.partners.right.initial}</div></div>
+            <div class="av-nm">{meta.partners.right.name}</div>
+          </div>
+        </div>
+      </div>
+      <div class="scroll-cue"><div class="sc-arr"></div><span>向下探索</span></div>
+    </header>
 
-		<!-- Hero -->
-		<section class="hero">
-			<div class="hero-inner">
-				<p class="hero-eyebrow">Love Story · 恋爱纪念册</p>
-				<h1 class="hero-title">我们的<br/>故事</h1>
-				<p class="hero-desc">每一天都是礼物，每一刻都值得珍藏</p>
-			</div>
-			<div class="hero-couple" aria-hidden="true">
-				<img class="hero-avatar hero-avatar-me" id="heroAvatarMe"
-					src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
-					alt="" width="96" height="96" />
-				<div class="hero-heart">
-					<svg viewBox="0 0 160 148" fill="none" xmlns="http://www.w3.org/2000/svg">
-						<path d="M80 136 C46 110 8 86 8 52 C8 30 26 14 48 14 C62 14 74 22 80 34 C86 22 98 14 112 14 C134 14 152 30 152 52 C152 86 114 110 80 136Z" fill="oklch(72% 0.21 358)"/>
-					</svg>
-				</div>
-				<img class="hero-avatar hero-avatar-you" id="heroAvatarYou"
-					src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
-					alt="" width="96" height="96" />
-			</div>
-		</section>
+    <!-- 01 · 倒计时 -->
+    <section class="sec">
+      <div class="sec-in">
+        <div class="sh a0" style="justify-content:center;">
+          <div class="sh-l r"></div><h2>在一起的时光</h2><div class="sh-l"></div>
+        </div>
+        <div class="cd-main a0 d1">
+          <div class="cd-from">{meta.startDate.replace(/-/g, " · ")} → 至今</div>
+          <div class="cd-row">
+            <div class="cd-blk"><span class="cd-n" id="cd-d">0</span><span class="cd-u">天</span></div>
+            <span class="cd-dot">·</span>
+            <div class="cd-blk"><span class="cd-n" id="cd-h">00</span><span class="cd-u">时</span></div>
+            <span class="cd-dot">·</span>
+            <div class="cd-blk"><span class="cd-n" id="cd-m">00</span><span class="cd-u">分</span></div>
+            <span class="cd-dot">·</span>
+            <div class="cd-blk"><span class="cd-n" id="cd-s">00</span><span class="cd-u">秒</span></div>
+          </div>
+          <p class="cd-cap">已经 <strong id="cd-ds">0</strong> 天了，感谢你还在</p>
+          <div class="cd-nx a0 d2">
+            <div class="cdl">
+              <div class="a">下一个纪念日</div>
+              <div class="b">{meta.anniversaryLabel}</div>
+            </div>
+            <div class="cdr">
+              <div class="n" id="cd-an">0</div>
+              <div class="u">天后</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <div class="div"><div class="div-l"></div><span class="div-ic">✦</span><div class="div-l"></div></div>
 
-		<!-- Duration prose -->
-		<section class="duration-section">
-			<p class="duration-caption">从 {START_DATE} 至今</p>
-			<p class="duration-prose" id="durationProse">正在计算……</p>
-			<div class="duration-ticker">
-				<span id="tickSecs" class="tick-secs">00</span>
-				<span class="tick-label">秒</span>
-				<span class="tick-sep">·</span>
-				<span id="tickMins" class="tick-secs">00</span>
-				<span class="tick-label">分</span>
-				<span class="tick-sep">·</span>
-				<span id="tickHours" class="tick-secs">00</span>
-				<span class="tick-label">时</span>
-			</div>
-		</section>
+    <!-- 02 · 时间线 -->
+    <section class="sec">
+      <div class="sec-in">
+        <div class="sh a0"><h2>我们走过的路</h2><div class="sh-l"></div></div>
+        <div class="tl">
+          {timelineEntries.map((entry, i) => (
+            <div class:list={["tli", "al", delayCls(i)]}>
+              <div class="tl-dot"></div>
+              <div class="tl-badge">{entry.data.badge}</div>
+              <div class="tl-date">{entry.data.date}</div>
+              <div class="tl-ev">{entry.data.title}</div>
+              <div class="tl-desc">{entry.data.description}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+    <div class="div"><div class="div-l"></div><span class="div-ic">◇</span><div class="div-l"></div></div>
 
-		<!-- Timeline -->
-		<section class="timeline-section">
-			<h2 class="section-heading">我们走过的路</h2>
-			<ol class="timeline" role="list">
-				{timeline.map(ev => (
-					<li class="tl-item">
-						<div class="tl-marker" aria-hidden="true"></div>
-						<div class="tl-body">
-							<time class="tl-date" datetime={ev.date}>{ev.date}</time>
-							<h3 class="tl-title">{ev.emoji} {ev.title}</h3>
-							<p class="tl-desc">{ev.desc}</p>
-						</div>
-					</li>
-				))}
-			</ol>
-		</section>
+    <!-- 03 · 相册 -->
+    <section class="sec">
+      <div class="sec-in">
+        <div class="sh a0">
+          <h2>相册记忆</h2><div class="sh-l"></div>
+          <span class="sh-tag">{photoEntries.length} 个瞬间</span>
+        </div>
+        <div class="ph-grid">
+          {photoEntries.map((entry, i) => (
+            <div class:list={["ph-card", "sc2", delayCls(i)]}>
+              <div class="ph-bg" style={`background:${entry.data.gradient};position:absolute;inset:0;`}></div>
+              <div class="ph-ov">
+                <div class="ph-dt">{entry.data.date}</div>
+                <div class="ph-tt">{entry.data.title}</div>
+                <div class="ph-tx">{entry.data.caption}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+    <div class="div"><div class="div-l"></div><span class="div-ic">✦</span><div class="div-l"></div></div>
 
-		<!-- Activities — ledger layout -->
-		<section class="ledger-section">
-			<h2 class="section-heading">我们一起做了什么</h2>
-			<dl class="ledger">
-				{activities.map(a => (
-					<div class="ledger-row">
-						<dt class="ledger-label"><span class="ledger-emoji">{a.emoji}</span>{a.label}</dt>
-						<dd class="ledger-value">{a.count.toLocaleString()}</dd>
-					</div>
-				))}
-			</dl>
-		</section>
+    <!-- 04 · 第一次 -->
+    <section class="sec">
+      <div class="sec-in">
+        <div class="sh a0"><h2>我们的第一次</h2><div class="sh-l"></div></div>
+        <div class="fg">
+          {firstsEntries.map((entry, i) => (
+            <div class:list={["fc", "glass", "tilt", "a0", delayCls(i)]}>
+              <div class="fc-ic">{entry.data.icon}</div>
+              <div class="fc-tt">{entry.data.title}</div>
+              <div class="fc-dt">{entry.data.date}</div>
+              <div class="fc-tx">{entry.data.description}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+    <div class="div"><div class="div-l"></div><span class="div-ic">◇</span><div class="div-l"></div></div>
 
-		<!-- Paper notes -->
-		<section class="whispers-section">
-			<h2 class="section-heading">心动纸条墙</h2>
-			<div class="notes-window" tabindex="0" aria-label="心动纸条墙">
-				<ul class="whispers" role="list">
-					{noteLoop.map((note) => (
-						<li class={note.cls} data-note-id={note.num}>
-							<div class="note-tape" aria-hidden="true"></div>
-							<p class="whisper-text">{note.text}</p>
-							<img class="note-from" data-from-kind={note.fromKind}
-								src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
-								alt="" width="26" height="26" aria-hidden="true" />
-						</li>
-					))}
-				</ul>
-			</div>
-		</section>
+    <!-- 05 · 统计 -->
+    <section class="sec">
+      <div class="sec-in">
+        <div class="sh a0"><h2>我们一起做了什么</h2><div class="sh-l"></div></div>
+        <div class="sg">
+          {statsEntries.map((entry, i) => (
+            <div
+              class:list={["sc3", "glass", "tilt", "a0", delayCls(i)]}
+              data-t={entry.data.target}
+              data-suffix={entry.data.suffix}
+            >
+              <div class="sc3-ic">{entry.data.icon}</div>
+              <div class="sc3-n">{entry.data.target}{entry.data.suffix}</div>
+              <div class="sc3-l">{entry.data.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+    <div class="div"><div class="div-l"></div><span class="div-ic">✦</span><div class="div-l"></div></div>
 
-		<!-- Footer -->
-		<footer class="love-footer" role="contentinfo">
-			<svg class="footer-heart" viewBox="0 0 24 22" fill="none" aria-hidden="true">
-				<path d="M12 20 C8 17 1 13 1 7 C1 4 3.5 2 7 2 C9.2 2 11 3.4 12 5.2 C13 3.4 14.8 2 17 2 C20.5 2 23 4 23 7 C23 13 16 17 12 20Z" fill="oklch(72% 0.21 358)"/>
-			</svg>
-			<p>永远爱你</p>
-		</footer>
+    <!-- 06 · 我眼中的你 -->
+    <section class="sec">
+      <div class="sec-in">
+        <div class="sh a0" style="justify-content:center;">
+          <div class="sh-l r"></div><h2>我眼中的你</h2><div class="sh-l"></div>
+        </div>
+        <p class="trait-intro a0 d1">
+          有很多话不知道怎么说，<br />
+          但你所有的样子我都记得。
+        </p>
+        <div class="trait-wrap">
+          {traitsEntries.map((entry, i) => (
+            <div
+              class:list={[
+                "tp",
+                entry.data.size === "lg" && "lg",
+                entry.data.size === "sm" && "sm",
+                "a0",
+                delayCls(i, 6),
+              ]}
+            >
+              <span class="tp-ic">{entry.data.icon}</span>{entry.data.label}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+    <div class="div"><div class="div-l"></div><span class="div-ic">◇</span><div class="div-l"></div></div>
 
-	</div>
+    <!-- 07 · 歌 -->
+    <section class="sec">
+      <div class="sec-in">
+        <div class="sh a0"><h2>我们的歌</h2><div class="sh-l"></div></div>
+        <div class="song-wrap glass a0 d1">
+          <div class="song-hd"></div>
+          <div class="song-bd">
+            <div class="song-art">🎵</div>
+            <div class="song-inf">
+              <div class="t">{meta.song.title}</div>
+              <div class="ar">{meta.song.artist}</div>
+              <div class="nt">{meta.song.note}</div>
+            </div>
+          </div>
+          <div class="song-ft">
+            <div class="sb">
+              <span class="stm" id="cur-t">{meta.song.initialTime}</span>
+              <div class="str"><div class="sfl" id="sfl" style={`width:${meta.song.initialPercent}%;`}></div></div>
+              <span class="stm">{meta.song.totalTime}</span>
+            </div>
+            <div class="sct">
+              <button class="sbt" aria-label="上一首">⏮</button>
+              <button class="sbt pl" id="pbtn">▶</button>
+              <button class="sbt" aria-label="下一首">⏭</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <div class="div"><div class="div-l"></div><span class="div-ic">✦</span><div class="div-l"></div></div>
+
+    <!-- 08 · 目的地 -->
+    <section class="sec">
+      <div class="sec-in">
+        <div class="sh a0">
+          <h2>我们去过的地方</h2><div class="sh-l"></div>
+          <span class="sh-tag">{destinationsEntries.filter((d) => d.data.visited).length} 个足迹</span>
+        </div>
+        <div class="dr a0 d1">
+          {destinationsEntries.map((entry) => (
+            <div class:list={["dc", "glass", !entry.data.visited && "ft"]}>
+              <div class="dc-no">{entry.data.number}</div>
+              <div class="dc-ct">{entry.data.city}</div>
+              <div class="dc-nt">{entry.data.description}</div>
+              <div class="dc-tg">{entry.data.tag}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+    <div class="div"><div class="div-l"></div><span class="div-ic">◇</span><div class="div-l"></div></div>
+
+    <!-- 09 · 心愿 -->
+    <section class="sec">
+      <div class="sec-in">
+        <div class="sh a0">
+          <h2>我们的心愿</h2><div class="sh-l"></div>
+          <span class="sh-tag" id="wct">{wishesDone} / {wishesEntries.length} 完成</span>
+        </div>
+        <div class="wl">
+          {wishesEntries.map((entry, i) => (
+            <div
+              class:list={["wi", entry.data.done && "dn", "glass", "a0", delayCls(i)]}
+              data-wish
+            >
+              <div class="wc">{entry.data.done ? "✓" : ""}</div>
+              <span class="wt">{entry.data.text}</span>
+              <span class="wk">{entry.data.category}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+    <div class="div"><div class="div-l"></div><span class="div-ic">✦</span><div class="div-l"></div></div>
+
+    <!-- 10 · 约定 -->
+    <section class="sec">
+      <div class="sec-in">
+        <div class="sh a0"><h2>我们的约定</h2><div class="sh-l"></div></div>
+        <div class="pg">
+          {promisesEntries.map((entry, i) => (
+            <div class:list={["pc", "glass", "tilt", "a0", delayCls(i)]}>
+              <div class="pc-ic">{entry.data.icon}</div>
+              <div>
+                <div class="pc-tt">{entry.data.title}</div>
+                <div class="pc-nt">{entry.data.description}</div>
+                <div class="pc-tg">{entry.data.tag}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+    <div class="div"><div class="div-l"></div><span class="div-ic">◇</span><div class="div-l"></div></div>
+
+    <!-- 11 · 约会灵感 -->
+    <section class="sec">
+      <div class="sec-in">
+        <div class="sh a0"><h2>随机约会灵感</h2><div class="sh-l"></div></div>
+        <div class="di-wrap">
+          <div class="di-card glass a0 d1">
+            <span class="di-ico" id="di-ic">{initialIdea?.ic}</span>
+            <div class="di-tt" id="di-tt">{initialIdea?.tt}</div>
+            <div class="di-tx" id="di-tx">{initialIdea?.tx}</div>
+          </div>
+          <button class="di-btn a0 d2" id="di-btn"><span>✦</span> 换一个灵感</button>
+          <div class="di-hint a0 d3">共 {dateIdeasPayload.length} 个约会想法 · 总有一个适合今天</div>
+        </div>
+      </div>
+    </section>
+    <div class="div"><div class="div-l"></div><span class="div-ic">✦</span><div class="div-l"></div></div>
+
+    <!-- 12 · 纸条 -->
+    <section class="sec">
+      <div class="sec-in">
+        <div class="sh a0"><h2>心动纸条墙</h2><div class="sh-l"></div></div>
+        <div class="ng">
+          {notesEntries.map((entry, i) => (
+            <div class:list={["nc", "glass", "a0", delayCls(i)]}>{entry.data.text}</div>
+          ))}
+        </div>
+      </div>
+    </section>
+    <div class="div"><div class="div-l"></div><span class="div-ic">◇</span><div class="div-l"></div></div>
+
+    <!-- 13 · 信 -->
+    <section class="sec">
+      <div class="sec-in">
+        <div class="sh a0" style="justify-content:center;">
+          <div class="sh-l r"></div><h2>写给你的话</h2><div class="sh-l"></div>
+        </div>
+        <div class="letter-outer">
+          <div class="letter-card glass a0 d1">
+            <div class="lc-deco">"</div>
+            <div class="lc-date">{meta.letter.date}</div>
+            <p class="lc-dear">{meta.letter.greeting}</p>
+            <div class="lc-body">
+              {meta.letter.paragraphs.map((p) => <p>{p}</p>)}
+            </div>
+            <div class="lc-sig">{meta.letter.signature}</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="love-footer">
+      <div class="f1">永远爱你 <span class="fh">♥</span></div>
+      <div class="f2">Love Story · {meta.startDate.replace(/-/g, ".")}</div>
+    </footer>
+  </div>
 </ExploreShell>
 
-<script define:vars={{ START_DATE }}>
-	function diff() {
-		const start = new Date(START_DATE);
-		const now = new Date();
+<style is:global>
+  @import url("https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;600&family=Noto+Sans+SC:wght@300;400;500&display=swap");
 
-		let years = now.getFullYear() - start.getFullYear();
-		let months = now.getMonth() - start.getMonth();
-		if (months < 0) { years--; months += 12; }
-		let days = now.getDate() - start.getDate();
-		if (days < 0) {
-			months--;
-			if (months < 0) { years--; months += 12; }
-			days += new Date(now.getFullYear(), now.getMonth(), 0).getDate();
-		}
+  /* ── SEASON VARS ─ */
+  .love-root[data-season="spring"]{--bg:#0D0408;--bg2:#180812;--sf:rgba(220,80,110,.07);--gw:#E8547A;--gw2:#FF90B4;--gd:rgba(232,84,122,.1);--gd2:rgba(232,84,122,.22);--tx:#FFE8F2;--txm:rgba(255,232,242,.56);--txh:rgba(255,232,242,.28);--bd:rgba(232,84,122,.2);--bds:rgba(232,84,122,.42);}
+  .love-root[data-season="summer"]{--bg:#0A0702;--bg2:#150F04;--sf:rgba(210,140,20,.07);--gw:#E8A020;--gw2:#FFCA60;--gd:rgba(232,160,32,.1);--gd2:rgba(232,160,32,.22);--tx:#FFF8E8;--txm:rgba(255,248,232,.56);--txh:rgba(255,248,232,.28);--bd:rgba(232,160,32,.2);--bds:rgba(232,160,32,.42);}
+  .love-root[data-season="autumn"]{--bg:#0C0502;--bg2:#180806;--sf:rgba(200,80,20,.07);--gw:#E06028;--gw2:#FF9058;--gd:rgba(224,96,40,.1);--gd2:rgba(224,96,40,.22);--tx:#FFF0E8;--txm:rgba(255,240,232,.56);--txh:rgba(255,240,232,.28);--bd:rgba(224,96,40,.2);--bds:rgba(224,96,40,.42);}
+  .love-root[data-season="winter"]{--bg:#030810;--bg2:#061020;--sf:rgba(40,100,220,.07);--gw:#3C80FF;--gw2:#80B8FF;--gd:rgba(60,128,255,.1);--gd2:rgba(60,128,255,.22);--tx:#E8F2FF;--txm:rgba(232,242,255,.56);--txh:rgba(232,242,255,.28);--bd:rgba(60,128,255,.2);--bds:rgba(60,128,255,.42);}
 
-		// total seconds elapsed for the ticker
-		const totalSec = Math.floor((now - start) / 1000);
-		const secs  = totalSec % 60;
-		const mins  = Math.floor(totalSec / 60) % 60;
-		const hours = Math.floor(totalSec / 3600) % 24;
+  .love-root{
+    position:relative;
+    font-family:'Noto Sans SC',system-ui,sans-serif;
+    background:var(--bg);
+    color:var(--tx);
+    line-height:1.7;
+    transition:background .7s,color .7s;
+    overflow-x:hidden;
+    min-height:100vh;
+  }
+  .love-root *,.love-root *::before,.love-root *::after{box-sizing:border-box;}
+  .love-root #bg{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.45;}
+  .love-root #prog{position:fixed;top:0;left:0;height:2px;width:0%;background:linear-gradient(90deg,var(--gw),var(--gw2));z-index:200;transition:background .7s;}
+  .love-root #cg{position:fixed;width:340px;height:340px;border-radius:50%;pointer-events:none;z-index:1;transform:translate(-50%,-50%);background:radial-gradient(circle,var(--gd2) 0%,transparent 65%);mix-blend-mode:screen;opacity:.65;transition:background .7s;will-change:transform;}
 
-		return { years, months, days, hours, mins, secs };
-	}
+  /* SCROLL ANIM */
+  .love-root .a0{opacity:0;transform:translateY(30px);transition:opacity .85s cubic-bezier(.22,1,.36,1),transform .85s cubic-bezier(.22,1,.36,1);}
+  .love-root .al{opacity:0;transform:translateX(-26px);transition:opacity .8s cubic-bezier(.22,1,.36,1),transform .8s cubic-bezier(.22,1,.36,1);}
+  .love-root .ar{opacity:0;transform:translateX(26px);transition:opacity .8s cubic-bezier(.22,1,.36,1),transform .8s cubic-bezier(.22,1,.36,1);}
+  .love-root .sc2{opacity:0;transform:scale(.88);transition:opacity .8s cubic-bezier(.22,1,.36,1),transform .8s cubic-bezier(.22,1,.36,1);}
+  .love-root .a0.v,.love-root .al.v,.love-root .ar.v,.love-root .sc2.v{opacity:1;transform:none;}
+  .love-root .d1{transition-delay:.07s}.love-root .d2{transition-delay:.14s}.love-root .d3{transition-delay:.21s}
+  .love-root .d4{transition-delay:.28s}.love-root .d5{transition-delay:.35s}.love-root .d6{transition-delay:.42s}
+  .love-root .d7{transition-delay:.49s}.love-root .d8{transition-delay:.56s}.love-root .d9{transition-delay:.63s}
 
-	function render() {
-		const { years, months, days, hours, mins, secs } = diff();
-		const prose = document.getElementById('durationProse');
-		const parts = [];
-		if (years)  parts.push(`${years} 年`);
-		if (months) parts.push(`${months} 个月`);
-		if (days)   parts.push(`${days} 天`);
-		if (prose) prose.textContent = parts.length ? parts.join(' ') : '今天就是纪念日！';
+  /* HERO */
+  .love-root .hero{position:relative;height:100vh;min-height:680px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+  .love-root .h-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:64px 64px;mask-image:radial-gradient(ellipse 85% 75% at 50% 50%,black,transparent);-webkit-mask-image:radial-gradient(ellipse 85% 75% at 50% 50%,black,transparent);pointer-events:none;}
+  .love-root .h-bg{position:absolute;font-family:'Ma Shan Zheng',serif;font-size:min(28vw,320px);letter-spacing:.15em;color:transparent;-webkit-text-stroke:1px rgba(255,255,255,.03);user-select:none;pointer-events:none;top:50%;transform:translateY(-50%);}
+  .love-root .orb{position:absolute;border-radius:50%;filter:blur(90px);pointer-events:none;will-change:transform;transition:background .7s;}
+  .love-root .o1{width:380px;height:380px;background:var(--gd2);top:-90px;left:-110px;animation:loveOf1 14s ease-in-out infinite alternate;}
+  .love-root .o2{width:300px;height:300px;background:var(--gd);top:80px;right:-90px;animation:loveOf2 18s ease-in-out infinite alternate;}
+  .love-root .o3{width:220px;height:220px;background:var(--gd2);bottom:-70px;left:40%;animation:loveOf3 11s ease-in-out infinite alternate;}
+  @keyframes loveOf1{to{transform:translate(60px,44px);}}
+  @keyframes loveOf2{to{transform:translate(-52px,60px);}}
+  @keyframes loveOf3{to{transform:translate(-40px,-32px);}}
+  .love-root .hc{position:relative;z-index:2;padding:0 1.5rem;}
+  .love-root .hen{font-size:11px;letter-spacing:.25em;text-transform:uppercase;color:var(--txh);margin-bottom:.75rem;}
+  .love-root .htl{font-family:'Ma Shan Zheng',serif;font-size:clamp(44px,9vw,80px);font-weight:400;line-height:1.1;margin-bottom:.5rem;background:linear-gradient(135deg,var(--tx) 30%,var(--gw2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  .love-root .hsb{font-size:15px;color:var(--txm);font-weight:300;margin-bottom:2.5rem;}
+  .love-root .avs{display:flex;align-items:center;justify-content:center;gap:28px;}
+  .love-root .av{display:flex;flex-direction:column;align-items:center;gap:8px;}
+  .love-root .av-ring{width:72px;height:72px;border-radius:50%;padding:2.5px;background:linear-gradient(135deg,var(--bd),var(--gw));animation:loveRingP 3s ease-in-out infinite;transition:background .7s;}
+  @keyframes loveRingP{0%,100%{box-shadow:0 0 0 0 var(--gd);}50%{box-shadow:0 0 20px 4px var(--gd2);}}
+  .love-root .av-img{width:100%;height:100%;border-radius:50%;background:var(--bg2);border:2px solid var(--bg);display:flex;align-items:center;justify-content:center;font-family:'Noto Serif SC',serif;font-size:24px;color:var(--gw2);user-select:none;transition:all .7s;}
+  .love-root .av-nm{font-size:12px;color:var(--txm);font-weight:500;}
+  .love-root .av-cn{display:flex;flex-direction:column;align-items:center;gap:4px;}
+  .love-root .av-ht{font-size:22px;color:var(--gw);animation:lovePulse 2.2s ease-in-out infinite;transition:color .7s;}
+  @keyframes lovePulse{0%,100%{transform:scale(1);}50%{transform:scale(1.22);}}
+  .love-root .av-dy{font-size:10px;color:var(--txh);white-space:nowrap;}
+  .love-root .scroll-cue{position:absolute;bottom:2.25rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;animation:loveCueB 2.5s ease-in-out infinite;color:var(--txh);font-size:11px;letter-spacing:.1em;z-index:2;}
+  .love-root .sc-arr{width:18px;height:18px;border-right:1.5px solid var(--gw);border-bottom:1.5px solid var(--gw);transform:rotate(45deg);transition:border-color .7s;}
+  @keyframes loveCueB{0%,100%{transform:translateX(-50%) translateY(0);}50%{transform:translateX(-50%) translateY(9px);}}
 
-		const pad = n => String(n).padStart(2, '0');
-		const s = document.getElementById('tickSecs');
-		const m = document.getElementById('tickMins');
-		const h = document.getElementById('tickHours');
-		if (s) s.textContent = pad(secs);
-		if (m) m.textContent = pad(mins);
-		if (h) h.textContent = pad(hours);
-	}
+  /* SECTIONS */
+  .love-root .sec{padding:6rem 2rem;position:relative;overflow:hidden;}
+  .love-root .sec-in{max-width:960px;margin:0 auto;position:relative;z-index:1;}
+  .love-root .sec::before{content:'';position:absolute;border-radius:50%;width:500px;height:400px;filter:blur(130px);background:var(--gd);opacity:.18;pointer-events:none;z-index:0;top:50%;transform:translateY(-50%);}
+  .love-root .sec:nth-of-type(odd)::before{left:-160px;}
+  .love-root .sec:nth-of-type(even)::before{right:-160px;left:auto;}
+  .love-root .div{display:flex;align-items:center;gap:16px;max-width:960px;margin:0 auto;padding:0 2rem;}
+  .love-root .div-l{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--bds) 30%,var(--bd) 70%,transparent);}
+  .love-root .div-ic{font-size:13px;color:var(--gw);opacity:.45;flex-shrink:0;transition:color .7s;}
 
-	render();
-	setInterval(render, 1000);
-</script>
+  /* SECTION HEADER */
+  .love-root .sh{display:flex;align-items:center;gap:14px;margin-bottom:2.5rem;}
+  .love-root .sh h2{font-family:'Noto Serif SC',serif;font-size:20px;font-weight:600;white-space:nowrap;background:linear-gradient(135deg,var(--gw2),var(--tx));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:0;}
+  .love-root .sh-l{flex:1;height:1px;background:linear-gradient(90deg,var(--bds),transparent);transition:background .7s;}
+  .love-root .sh-l.r{background:linear-gradient(90deg,transparent,var(--bds));}
+  .love-root .sh-tag{font-size:11px;color:var(--gw);border:1px solid var(--bd);padding:2px 10px;border-radius:20px;background:var(--gd);white-space:nowrap;flex-shrink:0;transition:all .7s;}
 
-<script>
-	(function () {
-		function makeObserver(onEnter: (target: Element) => void, opts?: IntersectionObserverInit) {
-			return new IntersectionObserver(function (entries, obs) {
-				entries.forEach(function (entry) {
-					if (entry.isIntersecting) {
-						onEnter(entry.target);
-						obs.unobserve(entry.target);
-					}
-				});
-			}, opts || { threshold: 0.2 });
-		}
+  /* GLASS */
+  .love-root .glass{background:var(--sf);border:1px solid var(--bd);border-radius:16px;transition:border-color .3s,box-shadow .3s,transform .3s;}
+  .love-root .glass:hover{border-color:var(--bds);box-shadow:0 0 28px var(--gd);}
+  .love-root .tilt{transform-style:preserve-3d;}
 
-		function shuffle<T>(items: T[]) {
-			for (var index = items.length - 1; index > 0; index--) {
-				var swapIndex = Math.floor(Math.random() * (index + 1));
-				var value = items[index];
-				items[index] = items[swapIndex];
-				items[swapIndex] = value;
-			}
-			return items;
-		}
+  /* COUNTDOWN */
+  .love-root .cd-main{text-align:center;padding:3rem 2rem;}
+  .love-root .cd-from{font-size:12px;color:var(--txh);margin-bottom:1.5rem;letter-spacing:.06em;}
+  .love-root .cd-row{display:flex;justify-content:center;align-items:flex-end;gap:4px;flex-wrap:wrap;}
+  .love-root .cd-blk{display:flex;flex-direction:column;align-items:center;gap:4px;}
+  .love-root .cd-n{font-family:'Noto Serif SC',serif;font-size:clamp(40px,9vw,72px);font-weight:600;color:var(--gw2);line-height:1;min-width:2ch;text-shadow:0 0 30px var(--gd2);transition:color .7s,text-shadow .7s;}
+  .love-root .cd-u{font-size:12px;color:var(--txh);}
+  .love-root .cd-dot{font-family:'Noto Serif SC',serif;font-size:36px;color:var(--bd);margin-bottom:6px;transition:color .7s;}
+  .love-root .cd-cap{font-size:14px;color:var(--txm);margin-top:1.5rem;}
+  .love-root .cd-cap strong{color:var(--gw2);text-shadow:0 0 14px var(--gd2);transition:all .7s;}
+  .love-root .cd-nx{margin-top:1.5rem;display:inline-flex;align-items:center;gap:20px;background:var(--gd);border:1px solid var(--bd);border-radius:50px;padding:.75rem 2rem;transition:all .7s;}
+  .love-root .cdl .a{font-size:11px;color:var(--txh);margin-bottom:2px;}
+  .love-root .cdl .b{font-size:13px;color:var(--txm);}
+  .love-root .cdr .n{font-family:'Noto Serif SC',serif;font-size:24px;font-weight:600;color:var(--gw2);text-shadow:0 0 14px var(--gd2);transition:all .7s;text-align:right;}
+  .love-root .cdr .u{font-size:11px;color:var(--txh);text-align:right;}
 
-		function placeWhispers(container: HTMLElement) {
-			var whispers = Array.from(container.querySelectorAll<HTMLElement>('.whisper'));
-			if (!whispers.length) return;
+  /* TIMELINE */
+  .love-root .tl{display:flex;flex-direction:column;position:relative;padding-left:2.5rem;}
+  .love-root .tl::before{content:'';position:absolute;left:8px;top:10px;bottom:0;width:1px;background:linear-gradient(to bottom,var(--bds),transparent);transition:background .7s;}
+  .love-root .tli{position:relative;padding:0 0 2rem 1.5rem;}
+  .love-root .tli:last-child{padding-bottom:0;}
+  .love-root .tl-dot{position:absolute;left:-2rem;top:4px;width:18px;height:18px;border-radius:50%;background:var(--bg2);border:1.5px solid var(--gw);box-shadow:0 0 12px var(--gd2);transition:all .7s;}
+  .love-root .tl-dot::after{content:'';position:absolute;inset:3px;border-radius:50%;background:var(--gw);transition:background .7s;}
+  .love-root .tl-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--gw);background:var(--gd);border:1px solid var(--bd);padding:1px 8px;border-radius:10px;margin-bottom:5px;transition:all .7s;}
+  .love-root .tl-date{font-size:12px;color:var(--txh);margin-bottom:3px;}
+  .love-root .tl-ev{font-family:'Noto Serif SC',serif;font-size:16px;font-weight:600;color:var(--gw2);margin-bottom:5px;transition:color .7s;}
+  .love-root .tl-desc{font-size:13px;color:var(--txm);line-height:1.7;}
 
-			var rect = container.getBoundingClientRect();
-			var width = Math.max(rect.width, 320);
-			var cardWidth = 218;
-			var cardHeight = 152;
-			var columns = width < 560 ? 2 : width < 900 ? 3 : 4;
-			var rows = Math.ceil(whispers.length / columns);
-			var cellWidth = width / columns;
-			var cellHeight = 164;
-			var positions = [];
+  /* PHOTO */
+  .love-root .ph-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+  @media(max-width:600px){.love-root .ph-grid{grid-template-columns:1fr 1fr;}}
+  .love-root .ph-card{border-radius:16px;overflow:hidden;position:relative;aspect-ratio:4/3;cursor:pointer;border:1px solid var(--bd);transition:border-color .3s,transform .3s,box-shadow .3s;}
+  .love-root .ph-card:hover{border-color:var(--bds);transform:translateY(-3px);box-shadow:0 0 28px var(--gd);}
+  .love-root .ph-bg{position:absolute;inset:0;transition:transform .5s;}
+  .love-root .ph-card:hover .ph-bg{transform:scale(1.04);}
+  .love-root .ph-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.82) 0%,rgba(0,0,0,.18) 55%,transparent 100%);padding:1rem;display:flex;flex-direction:column;justify-content:flex-end;}
+  .love-root .ph-dt{font-size:10px;color:rgba(255,255,255,.5);margin-bottom:3px;letter-spacing:.06em;}
+  .love-root .ph-tt{font-family:'Noto Serif SC',serif;font-size:13px;color:rgba(255,255,255,.92);font-weight:600;margin-bottom:3px;}
+  .love-root .ph-tx{font-size:11px;color:rgba(255,255,255,.52);line-height:1.5;opacity:0;transform:translateY(6px);transition:opacity .3s,transform .3s;}
+  .love-root .ph-card:hover .ph-tx{opacity:1;transform:none;}
 
-			for (var row = 0; row < rows; row++) {
-				for (var column = 0; column < columns; column++) {
-					positions.push({ row: row, column: column });
-				}
-			}
+  /* FIRSTS */
+  .love-root .fg{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+  @media(max-width:640px){.love-root .fg{grid-template-columns:1fr 1fr;}}
+  .love-root .fc{padding:1.25rem 1.125rem;cursor:default;border-radius:16px;}
+  .love-root .fc:hover{transform:translateY(-3px);}
+  .love-root .fc-ic{font-size:22px;width:42px;height:42px;border-radius:10px;background:var(--gd);border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;margin-bottom:.75rem;transition:all .7s;}
+  .love-root .fc-tt{font-family:'Noto Serif SC',serif;font-size:14px;font-weight:600;color:var(--gw2);margin-bottom:2px;transition:color .7s;}
+  .love-root .fc-dt{font-size:11px;color:var(--txh);margin-bottom:6px;}
+  .love-root .fc-tx{font-size:12px;color:var(--txm);line-height:1.65;}
 
-			shuffle(positions);
-			container.style.minHeight = Math.max(rows * cellHeight + 40, cardHeight + 48) + 'px';
+  /* STATS */
+  .love-root .sg{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+  @media(max-width:580px){.love-root .sg{grid-template-columns:repeat(2,1fr);}}
+  .love-root .sc3{padding:1.25rem .75rem;text-align:center;border-radius:14px;cursor:default;}
+  .love-root .sc3-ic{font-size:22px;margin-bottom:8px;}
+  .love-root .sc3-n{font-family:'Noto Serif SC',serif;font-size:22px;font-weight:600;color:var(--gw2);text-shadow:0 0 16px var(--gd2);transition:color .7s,text-shadow .7s;}
+  .love-root .sc3-l{font-size:11px;color:var(--txh);margin-top:4px;}
 
-			whispers.forEach(function (card, index) {
-				var slot = positions[index];
-				if (!slot) return;
+  /* TRAITS */
+  .love-root .trait-intro{text-align:center;font-family:'Noto Serif SC',serif;font-size:14px;color:var(--txm);margin-bottom:2rem;line-height:1.9;}
+  .love-root .trait-wrap{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;}
+  .love-root .tp{display:flex;align-items:center;gap:8px;padding:10px 20px;border-radius:50px;border:1px solid var(--bd);background:var(--sf);font-size:13px;color:var(--gw2);transition:all .3s;cursor:default;font-family:'Noto Serif SC',serif;}
+  .love-root .tp:hover{border-color:var(--bds);background:var(--gd);box-shadow:0 0 18px var(--gd);transform:translateY(-2px);}
+  .love-root .tp.lg{font-size:15px;padding:12px 24px;}
+  .love-root .tp.sm{font-size:11px;padding:8px 16px;opacity:.85;}
+  .love-root .tp-ic{font-size:1.1em;}
 
-				var maxLeft = Math.max(width - cardWidth, 0);
-				var baseLeft = slot.column * cellWidth + (cellWidth - cardWidth) / 2;
-				var baseTop = slot.row * cellHeight + 10;
-				var jitterX = (Math.random() - 0.5) * Math.min(32, cellWidth * 0.22);
-				var jitterY = (Math.random() - 0.5) * 26;
-				var left = Math.min(Math.max(baseLeft + jitterX, 0), maxLeft);
-				var top = Math.max(baseTop + jitterY, 0);
+  /* SONG */
+  .love-root .song-wrap{border-radius:20px;overflow:hidden;}
+  .love-root .song-hd{height:4px;background:linear-gradient(90deg,var(--gw),var(--gw2),var(--gw));background-size:200%;animation:loveShim 3s linear infinite;transition:background .7s;}
+  @keyframes loveShim{0%{background-position:200%;}100%{background-position:-200%;}}
+  .love-root .song-bd{padding:2rem 1.75rem 1.25rem;display:flex;gap:1.5rem;align-items:center;}
+  .love-root .song-art{width:80px;height:80px;border-radius:14px;background:linear-gradient(135deg,var(--gd2),var(--gd));display:flex;align-items:center;justify-content:center;font-size:32px;flex-shrink:0;border:1px solid var(--bd);box-shadow:0 0 24px var(--gd);transition:all .7s;}
+  .love-root .song-inf .t{font-weight:500;font-size:17px;color:var(--tx);margin-bottom:3px;}
+  .love-root .song-inf .ar{font-size:13px;color:var(--txm);}
+  .love-root .song-inf .nt{font-size:12px;color:var(--txh);font-style:italic;margin-top:5px;line-height:1.6;}
+  .love-root .song-ft{padding:0 1.75rem 1.5rem;}
+  .love-root .sb{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+  .love-root .str{flex:1;height:3px;background:var(--bd);border-radius:2px;cursor:pointer;transition:background .7s;}
+  .love-root .sfl{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--gw),var(--gw2));transition:background .7s;}
+  .love-root .stm{font-size:11px;color:var(--txh);}
+  .love-root .sct{display:flex;align-items:center;justify-content:center;gap:16px;}
+  .love-root .sbt{width:34px;height:34px;border-radius:50%;border:1px solid var(--bd);background:none;cursor:pointer;font-size:14px;color:var(--txm);display:flex;align-items:center;justify-content:center;transition:all .25s;}
+  .love-root .sbt:hover{border-color:var(--gw);color:var(--gw2);box-shadow:0 0 12px var(--gd);}
+  .love-root .sbt.pl{width:44px;height:44px;background:var(--gw);border-color:var(--gw);color:#fff;font-size:17px;box-shadow:0 0 20px var(--gd2);transition:all .7s;}
 
-				card.style.left = left + 'px';
-				card.style.top = top + 'px';
-				card.style.zIndex = String(index + 1);
-				card.style.setProperty('--rot', ((Math.random() * 6) - 3).toFixed(2) + 'deg');
-				card.classList.remove('is-raised');
-				card.onclick = function () {
-					topZ += 1;
-					card.style.zIndex = String(topZ);
-					whispers.forEach(function (other) {
-						other.classList.remove('is-raised');
-					});
-					card.classList.add('is-raised');
-				};
-				card.onmouseenter = function () {
-					topZ += 1;
-					card.style.zIndex = String(topZ);
-					card.classList.add('is-raised');
-				};
-				card.onmouseleave = function () {
-					card.classList.remove('is-raised');
-				};
-			});
-		}
+  /* DESTINATIONS */
+  .love-root .dr{display:flex;gap:14px;overflow-x:auto;padding-bottom:8px;-webkit-overflow-scrolling:touch;}
+  .love-root .dr::-webkit-scrollbar{height:3px;}
+  .love-root .dr::-webkit-scrollbar-track{background:var(--bd);}
+  .love-root .dr::-webkit-scrollbar-thumb{background:var(--gw);border-radius:2px;}
+  .love-root .dc{flex:0 0 150px;border-radius:14px;padding:1.125rem;cursor:default;transition:all .3s;}
+  .love-root .dc.ft{border-style:dashed !important;opacity:.6;}
+  .love-root .dc-no{font-size:10px;color:var(--txh);margin-bottom:5px;}
+  .love-root .dc-ct{font-family:'Noto Serif SC',serif;font-size:22px;font-weight:600;color:var(--gw2);margin-bottom:6px;transition:color .7s;}
+  .love-root .dc-nt{font-size:12px;color:var(--txm);line-height:1.55;margin-bottom:10px;}
+  .love-root .dc-tg{font-size:11px;color:var(--gw);transition:color .7s;}
 
-		var topZ = 20;
+  /* WISHLIST */
+  .love-root .wl{display:flex;flex-direction:column;gap:10px;}
+  .love-root .wi{display:flex;align-items:center;gap:14px;border-radius:12px;padding:12px 16px;cursor:pointer;user-select:none;transition:all .25s;}
+  .love-root .wi:hover{border-color:var(--bds) !important;box-shadow:0 0 16px var(--gd);}
+  .love-root .wi.dn{opacity:.6;}
+  .love-root .wc{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--bd);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;color:transparent;transition:all .25s;}
+  .love-root .wi.dn .wc{background:var(--gw);border-color:var(--gw);color:#fff;box-shadow:0 0 10px var(--gd2);}
+  .love-root .wt{flex:1;font-size:14px;color:var(--tx);}
+  .love-root .wi.dn .wt{text-decoration:line-through;color:var(--txh);}
+  .love-root .wk{font-size:11px;padding:2px 9px;border-radius:10px;border:1px solid var(--bd);color:var(--txh);background:var(--gd);flex-shrink:0;transition:all .7s;}
+  .love-root .wi.dn .wk{border-color:var(--bds);color:var(--gw2);}
 
-		document.addEventListener('DOMContentLoaded', function () {
-			// Couple avatar block
-			var couple = document.querySelector('.whispers-couple');
-			if (couple) {
-				makeObserver(function (el: Element) {
-					el.classList.add('is-visible');
-				}, { threshold: 0.6 }).observe(couple);
-			}
+  /* PROMISES */
+  .love-root .pg{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media(max-width:520px){.love-root .pg{grid-template-columns:1fr;}}
+  .love-root .pc{border-radius:16px;padding:1.375rem 1.25rem;display:flex;gap:14px;align-items:flex-start;}
+  .love-root .pc-ic{font-size:20px;flex-shrink:0;width:42px;height:42px;border-radius:10px;background:var(--gd);border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;transition:all .7s;}
+  .love-root .pc-tt{font-family:'Noto Serif SC',serif;font-size:14px;font-weight:600;color:var(--gw2);margin-bottom:4px;transition:color .7s;}
+  .love-root .pc-nt{font-size:12px;color:var(--txm);line-height:1.65;}
+  .love-root .pc-tg{display:inline-block;margin-top:7px;font-size:10px;color:var(--gw);background:var(--gd);border:1px solid var(--bd);padding:1px 7px;border-radius:8px;transition:all .7s;}
 
-			var notesWindow = document.querySelector<HTMLElement>('.notes-window');
-			if (notesWindow) {
-				placeWhispers(notesWindow);
-				window.addEventListener('resize', function () {
-					placeWhispers(notesWindow);
-				});
-			}
+  /* DATE IDEAS */
+  .love-root .di-wrap{display:flex;flex-direction:column;align-items:center;gap:1.5rem;}
+  .love-root .di-card{width:100%;max-width:440px;border-radius:20px;padding:2.5rem 2rem;text-align:center;position:relative;overflow:hidden;}
+  .love-root .di-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,var(--gd2),transparent 65%);pointer-events:none;}
+  .love-root .di-ico{font-size:52px;margin-bottom:1rem;display:block;transition:transform .35s;}
+  .love-root .di-ico.spin{animation:loveDiS .4s cubic-bezier(.34,1.56,.64,1);}
+  @keyframes loveDiS{0%{transform:scale(.55) rotate(-12deg);}100%{transform:scale(1);}}
+  .love-root .di-tt{font-family:'Noto Serif SC',serif;font-size:22px;font-weight:600;color:var(--gw2);margin-bottom:.6rem;transition:color .7s;}
+  .love-root .di-tx{font-size:14px;color:var(--txm);line-height:1.75;}
+  .love-root .di-btn{display:flex;align-items:center;gap:8px;background:var(--gw);color:#fff;border:none;border-radius:50px;padding:.75rem 2.25rem;font-size:14px;cursor:pointer;font-family:inherit;transition:all .3s;box-shadow:0 0 24px var(--gd2);}
+  .love-root .di-btn:hover{transform:translateY(-2px);box-shadow:0 0 36px var(--gd2);}
+  .love-root .di-hint{font-size:12px;color:var(--txh);}
 
-			// Notes are driven by CSS marquee — no JS scroll needed
-		});
-	})();
-</script>
+  /* NOTES */
+  .love-root .ng{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+  @media(max-width:560px){.love-root .ng{grid-template-columns:repeat(2,1fr);}}
+  .love-root .nc{border-radius:12px;padding:1.125rem 1rem 1rem;font-size:13px;color:var(--gw2);line-height:1.75;font-family:'Noto Serif SC',serif;position:relative;overflow:hidden;transition:all .3s;}
+  .love-root .nc::before{content:'\201C';position:absolute;top:-4px;right:8px;font-size:56px;color:var(--bd);font-family:Georgia,serif;line-height:1;pointer-events:none;transition:color .7s;}
+  .love-root .nc:hover{border-color:var(--bds) !important;box-shadow:0 0 20px var(--gd);transform:translateY(-2px);}
 
-<script define:vars={{ heroAvatarGroups }}>
-	(function () {
-		var groups = heroAvatarGroups;
-		var group = groups[Math.floor(Math.random() * groups.length)];
-		function loadAvatar(id, src) {
-			var el = document.getElementById(id);
-			if (!el) return;
-			el.src = src;
-			var onLoad = function () { el.classList.add('loaded'); };
-			if (el.complete && el.naturalWidth) { onLoad(); }
-			else { el.addEventListener('load', onLoad, { once: true }); }
-		}
+  /* LETTER */
+  .love-root .letter-outer{display:flex;justify-content:center;}
+  .love-root .letter-card{width:100%;max-width:600px;border-radius:20px;padding:3rem 3.5rem;position:relative;overflow:hidden;}
+  .love-root .letter-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 80%,var(--gd2),transparent 65%);pointer-events:none;opacity:.7;}
+  .love-root .lc-deco{position:absolute;top:2rem;right:2.5rem;font-size:32px;color:var(--bd);font-family:Georgia,serif;line-height:1;}
+  .love-root .lc-date{font-size:11px;color:var(--txh);letter-spacing:.1em;margin-bottom:1.5rem;}
+  .love-root .lc-dear{font-family:'Noto Serif SC',serif;font-size:17px;color:var(--gw2);margin-bottom:1.25rem;font-weight:600;transition:color .7s;}
+  .love-root .lc-body{font-family:'Noto Serif SC',serif;font-size:14px;color:var(--txm);line-height:2.1;display:flex;flex-direction:column;gap:.75rem;}
+  .love-root .lc-body p{margin:0;}
+  .love-root .lc-sig{font-family:'Ma Shan Zheng',serif;font-size:20px;color:var(--gw2);margin-top:2rem;text-align:right;transition:color .7s;}
 
-		function applyGroup() {
-			loadAvatar('heroAvatarMe',  group.me);
-			loadAvatar('heroAvatarYou', group.you);
-			loadAvatar('wcAvatarMe',    group.me);
-			loadAvatar('wcAvatarYou',   group.you);
-			document.querySelectorAll('.note-from[data-from-kind]').forEach((el) => {
-				var kind = el.dataset.fromKind;
-				if (!kind) return;
-				loadAvatarEl(el, kind === 'me' ? group.me : group.you);
-			});
-		}
-
-		function loadAvatarEl(el, src) {
-			el.src = src;
-			var onLoad = function () { el.classList.add('loaded'); };
-			if (el.complete && el.naturalWidth) { onLoad(); }
-			else { el.addEventListener('load', onLoad, { once: true }); }
-		}
-
-		if (document.readyState === 'loading') {
-			document.addEventListener('DOMContentLoaded', applyGroup);
-		} else {
-			applyGroup();
-		}
-	})();
-</script>
-
-<style>
-	@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;700;900&family=Gilda+Display&display=swap');
-
-	/* ---- Tokens ---- */
-	.love-page {
-		/* OKLCH palette */
-		--petal:      oklch(72% 0.21 358);     /* rose pink */
-		--petal-soft: oklch(88% 0.09 358);     /* blush */
-		--petal-pale: oklch(97% 0.025 358);    /* off-white blush */
-		--ink:        oklch(22% 0.04 345);     /* warm near-black */
-		--ink-mid:    oklch(46% 0.05 345);     /* body text */
-		--ink-faint:  oklch(66% 0.04 345);     /* captions */
-		--rule:       oklch(88% 0.06 358);     /* borders */
-		--surface:    oklch(98% 0.012 355);    /* card bg */
-		--cream:      oklch(98.5% 0.008 85);   /* page bg */
-
-		/* Typography */
-		--font-display: 'Gilda Display', 'Noto Serif SC', serif;
-		--font-body:    'Noto Serif SC', serif;
-
-		font-family: var(--font-body);
-		font-size: 16px;
-		color: var(--ink);
-		background-color: var(--cream);
-		min-height: 100vh;
-		overflow-x: hidden;
-		position: relative;
-	}
-
-	/* ---- Petals ---- */
-	.petals {
-		position: fixed;
-		inset: 0;
-		pointer-events: none;
-		z-index: 0;
-		overflow: hidden;
-	}
-	.petal {
-		position: absolute;
-		font-size: 1.1rem;
-		opacity: 0;
-		animation: drift linear infinite;
-	}
-	.petal-1 { left: 6%;  animation-duration: 18s; animation-delay:  0s; }
-	.petal-2 { left: 21%; animation-duration: 14s; animation-delay:  3s; }
-	.petal-3 { left: 38%; animation-duration: 20s; animation-delay:  7s; }
-	.petal-4 { left: 55%; animation-duration: 16s; animation-delay:  1s; }
-	.petal-5 { left: 72%; animation-duration: 22s; animation-delay:  5s; }
-	.petal-6 { left: 88%; animation-duration: 15s; animation-delay: 10s; }
-
-	@keyframes drift {
-		0%   { transform: translateY(105vh) rotate(-10deg); opacity: 0; }
-		8%   { opacity: 0.55; }
-		88%  { opacity: 0.35; }
-		100% { transform: translateY(-8vh) rotate(30deg); opacity: 0; }
-	}
-
-	@media (prefers-reduced-motion: reduce) {
-		.petal { animation: none; }
-	}
-
-	/* ---- Shared layout ---- */
-	.love-page > section,
-	.love-page > footer {
-		position: relative;
-		z-index: 1;
-		max-width: 800px;
-		margin-inline: auto;
-		padding-inline: clamp(20px, 6vw, 56px);
-	}
-
-	/* ---- Section heading ---- */
-	.section-heading {
-		font-family: var(--font-display);
-		font-size: clamp(18px, 3vw, 24px);
-		font-weight: 400;
-		letter-spacing: 0.04em;
-		color: var(--petal);
-		margin: 0 0 2rem;
-		padding-bottom: 0.6rem;
-		border-bottom: 1px solid var(--rule);
-	}
-
-	/* ---- Hero ---- */
-	.hero {
-		padding-top: clamp(56px, 10vw, 112px);
-		padding-bottom: clamp(48px, 8vw, 96px);
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: clamp(24px, 6vw, 64px);
-	}
-	.hero-inner { flex: 1; min-width: 0; }
-	.hero-eyebrow {
-		font-size: 11px;
-		letter-spacing: 0.18em;
-		text-transform: uppercase;
-		color: var(--petal);
-		font-weight: 700;
-		margin: 0 0 1.2rem;
-	}
-	.hero-title {
-		font-family: var(--font-display);
-		font-size: clamp(52px, 10vw, 108px);
-		font-weight: 400;
-		line-height: 0.95;
-		letter-spacing: -0.02em;
-		margin: 0 0 1.4rem;
-		color: var(--ink);
-	}
-	.hero-desc {
-		font-size: 15px;
-		line-height: 1.8;
-		color: var(--ink-mid);
-		margin: 0;
-		max-width: 34ch;
-		font-style: italic;
-	}
-	/* Hero couple: avatars + heart */
-	.hero-couple {
-		display: flex;
-		align-items: center;
-		gap: 10px;
-		flex-shrink: 0;
-		margin-top: clamp(10px, 1.8vw, 20px);
-	}
-	.hero-avatar {
-		width: clamp(72px, 11vw, 100px);
-		height: clamp(72px, 11vw, 100px);
-		border-radius: 50%;
-		object-fit: cover;
-		display: block;
-		border: 2.5px solid oklch(92% 0.05 358);
-		box-shadow:
-			0 0 0 4px oklch(98% 0.015 358),
-			0 6px 22px oklch(72% 0.21 358 / 0.18);
-		opacity: 0;
-		transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1),
-		            transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-	}
-	.hero-avatar.loaded { opacity: 1; }
-	.hero-avatar-me  { transform: translateY(-7px); }
-	.hero-avatar-you { transform: translateY( 7px); }
-	.hero-avatar-me.loaded  { transform: translateY(-7px); }
-	.hero-avatar-you.loaded { transform: translateY( 7px); }
-	.hero-avatar:hover { transform: translateY(0) scale(1.06) !important; }
-	.hero-heart {
-		width: clamp(36px, 6vw, 56px);
-		flex-shrink: 0;
-		animation: heartbeat 3.6s ease-in-out infinite;
-	}
-	@keyframes heartbeat {
-		0%, 100% { transform: scale(1); }
-		14%       { transform: scale(1.12); }
-		28%       { transform: scale(1); }
-		42%       { transform: scale(1.06); }
-		56%       { transform: scale(1); }
-	}
-	@media (prefers-reduced-motion: reduce) {
-		.hero-heart { animation: none; }
-	}
-	@media (max-width: 500px) {
-		.hero { flex-direction: column-reverse; gap: 1.4rem; }
-		.hero-couple { gap: 8px; }
-		.hero-avatar { width: 62px; height: 62px; }
-		.hero-couple { margin-top: 0; }
-		.hero-heart { width: 30px; }
-	}
-
-	/* ---- Duration ---- */
-	.duration-section {
-		padding-bottom: clamp(48px, 7vw, 88px);
-		border-bottom: 1px solid var(--rule);
-		margin-bottom: clamp(48px, 7vw, 88px);
-	}
-	.duration-caption {
-		font-size: 11px;
-		letter-spacing: 0.18em;
-		text-transform: uppercase;
-		color: var(--ink-faint);
-		margin: 0 0 0.5rem;
-	}
-	.duration-prose {
-		font-family: var(--font-display);
-		font-size: clamp(32px, 6vw, 56px);
-		font-weight: 400;
-		line-height: 1.1;
-		color: var(--ink);
-		margin: 0 0 1.8rem;
-		letter-spacing: -0.01em;
-	}
-	.duration-ticker {
-		display: flex;
-		align-items: baseline;
-		gap: 6px;
-		font-variant-numeric: tabular-nums;
-	}
-	.tick-secs {
-		font-size: 28px;
-		font-weight: 700;
-		color: var(--petal);
-		line-height: 1;
-		font-family: var(--font-display);
-		min-width: 2ch;
-		text-align: center;
-	}
-	.tick-label {
-		font-size: 11px;
-		letter-spacing: 0.1em;
-		color: var(--ink-faint);
-		text-transform: uppercase;
-	}
-	.tick-sep {
-		font-size: 20px;
-		color: var(--rule);
-		margin-inline: 4px;
-	}
-
-	/* ---- Ledger (activities) ---- */
-	.ledger-section {
-		padding-bottom: clamp(48px, 7vw, 88px);
-		border-bottom: 1px solid var(--rule);
-		margin-bottom: clamp(48px, 7vw, 88px);
-	}
-	.ledger {
-		margin: 0;
-		display: flex;
-		flex-direction: column;
-	}
-	.ledger-row {
-		display: flex;
-		align-items: baseline;
-		justify-content: space-between;
-		gap: 1.5rem;
-		padding: 0.9rem 0;
-		border-bottom: 1px solid var(--rule);
-		transition: background-color 0.15s ease;
-	}
-	.ledger-row:last-child { border-bottom: none; }
-	.ledger-row:hover { background-color: var(--petal-pale); margin-inline: -12px; padding-inline: 12px; }
-	.ledger-label {
-		font-size: 14px;
-		color: var(--ink-mid);
-		display: flex;
-		align-items: baseline;
-		gap: 0.6rem;
-		line-height: 1.5;
-	}
-	.ledger-emoji { font-size: 1rem; }
-	.ledger-value {
-		font-family: var(--font-display);
-		font-size: clamp(22px, 4vw, 32px);
-		font-weight: 400;
-		color: var(--ink);
-		white-space: nowrap;
-		letter-spacing: -0.02em;
-		font-variant-numeric: tabular-nums;
-		margin: 0;
-	}
-
-	/* ---- Timeline ---- */
-	.timeline-section {
-		padding-bottom: clamp(48px, 7vw, 88px);
-		border-bottom: 1px solid var(--rule);
-		margin-bottom: clamp(48px, 7vw, 88px);
-	}
-	.timeline {
-		list-style: none;
-		margin: 0;
-		padding: 0;
-		position: relative;
-	}
-	.timeline::before {
-		content: '';
-		position: absolute;
-		top: 8px;
-		bottom: 8px;
-		left: 7px;
-		width: 1px;
-		background: linear-gradient(to bottom, var(--petal-soft), transparent);
-	}
-	.tl-item {
-		display: flex;
-		gap: 1.4rem;
-		padding-bottom: 2.4rem;
-		position: relative;
-	}
-	.tl-item:last-child { padding-bottom: 0; }
-	.tl-marker {
-		flex-shrink: 0;
-		width: 15px;
-		height: 15px;
-		border-radius: 50%;
-		background-color: var(--surface);
-		border: 2px solid var(--petal);
-		margin-top: 4px;
-		position: relative;
-		z-index: 1;
-		transition: background-color 0.15s ease;
-	}
-	.tl-item:hover .tl-marker { background-color: var(--petal); }
-	.tl-body { flex: 1; min-width: 0; }
-	.tl-date {
-		font-size: 11px;
-		letter-spacing: 0.12em;
-		text-transform: uppercase;
-		color: var(--ink-faint);
-		display: block;
-		margin-bottom: 0.3rem;
-	}
-	.tl-title {
-		font-family: var(--font-display);
-		font-size: clamp(16px, 2.5vw, 20px);
-		font-weight: 400;
-		color: var(--ink);
-		margin: 0 0 0.4rem;
-		letter-spacing: 0.01em;
-	}
-	.tl-desc {
-		font-size: 14px;
-		line-height: 1.75;
-		color: var(--ink-mid);
-		margin: 0;
-		max-width: 60ch;
-	}
-
-	/* ---- Whispers ---- */
-	.whispers-section {
-		padding-bottom: clamp(48px, 7vw, 88px);
-	}
-
-	/* Couple avatars */
-	.whispers-couple {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		margin-bottom: 3rem;
-		opacity: 0;
-		transform: translateY(20px);
-		transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
-		            transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
-	}
-	.whispers-couple.is-visible {
-		opacity: 1;
-		transform: none;
-	}
-	.wc-avatar {
-		width: 64px;
-		height: 64px;
-		border-radius: 50%;
-		flex-shrink: 0;
-		overflow: hidden;
-		border: 2.5px solid oklch(92% 0.05 358);
-		box-shadow:
-			0 0 0 3px oklch(98% 0.015 358),
-			0 4px 16px oklch(72% 0.21 358 / 0.22);
-		background-color: oklch(96% 0.015 358);
-	}
-	.wc-avatar img {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-		display: block;
-		opacity: 0;
-		transition: opacity 0.4s ease;
-	}
-	.wc-avatar img.loaded { opacity: 1; }
-	.wc-avatar-b {
-		box-shadow:
-			0 0 0 3px oklch(98% 0.015 290),
-			0 4px 16px oklch(76% 0.12 290 / 0.22);
-	}
-	.whispers-couple.is-visible .wc-avatar-a {
-		animation: avatar-float 5.4s ease-in-out infinite;
-	}
-	.whispers-couple.is-visible .wc-avatar-b {
-		animation: avatar-float 5.4s ease-in-out infinite;
-		animation-delay: -2.7s;
-	}
-	@keyframes avatar-float {
-		0%, 100% { transform: translateY(0); }
-		50%       { transform: translateY(-6px); }
-	}
-	.wc-connector {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		padding-inline: 14px;
-	}
-	.wc-heart-icon {
-		width: 20px;
-		height: 20px;
-	}
-	.whispers-couple.is-visible .wc-heart-icon {
-		animation: heartbeat 3.6s ease-in-out infinite;
-		animation-delay: 0.3s;
-	}
-
-	/* Paper notes */
-	.notes-window {
-		position: relative;
-		overflow: visible;
-		padding: 0.4rem;
-		margin-inline: calc(-1 * clamp(20px, 6vw, 56px));
-	}
-	.whispers {
-		list-style: none;
-		margin: 0;
-		padding: 0;
-		position: relative;
-		width: 100%;
-		min-height: 560px;
-	}
-	.whisper {
-		--rot: 0deg;
-		width: 218px;
-		flex-shrink: 0;
-		position: absolute;
-		background-color: oklch(97.8% 0.012 82);
-		border-radius: 2px;
-		min-height: 152px;
-		box-shadow:
-			0 1px 3px oklch(22% 0.04 345 / 0.07),
-			0 6px 20px oklch(22% 0.04 345 / 0.09);
-		transform: rotate(var(--rot));
-		transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
-		            box-shadow 0.2s ease;
-		cursor: pointer;
-		will-change: transform, left, top;
-	}
-	.whisper:hover,
-	.whisper.is-raised {
-		transform: translateY(-10px) rotate(var(--rot)) scale(1.03);
-		z-index: 2;
-		box-shadow:
-			0 2px 8px oklch(22% 0.04 345 / 0.10),
-			0 14px 36px oklch(22% 0.04 345 / 0.14);
-	}
-	/* Rotation variety */
-	.whisper:nth-child(8n + 1) { --rot: -1.5deg; }
-	.whisper:nth-child(8n + 2) { --rot:  1.2deg; }
-	.whisper:nth-child(8n + 3) { --rot: -0.7deg; }
-	.whisper:nth-child(8n + 4) { --rot:  2.0deg; }
-	.whisper:nth-child(8n + 5) { --rot: -1.1deg; }
-	.whisper:nth-child(8n + 6) { --rot:  0.8deg; }
-	.whisper:nth-child(8n + 7) { --rot:  1.6deg; }
-	.whisper:nth-child(8n + 8) { --rot: -0.4deg; }
-	/* Washi tape top strip */
-	.note-tape {
-		height: 11px;
-		border-radius: 1px 1px 0 0;
-		opacity: 0.65;
-	}
-	.whisper-a .note-tape { background-color: oklch(72% 0.21 358); }
-	.whisper-b .note-tape { background-color: oklch(76% 0.12 290); }
-	.whisper-text {
-		font-size: 15px;
-		line-height: 1.85;
-		color: oklch(38% 0.05 345);
-		font-style: italic;
-		margin: 0;
-		padding: 1.1rem 1.3rem 2.6rem;
-		transition: color 0.2s ease;
-	}
-	.whisper:hover .whisper-text { color: oklch(22% 0.04 345); }
-	/* Attribution badge */
-	.note-from {
-		position: absolute;
-		bottom: 10px;
-		right: 11px;
-		width: 26px;
-		height: 26px;
-		border-radius: 50%;
-		object-fit: cover;
-		display: block;
-		opacity: 0;
-		transition: opacity 0.35s ease;
-		user-select: none;
-	}
-	.note-from.loaded { opacity: 1; }
-	.whisper-a .note-from {
-		box-shadow:
-			0 0 0 2px oklch(98% 0.015 358),
-			0 2px 8px oklch(72% 0.21 358 / 0.22);
-	}
-	.whisper-b .note-from {
-		box-shadow:
-			0 0 0 2px oklch(98% 0.015 290),
-			0 2px 8px oklch(76% 0.12 290 / 0.22);
-	}
-
-	@media (prefers-reduced-motion: reduce) {
-		.notes-window {
-			overflow: visible;
-			margin-inline: 0;
-			mask-image: none;
-			-webkit-mask-image: none;
-		}
-		.whispers {
-				min-height: 0;
-		}
-		.whisper {
-				position: relative;
-				left: auto !important;
-				top: auto !important;
-				width: min(100%, 218px);
-				margin: 0 auto 1rem;
-		}
-		.whispers-couple {
-			opacity: 1;
-			transform: none;
-		}
-		.wc-avatar-a,
-		.wc-avatar-b,
-		.wc-heart-icon { animation: none; }
-	}
-
-	/* ---- Footer ---- */
-	.love-footer {
-		padding: clamp(32px, 6vw, 64px) 0 clamp(48px, 8vw, 96px);
-		text-align: center;
-		color: var(--ink-faint);
-		font-style: italic;
-		font-size: 14px;
-		letter-spacing: 0.06em;
-	}
-	.footer-heart {
-		display: block;
-		width: 28px;
-		margin: 0 auto 0.8rem;
-		animation: heartbeat 3.6s ease-in-out infinite;
-	}
-	@media (prefers-reduced-motion: reduce) {
-		.footer-heart { animation: none; }
-	}
+  /* FOOTER */
+  .love-root .love-footer{padding:5rem 2rem 3rem;text-align:center;position:relative;}
+  .love-root .love-footer::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:1px;height:3rem;background:linear-gradient(to bottom,transparent,var(--bd));}
+  .love-root .f1{font-family:'Ma Shan Zheng',serif;font-size:28px;color:var(--gw2);text-shadow:0 0 20px var(--gd2);margin-bottom:.5rem;transition:all .7s;}
+  .love-root .f2{font-size:12px;color:var(--txh);letter-spacing:.08em;}
+  .love-root .fh{color:var(--gw);animation:lovePulse 2.2s ease-in-out infinite;display:inline-block;transition:color .7s;}
 </style>
+
+<script
+  is:inline
+  define:vars={{
+    startDate: meta.startDate,
+    anniversaryDate: meta.anniversaryDate,
+    initialPercent: meta.song.initialPercent,
+    songTotal: meta.song.totalTime,
+    ideas: dateIdeasPayload,
+  }}
+>
+  (() => {
+    const root = document.getElementById("love-root");
+    if (!root) return;
+
+    /* SEASON PARTICLES */
+    const SD = {
+      spring:{ p:'petal',   c:['rgba(255,148,178,.55)','rgba(255,185,205,.5)','rgba(245,170,195,.48)','rgba(255,210,225,.5)'] },
+      summer:{ p:'firefly', c:['rgba(255,210,72,.85)','rgba(255,225,102,.75)','rgba(255,195,52,.7)'] },
+      autumn:{ p:'leaf',    c:['rgba(195,80,25,.55)','rgba(215,116,40,.5)','rgba(175,60,15,.45)'] },
+      winter:{ p:'snow',    c:['rgba(175,208,255,.65)','rgba(196,222,255,.55)','rgba(155,196,252,.5)'] },
+    };
+    const cS = root.dataset.season || 'spring';
+
+    /* CANVAS */
+    const cv = document.getElementById('bg');
+    const ctx = cv.getContext('2d');
+    let pts = [];
+    function rsz(){ cv.width = innerWidth; cv.height = innerHeight; }
+    window.addEventListener('resize', rsz); rsz();
+
+    class P {
+      constructor(t, c, r){ this.t = t; this.c = c; this.col = c[~~(Math.random()*c.length)]; this.ini(r); }
+      ini(r){
+        const W = cv.width, H = cv.height;
+        this.x = Math.random()*W; this.s = Math.random()*8+4; this.op = Math.random()*.5+.2;
+        if (this.t === 'firefly') {
+          this.y = r ? Math.random()*H : H + 10;
+          this.vy = -(Math.random()*.9 + .3);
+          this.vx = (Math.random()-.5)*.5;
+          this.ph = Math.random()*Math.PI*2;
+          this.ps = Math.random()*.035+.012;
+        } else {
+          this.y = r ? Math.random()*H : -15;
+          this.vy = Math.random()*1.2 + .45;
+          this.vx = (Math.random()-.5)*.9;
+          this.wb = Math.random()*Math.PI*2;
+          this.ws = Math.random()*.04 + .012;
+          this.wa = Math.random()*1.4 + .5;
+        }
+        if (this.t === 'petal' || this.t === 'leaf') {
+          this.rot = Math.random()*Math.PI*2;
+          this.rs = (Math.random()-.5)*.045;
+        }
+        if (this.t === 'snow') { this.s = Math.random()*5+3; this.br = Math.random() < .5 ? 4 : 6; }
+      }
+      upd(){
+        if (this.t === 'firefly') {
+          this.ph += this.ps; this.y += this.vy; this.x += this.vx + Math.sin(this.ph)*.45;
+          this.op = .28 + Math.abs(Math.sin(this.ph))*.48;
+          if (this.y < -15) this.ini(false);
+        } else {
+          this.wb += this.ws; this.y += this.vy; this.x += this.vx + Math.sin(this.wb)*this.wa;
+          if (this.rot !== undefined) this.rot += this.rs;
+          if (this.y > cv.height + 20 || this.x < -40 || this.x > cv.width + 40) this.ini(false);
+        }
+      }
+      drw(){
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, Math.min(1, this.op));
+        ctx.translate(this.x, this.y);
+        if (this.rot !== undefined) ctx.rotate(this.rot);
+        const s = this.s;
+        if (this.t === 'petal') {
+          ctx.fillStyle = this.col;
+          ctx.beginPath(); ctx.ellipse(0, 0, s*.5, s*.85, 0, 0, Math.PI*2); ctx.fill();
+          ctx.fillStyle = 'rgba(255,255,255,.22)';
+          ctx.beginPath(); ctx.ellipse(0, -s*.15, s*.18, s*.38, 0, 0, Math.PI*2); ctx.fill();
+        } else if (this.t === 'firefly') {
+          const g = ctx.createRadialGradient(0, 0, 0, 0, 0, s*2.5);
+          g.addColorStop(0, this.col); g.addColorStop(1, 'rgba(255,200,50,0)');
+          ctx.fillStyle = g;
+          ctx.beginPath(); ctx.arc(0, 0, s*2.5, 0, Math.PI*2); ctx.fill();
+          ctx.fillStyle = this.col;
+          ctx.beginPath(); ctx.arc(0, 0, s*.35, 0, Math.PI*2); ctx.fill();
+        } else if (this.t === 'leaf') {
+          ctx.fillStyle = this.col;
+          ctx.beginPath();
+          ctx.moveTo(0, -s);
+          ctx.bezierCurveTo(s*.85, -s*.5, s*.85, s*.5, 0, s);
+          ctx.bezierCurveTo(-s*.85, s*.5, -s*.85, -s*.5, 0, -s);
+          ctx.fill();
+          ctx.strokeStyle = 'rgba(255,255,255,.18)'; ctx.lineWidth = .5;
+          ctx.beginPath(); ctx.moveTo(0, -s); ctx.lineTo(0, s); ctx.stroke();
+        } else if (this.t === 'snow') {
+          ctx.strokeStyle = this.col; ctx.lineWidth = 1.2;
+          for (let i = 0; i < this.br; i++) {
+            ctx.save();
+            ctx.rotate(i*Math.PI*2/this.br);
+            ctx.beginPath();
+            ctx.moveTo(0, 0); ctx.lineTo(0, s);
+            ctx.moveTo(0, s*.42); ctx.lineTo(s*.3, s*.7);
+            ctx.moveTo(0, s*.42); ctx.lineTo(-s*.3, s*.7);
+            ctx.stroke();
+            ctx.restore();
+          }
+        }
+        ctx.restore();
+      }
+    }
+    function rebuildPts(s){
+      const d = SD[s];
+      pts = Array.from({ length: s === 'summer' ? 26 : 38 }, () => new P(d.p, d.c, true));
+    }
+    function loop(){
+      ctx.clearRect(0, 0, cv.width, cv.height);
+      pts.forEach(p => { p.upd(); p.drw(); });
+      requestAnimationFrame(loop);
+    }
+    rebuildPts(cS); loop();
+
+    /* PARALLAX */
+    let raf = null;
+    function doPx(){
+      const sy = window.scrollY;
+      root.querySelectorAll('.orb').forEach((b, i) => {
+        const r = [.18, .32, .12];
+        b.style.transform = `translateY(${sy*r[i]}px)`;
+      });
+      raf = null;
+    }
+    window.addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(doPx); }, { passive: true });
+
+    /* PROGRESS BAR */
+    const prog = document.getElementById('prog');
+    window.addEventListener('scroll', () => {
+      prog.style.width = (window.scrollY/(document.body.scrollHeight - innerHeight)*100) + '%';
+    }, { passive: true });
+
+    /* SCROLL ANIM */
+    const obs = new IntersectionObserver(en => {
+      en.forEach(e => { if (e.isIntersecting) e.target.classList.add('v'); });
+    }, { threshold: 0.07, rootMargin: '0px 0px -28px 0px' });
+    root.querySelectorAll('.a0, .al, .ar, .sc2').forEach(el => obs.observe(el));
+
+    /* CURSOR GLOW */
+    const cg = document.getElementById('cg');
+    document.addEventListener('mousemove', e => {
+      cg.style.left = e.clientX + 'px';
+      cg.style.top = e.clientY + 'px';
+    }, { passive: true });
+
+    /* 3D TILT */
+    root.querySelectorAll('.tilt').forEach(el => {
+      el.addEventListener('mousemove', e => {
+        const r = el.getBoundingClientRect();
+        const x = (e.clientX - r.left)/r.width - .5;
+        const y = (e.clientY - r.top)/r.height - .5;
+        el.style.transform = `perspective(520px) rotateX(${-y*9}deg) rotateY(${x*9}deg) translateY(-4px)`;
+        el.style.boxShadow = `${-x*12}px ${-y*12}px 28px var(--gd)`;
+      });
+      el.addEventListener('mouseleave', () => {
+        el.style.transform = '';
+        el.style.boxShadow = '';
+      });
+    });
+
+    /* COUNTDOWN */
+    const startMs = new Date(startDate + 'T00:00:00').getTime();
+    const annivMs = new Date(anniversaryDate + 'T00:00:00').getTime();
+    function tick(){
+      const d = Date.now() - startMs;
+      const dy = Math.floor(d/864e5);
+      const h = Math.floor((d%864e5)/36e5);
+      const m = Math.floor((d%36e5)/6e4);
+      const s = Math.floor((d%6e4)/1e3);
+      document.getElementById('cd-d').textContent = dy;
+      document.getElementById('cd-h').textContent = String(h).padStart(2, '0');
+      document.getElementById('cd-m').textContent = String(m).padStart(2, '0');
+      document.getElementById('cd-s').textContent = String(s).padStart(2, '0');
+      document.getElementById('cd-ds').textContent = dy;
+      document.getElementById('cd-an').textContent = Math.max(0, Math.ceil((annivMs - Date.now())/864e5));
+      document.getElementById('av-dy').textContent = dy + ' 天';
+    }
+    tick(); setInterval(tick, 1000);
+
+    /* COUNT-UP */
+    function countUp(el, n, plus, dur = 1400){
+      const s = Date.now();
+      function step(){
+        const t = Math.min((Date.now() - s)/dur, 1);
+        const ease = 1 - Math.pow(1 - t, 3);
+        el.textContent = Math.floor(n*ease) + (t >= 1 && plus ? '+' : '');
+        if (t < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+    const sObs = new IntersectionObserver(en => {
+      en.forEach(e => {
+        if (e.isIntersecting && !e.target.dataset.done) {
+          e.target.dataset.done = '1';
+          const target = parseInt(e.target.dataset.t || '0', 10);
+          if (!target) return;
+          const suffix = e.target.dataset.suffix || '';
+          countUp(e.target.querySelector('.sc3-n'), target, suffix === '+');
+        }
+      });
+    }, { threshold: .3 });
+    root.querySelectorAll('.sc3[data-t]').forEach(el => sObs.observe(el));
+
+    /* WISHLIST */
+    const wct = document.getElementById('wct');
+    function refreshWishCount(){
+      const all = root.querySelectorAll('.wi').length;
+      const dn = root.querySelectorAll('.wi.dn').length;
+      wct.textContent = `${dn} / ${all} 完成`;
+    }
+    root.querySelectorAll('[data-wish]').forEach(el => {
+      el.addEventListener('click', () => {
+        el.classList.toggle('dn');
+        el.querySelector('.wc').textContent = el.classList.contains('dn') ? '✓' : '';
+        refreshWishCount();
+      });
+    });
+
+    /* SONG */
+    const pbtn = document.getElementById('pbtn');
+    const sfl = document.getElementById('sfl');
+    const curT = document.getElementById('cur-t');
+    const totalParts = songTotal.split(':').map(Number);
+    const totalSec = totalParts[0]*60 + totalParts[1];
+    let playing = false;
+    let pct = initialPercent;
+    let timer = null;
+    pbtn.addEventListener('click', () => {
+      playing = !playing;
+      pbtn.textContent = playing ? '⏸' : '▶';
+      if (playing) {
+        timer = setInterval(() => {
+          pct = Math.min(100, pct + .05);
+          sfl.style.width = pct + '%';
+          const c = totalSec*pct/100;
+          curT.textContent = Math.floor(c/60) + ':' + String(~~(c%60)).padStart(2, '0');
+          if (pct >= 100) {
+            clearInterval(timer);
+            playing = false;
+            pbtn.textContent = '▶';
+            pct = 0;
+          }
+        }, 100);
+      } else {
+        clearInterval(timer);
+      }
+    });
+
+    /* DATE IDEAS */
+    let lastIdx = 0;
+    const diIc = document.getElementById('di-ic');
+    const diTt = document.getElementById('di-tt');
+    const diTx = document.getElementById('di-tx');
+    document.getElementById('di-btn').addEventListener('click', () => {
+      let idx;
+      do { idx = ~~(Math.random()*ideas.length); } while (idx === lastIdx && ideas.length > 1);
+      lastIdx = idx;
+      diIc.classList.remove('spin');
+      void diIc.offsetWidth;
+      diIc.classList.add('spin');
+      diIc.textContent = ideas[idx].ic;
+      diTt.textContent = ideas[idx].tt;
+      diTx.textContent = ideas[idx].tx;
+    });
+  })();
+</script>

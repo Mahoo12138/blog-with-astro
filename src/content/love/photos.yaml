@@ -1,0 +1,30 @@
+- id: 01-in-together-day
+  date: "2025 · 12 · 06"
+  title: "在一起的那天"
+  caption: "那是冬天，你的手很暖。"
+  gradient: "linear-gradient(135deg,#2C0D1A,#5A1838)"
+- id: 02-christmas-eve
+  date: "2025 · 12 · 24"
+  title: "第一个平安夜"
+  caption: "聊了一整夜，窗外有星星。"
+  gradient: "linear-gradient(135deg,#091428,#142850)"
+- id: 03-first-spring-date
+  date: "2026 · 03 · 20"
+  title: "春天第一次约会"
+  caption: "公园里的风把你的发吹乱了。"
+  gradient: "linear-gradient(135deg,#0E2010,#1C3C18)"
+- id: 04-first-cook
+  date: "2026 · 02 · 08"
+  title: "第一次一起做饭"
+  caption: "有点焦，但你说好吃。"
+  gradient: "linear-gradient(135deg,#281408,#503020)"
+- id: 05-game-clear
+  date: "2026 · 04 · 15"
+  title: "游戏通关的夜晚"
+  caption: "你比我还兴奋，差点把键盘砸了。"
+  gradient: "linear-gradient(135deg,#140C28,#2C1A50)"
+- id: 06-nanjing-trip
+  date: "2026 · 05 · 02"
+  title: "南京旅行"
+  caption: "城墙上的夕阳，有你在旁边。"
+  gradient: "linear-gradient(135deg,#1E1010,#3C1E28)"

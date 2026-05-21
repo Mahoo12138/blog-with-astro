@@ -1,0 +1,24 @@
+- id: 01-nanjing
+  number: "01"
+  city: "南京"
+  description: "城墙、鸡鸣寺，拍了很多照片"
+  tag: "🌸 2026.05.02"
+  visited: true
+- id: 02-hangzhou
+  number: "心愿"
+  city: "杭州"
+  description: "秋天去看看西湖和断桥"
+  tag: "🍂 计划中"
+  visited: false
+- id: 03-suzhou
+  number: "心愿"
+  city: "苏州"
+  description: "园林古典，一起慢慢逛"
+  tag: "🏮 计划中"
+  visited: false
+- id: 04-seaside
+  number: "心愿"
+  city: "海边"
+  description: "一起看一次日出"
+  tag: "🌅 计划中"
+  visited: false

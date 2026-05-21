@@ -1,0 +1,66 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import Pagination from '../../../components/Pagination.astro';
+import StellarNavTabs from '../../../components/StellarNavTabs.astro';
+import StellarPostCard from '../../../components/StellarPostCard.astro';
+import { POSTS_PER_PAGE, SITE_DESCRIPTION, SITE_TITLE } from '../../../consts';
+import StellarShell from '../../../layouts/StellarShell.astro';
+import * as styles from '../../../styles/taxonomy.css';
+import { buildTaxonomyBuckets, getPhotoIndex, sortBlogPosts } from '../../../utils/content';
+
+export async function getStaticPaths() {
+	const posts = sortBlogPosts(await getCollection('posts'));
+	const buckets = buildTaxonomyBuckets(posts, 'categories');
+
+	const paths = [];
+	for (const bucket of buckets) {
+		const totalPages = Math.max(1, Math.ceil(bucket.posts.length / POSTS_PER_PAGE));
+		for (let page = 2; page <= totalPages; page += 1) {
+			const start = (page - 1) * POSTS_PER_PAGE;
+			paths.push({
+				params: { slug: bucket.slug, page: String(page) },
+				props: {
+					label: bucket.label,
+					slug: bucket.slug,
+					page,
+					totalPages,
+					posts: bucket.posts.slice(start, start + POSTS_PER_PAGE),
+				},
+			});
+		}
+	}
+	return paths;
+}
+
+interface Props {
+	label: string;
+	slug: string;
+	page: number;
+	totalPages: number;
+	posts: CollectionEntry<'posts'>[];
+}
+
+const { label, slug, page, totalPages, posts } = Astro.props as Props;
+const photoIndex = getPhotoIndex(posts);
+const prevUrl = page === 2 ? `/categories/${slug}` : `/categories/${slug}/${page - 1}`;
+const nextUrl = page < totalPages ? `/categories/${slug}/${page + 1}` : undefined;
+---
+
+<StellarShell title={`${label} · 第 ${page} 页 · Categories · ${SITE_TITLE}`} description={SITE_DESCRIPTION} mainClass={styles.pageMain} siteTree="index_blog">
+	<header class={styles.header}>
+		<StellarNavTabs active="categories" />
+	</header>
+	<h1 class={styles.srOnly}>{label}</h1>
+	<div class={styles.postList}>
+		<ul class={styles.list}>
+			{
+				posts.map((post, index) => (
+					<li class={styles.item}>
+						<StellarPostCard post={post} variant={index === photoIndex ? 'photo' : 'default'} />
+					</li>
+				))
+			}
+		</ul>
+	</div>
+	<Pagination currentPage={page} totalPages={totalPages} prevUrl={prevUrl} nextUrl={nextUrl} />
+</StellarShell>

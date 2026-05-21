@@ -1,8 +1,9 @@
 ---
 import { getCollection } from 'astro:content';
+import Pagination from '../../components/Pagination.astro';
 import StellarNavTabs from '../../components/StellarNavTabs.astro';
 import StellarPostCard from '../../components/StellarPostCard.astro';
-import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
+import { POSTS_PER_PAGE, SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
 import StellarShell from '../../layouts/StellarShell.astro';
 import * as styles from '../../styles/taxonomy.css';
 import { buildTaxonomyBuckets, getPhotoIndex, sortBlogPosts, type TaxonomyBucket } from '../../utils/content';
@@ -20,7 +21,10 @@ interface Props {
 }
 
 const { bucket } = Astro.props as Props;
-const photoIndex = getPhotoIndex(bucket.posts);
+const totalPages = Math.max(1, Math.ceil(bucket.posts.length / POSTS_PER_PAGE));
+const posts = bucket.posts.slice(0, POSTS_PER_PAGE);
+const photoIndex = getPhotoIndex(posts);
+const nextUrl = totalPages > 1 ? `/categories/${bucket.slug}/2` : undefined;
 ---
 
 <StellarShell title={`${bucket.label} · Categories · ${SITE_TITLE}`} description={SITE_DESCRIPTION} mainClass={styles.pageMain} siteTree="index_blog">
@@ -31,7 +35,7 @@ const photoIndex = getPhotoIndex(bucket.posts);
 	<div class={styles.postList}>
 		<ul class={styles.list}>
 			{
-				bucket.posts.map((post, index) => (
+				posts.map((post, index) => (
 					<li class={styles.item}>
 						<StellarPostCard post={post} variant={index === photoIndex ? 'photo' : 'default'} />
 					</li>
@@ -39,4 +43,5 @@ const photoIndex = getPhotoIndex(bucket.posts);
 			}
 		</ul>
 	</div>
+	<Pagination currentPage={1} totalPages={totalPages} nextUrl={nextUrl} />
 </StellarShell>

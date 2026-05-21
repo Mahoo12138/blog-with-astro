@@ -2,6 +2,7 @@
 title: Hexo 主题开发系列教程（三）：主题结构与模板系统
 date: 2025-11-24 22:42:23
 author: Mahoo12138
+columnId: hexo-theme-tutorial
 img: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/hexo.png
 tags: 
 - Hexo

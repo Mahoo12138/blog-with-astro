@@ -2,6 +2,7 @@
 title: Hexo 主题开发系列教程（二）：扩展系统详解（下篇）
 date: 2025-11-22 20:52:43
 author: Mahoo12138
+columnId: hexo-theme-tutorial
 img: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/hexo.png
 tags: 
 - Hexo

@@ -2,6 +2,7 @@
 title: Hexo 主题开发系列教程（五）：插件系统与生态
 date: 2025-11-26 23:22:37
 author: Mahoo12138
+columnId: hexo-theme-tutorial
 img: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/hexo.png
 tags: 
 - Hexo

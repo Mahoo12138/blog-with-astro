@@ -19,6 +19,6 @@ const heroImage = post.data.heroImage as ImageMetadata | undefined;
 const bannerImage = post.data.banner as ImageMetadata | undefined;
 ---
 
-<BlogPost title={post.data.title} description={post.data.description} pubDate={post.data.pubDate} updatedDate={post.data.updatedDate} heroImage={heroImage} bannerImage={bannerImage} headings={headings}>
+<BlogPost title={post.data.title} description={post.data.description} pubDate={post.data.pubDate} updatedDate={post.data.updatedDate} heroImage={heroImage} bannerImage={bannerImage} headings={headings} mathjax={post.data.mathjax}>
 	<Content components={mdxComponents} />
 </BlogPost>

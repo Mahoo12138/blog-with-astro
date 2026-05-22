@@ -428,10 +428,14 @@ const initialIdea = dateIdeasPayload[0];
       <div class="f2">Love Story · {meta.startDate.replace(/-/g, ".")}</div>
     </footer>
   </div>
-</ExploreShell>
 
-<style is:global>
+  <style is:global>
   @import url("https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;600&family=Noto+Sans+SC:wght@300;400;500&display=swap");
+
+  /* 让 #bg / #cg / #prog 的 position:fixed 真正贴视口：
+     BlankShell 的 <main> 入场动画结束时保留了 transform:scale(1)，
+     非 none 的 transform 会让 main 变成 fixed 后代的包含块。 */
+  main:has(> .love-root){animation:none !important;transform:none !important;}
 
   /* ── SEASON VARS ─ */
   .love-root[data-season="spring"]{--bg:#0D0408;--bg2:#180812;--sf:rgba(220,80,110,.07);--gw:#E8547A;--gw2:#FF90B4;--gd:rgba(232,84,122,.1);--gd2:rgba(232,84,122,.22);--tx:#FFE8F2;--txm:rgba(255,232,242,.56);--txh:rgba(255,232,242,.28);--bd:rgba(232,84,122,.2);--bds:rgba(232,84,122,.42);}
@@ -946,3 +950,4 @@ const initialIdea = dateIdeasPayload[0];
     });
   })();
 </script>
+</ExploreShell>

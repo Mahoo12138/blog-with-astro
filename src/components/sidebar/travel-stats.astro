@@ -1,10 +1,11 @@
 ---
 import { getCollection } from 'astro:content';
 import type { WidgetProps } from './types';
-import * as styles from '../StellarRightSidebar.css';
+import * as leftStyles from '../StellarLeftSidebar.css';
+import * as rightStyles from '../StellarRightSidebar.css';
 import * as travelStyles from './travel.css';
 
-const { widget } = Astro.props as WidgetProps;
+const { widget, side } = Astro.props as WidgetProps;
 const cities = await getCollection('cities');
 
 const totalCities = cities.length;
@@ -21,10 +22,13 @@ for (const c of cities) {
 	regionCounts.set(key, (regionCounts.get(key) ?? 0) + 1);
 }
 const regions = [...regionCounts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6);
+
+const widgetClass = side === 'left' ? leftStyles.widget : rightStyles.widget;
+const headerClass = side === 'left' ? leftStyles.widgetTitle : rightStyles.widgetHeader;
 ---
 
-<section class:list={[styles.widget, travelStyles.statsWidget]}>
-	<div class={styles.widgetHeader}><span>{widget.title}</span></div>
+<section class:list={[widgetClass, travelStyles.statsWidget]}>
+	<div class={headerClass}><span>{widget.title}</span></div>
 	<div class={travelStyles.statsGrid}>
 		<div class={travelStyles.statCard}>
 			<span class={travelStyles.statValue}>{totalCities}</span>

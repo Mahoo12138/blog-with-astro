@@ -152,7 +152,7 @@ export const stellarConfig = {
 		post: { menuId: 'post', leftbar: ['related', 'recent'], rightbar: ['ghrepo', 'toc'] },
 		topic: { menuId: 'post', leftbar: ['related', 'recent'], rightbar: ['ghrepo', 'toc'] },
 		column: { menuId: 'columns', leftbar: ['column-info', 'column-posts'], rightbar: ['toc'] },
-		travel: { menuId: 'explore', leftbar: ['travel-recent'], rightbar: ['travel-stats'] },
+		travel: { menuId: 'explore', leftbar: ['travel-stats', 'travel-recent'], rightbar: null },
 		wiki: { menuId: 'wiki', leftbar: ['related', 'recent'], rightbar: ['ghrepo', 'toc'] },
 		notebooks: { menuId: 'notebooks', leftbar: ['recent'], rightbar: null },
 		notes: { menuId: 'notebooks', leftbar: ['recent'], rightbar: null },

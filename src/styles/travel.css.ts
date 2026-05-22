@@ -3,8 +3,6 @@ import { breakpoints, vars } from './theme.css';
 
 const borderCardLarge = '24px';
 const borderCardSmall = '12px';
-const borderBar = '8px';
-const gutter = vars.space.lg;
 
 const pulseAnim = keyframes({
 	'0%': { transform: 'scale(0.6)', opacity: 0.65 },
@@ -16,51 +14,103 @@ const ringPulse = keyframes({
 	'100%': { transform: 'scale(1.55)', opacity: 0 },
 });
 
-export const main = style({
-	width: '100%',
-	maxWidth: '100%',
-	margin: '0 auto',
-	padding: 0,
+export const pageRoot = style({
+	display: 'flex',
+	flexDirection: 'column',
+	gap: vars.space.xl,
+	margin: `${vars.space.lg} 0 ${vars.space.xxxl}`,
+	color: vars.color.text,
 });
 
-export const article = style({
+export const header = style({
 	display: 'grid',
-	gridTemplateColumns: 'minmax(0, 1fr)',
-	gap: 0,
+	gridTemplateColumns: 'minmax(0, 1fr) auto',
+	alignItems: 'end',
+	gap: vars.space.xl,
+	padding: `${vars.space.sm} 0 ${vars.space.lg}`,
+	borderBottom: `1px solid ${vars.color.border}`,
+	'@media': {
+		[`screen and (max-width: ${breakpoints.tablet})`]: {
+			gridTemplateColumns: '1fr',
+			gap: vars.space.md,
+		},
+	},
+});
+
+export const headerMain = style({
 	minWidth: 0,
 });
 
-export const banner = style({
-	minHeight: '160px',
+export const kicker = style({
+	display: 'inline-flex',
+	alignItems: 'baseline',
+	gap: '0.4rem',
+	margin: '0 0 0.5rem',
+	fontSize: '0.78rem',
+	fontWeight: 700,
+	letterSpacing: '0.08em',
+	textTransform: 'uppercase',
+	color: vars.color.textMeta,
 });
 
-export const bannerImage = style({
-	objectPosition: 'center 35%',
+globalStyle(`${kicker} span`, {
+	color: vars.color.accentStrong,
 });
 
-export const subtitle = style({
-	margin: '0.25rem 0 0',
-	fontSize: '0.92rem',
-	lineHeight: 1.4,
-	color: '#fff',
-	opacity: 0.92,
-});
-
-globalStyle(`${subtitle} strong`, {
-	fontFamily: vars.font.mono,
+export const title = style({
+	margin: '0 0 0.5rem',
+	fontSize: 'clamp(1.6rem, 2.4vw, 2.2rem)',
 	fontWeight: 800,
-	fontSize: '1.05rem',
-	margin: '0 2px',
+	letterSpacing: 0,
+	color: vars.color.textStrong,
+});
+
+export const description = style({
+	margin: 0,
+	fontSize: '0.95rem',
+	lineHeight: 1.6,
+	color: vars.color.textMuted,
+	maxWidth: '52ch',
+});
+
+export const headerMeta = style({
+	display: 'flex',
+	gap: vars.space.lg,
+	alignItems: 'baseline',
+	justifySelf: 'end',
+	'@media': {
+		[`screen and (max-width: ${breakpoints.tablet})`]: {
+			justifySelf: 'start',
+		},
+	},
+});
+
+export const headerStat = style({
+	display: 'flex',
+	flexDirection: 'column',
+	alignItems: 'flex-end',
+	gap: '4px',
+});
+
+export const headerStatValue = style({
+	fontFamily: vars.font.mono,
+	fontSize: '2rem',
+	fontWeight: 800,
+	lineHeight: 1,
+	color: vars.color.accentStrong,
+	letterSpacing: '-0.02em',
+});
+
+export const headerStatLabel = style({
+	fontSize: '0.7rem',
+	letterSpacing: '0.08em',
+	textTransform: 'uppercase',
+	color: vars.color.textMeta,
+	fontWeight: 600,
 });
 
 export const mapSection = style({
-	margin: `${gutter} 0 0`,
-	padding: 0,
-	'@media': {
-		[`screen and (max-width: ${breakpoints.mobile})`]: {
-			margin: `${gutter} 0 0`,
-		},
-	},
+	margin: 0,
 });
 
 export const mapCard = style({
@@ -78,7 +128,7 @@ export const mapCard = style({
 
 export const map = style({
 	width: '100%',
-	height: 'clamp(360px, 60vh, 560px)',
+	height: 'clamp(420px, 75vh, 750px)',
 	background: vars.color.surfaceMuted,
 });
 
@@ -130,34 +180,8 @@ export const legendDotResidence = style({
 	boxShadow: '0 0 0 1px rgba(15, 23, 42, 0.18)',
 });
 
-export const attribution = style({
-	position: 'absolute',
-	right: '8px',
-	bottom: '6px',
-	zIndex: 500,
-	padding: '2px 8px',
-	borderRadius: '4px',
-	background: 'rgba(255, 255, 255, 0.78)',
-	color: '#4a5568',
-	fontSize: '11px',
-	lineHeight: 1.4,
-	pointerEvents: 'auto',
-	selectors: {
-		':root[data-theme="dark"] &': {
-			background: 'rgba(20, 27, 41, 0.72)',
-			color: '#c8d1dc',
-		},
-	},
-});
-
-globalStyle(`${attribution} a`, {
-	color: 'inherit',
-	textDecoration: 'underline',
-	textDecorationStyle: 'dotted',
-});
-
 export const sectionTitle = style({
-	margin: `${vars.space.lg} 0 ${vars.space.md}`,
+	margin: `0 0 ${vars.space.md}`,
 	fontSize: '1.05rem',
 	fontWeight: 700,
 	color: vars.color.textStrong,
@@ -176,13 +200,8 @@ export const sectionTitle = style({
 });
 
 export const lifeline = style({
-	margin: `${vars.space.xl} 0 0`,
+	margin: 0,
 	padding: 0,
-	'@media': {
-		[`screen and (max-width: ${breakpoints.mobile})`]: {
-			padding: `0 ${vars.space.md}`,
-		},
-	},
 });
 
 export const lifelineList = style({
@@ -315,13 +334,8 @@ export const lifelineConnector = style({
 });
 
 export const timeline = style({
-	margin: `${vars.space.xl} 0 ${vars.space.xxl}`,
+	margin: 0,
 	padding: 0,
-	'@media': {
-		[`screen and (max-width: ${breakpoints.mobile})`]: {
-			padding: `0 ${vars.space.md} ${vars.space.xl}`,
-		},
-	},
 });
 
 export const timelineList = style({
@@ -409,6 +423,83 @@ export const timelineNote = style({
 	color: vars.color.textMuted,
 });
 
+/* ===== Sidebar widget styles (travel-stats, travel-recent) ===== */
+
+export const statsWidget = style({});
+
+export const statsGrid = style({
+	display: 'grid',
+	gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+	gap: '0.5rem',
+	padding: '0 0.25rem',
+});
+
+export const statCard = style({
+	display: 'flex',
+	flexDirection: 'column',
+	gap: '4px',
+	padding: '0.65rem 0.75rem',
+	borderRadius: borderCardSmall,
+	background: vars.color.surface,
+	color: vars.color.text,
+});
+
+export const statValue = style({
+	fontSize: '1.35rem',
+	fontWeight: 800,
+	lineHeight: 1,
+	color: vars.color.accentStrong,
+	fontFamily: vars.font.mono,
+	letterSpacing: '-0.02em',
+});
+
+export const statLabel = style({
+	fontSize: '0.72rem',
+	color: vars.color.textMeta,
+	fontWeight: 500,
+});
+
+export const regionsList = style({
+	listStyle: 'none',
+	margin: '0.75rem 0 0',
+	padding: '0 0.25rem',
+});
+
+export const regionItem = style({
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'space-between',
+	padding: '0.35rem 0.5rem',
+	borderRadius: '8px',
+	fontSize: '0.8rem',
+	color: vars.color.text,
+	selectors: {
+		'& + &': {
+			marginTop: '2px',
+		},
+	},
+});
+
+export const regionLabel = style({
+	display: 'inline-flex',
+	alignItems: 'center',
+	gap: '0.4rem',
+});
+
+export const regionDot = style({
+	width: '6px',
+	height: '6px',
+	borderRadius: '50%',
+	background: vars.color.accent,
+	flexShrink: 0,
+});
+
+export const regionCount = style({
+	fontFamily: vars.font.mono,
+	fontSize: '0.78rem',
+	color: vars.color.textMeta,
+});
+
 /* ===== Leaflet marker globals ===== */
 
 globalStyle('.travel-marker', {
@@ -490,33 +581,47 @@ globalStyle('.residence-marker:hover .residence-dot', {
 	transform: 'scale(1.1)',
 });
 
-globalStyle('.leaflet-container', {
+/* ===== AMap container + InfoWindow theming ===== */
+
+globalStyle('.amap-container', {
 	fontFamily: vars.font.body,
 	fontSize: '13px',
 	background: vars.color.surfaceMuted,
 });
 
-globalStyle('.leaflet-popup-content-wrapper', {
-	borderRadius: borderCardSmall,
-	boxShadow: '0 14px 28px rgba(15, 23, 42, 0.18)',
+globalStyle('.amap-info-content', {
 	padding: 0,
-	overflow: 'hidden',
+	borderRadius: borderCardSmall,
 	background: vars.color.surfaceStrong,
-});
-
-globalStyle('.leaflet-popup-content', {
-	margin: 0,
-	padding: '0.7rem 0.9rem',
 	color: vars.color.text,
-	lineHeight: 1.45,
+	boxShadow: '0 14px 28px rgba(15, 23, 42, 0.18)',
+	overflow: 'hidden',
+});
+
+globalStyle('.amap-info-outer', {
+	boxShadow: 'none !important',
+	background: 'transparent !important',
+});
+
+globalStyle('.amap-info-sharp', {
+	borderTopColor: `${vars.color.surfaceStrong} !important`,
+});
+
+globalStyle('.amap-info-close', {
+	top: '8px !important',
+	right: '10px !important',
+	color: `${vars.color.textMuted} !important`,
+	fontSize: '16px !important',
+	lineHeight: '1 !important',
+});
+
+globalStyle('.pop-card', {
+	padding: '0.7rem 0.9rem',
 	minWidth: '200px',
+	lineHeight: 1.45,
 });
 
-globalStyle('.leaflet-popup-tip', {
-	background: vars.color.surfaceStrong,
-});
-
-globalStyle('.leaflet-popup-content .pop-head', {
+globalStyle('.pop-card .pop-head', {
 	display: 'flex',
 	flexWrap: 'wrap',
 	alignItems: 'baseline',
@@ -524,26 +629,26 @@ globalStyle('.leaflet-popup-content .pop-head', {
 	marginBottom: '0.35rem',
 });
 
-globalStyle('.leaflet-popup-content .pop-tag', {
+globalStyle('.pop-card .pop-tag', {
 	padding: '0.1rem 0.4rem',
 	borderRadius: '6px',
 	fontSize: '0.7rem',
 	fontWeight: 700,
 });
 
-globalStyle('.leaflet-popup-content .pop-city', {
+globalStyle('.pop-card .pop-city', {
 	fontSize: '1rem',
 	fontWeight: 700,
 	color: vars.color.textStrong,
 });
 
-globalStyle('.leaflet-popup-content .pop-en', {
+globalStyle('.pop-card .pop-en', {
 	fontSize: '0.78rem',
 	color: vars.color.textMeta,
 	fontFamily: vars.font.mono,
 });
 
-globalStyle('.leaflet-popup-content .pop-row', {
+globalStyle('.pop-card .pop-row', {
 	display: 'flex',
 	alignItems: 'center',
 	gap: '0.4rem',
@@ -552,36 +657,25 @@ globalStyle('.leaflet-popup-content .pop-row', {
 	marginTop: '2px',
 });
 
-globalStyle('.leaflet-popup-content .pop-row strong', {
+globalStyle('.pop-card .pop-row strong', {
 	fontFamily: vars.font.mono,
 	color: vars.color.accentStrong,
 	fontWeight: 700,
 });
 
-globalStyle('.leaflet-popup-content .pop-note', {
+globalStyle('.pop-card .pop-note', {
 	marginTop: '0.45rem',
 	fontSize: '0.82rem',
 	lineHeight: 1.45,
 	color: vars.color.text,
 });
 
-globalStyle('.leaflet-control-zoom a', {
-	background: vars.color.surfaceStrong,
-	color: vars.color.text,
-	border: `1px solid ${vars.color.border}`,
+/* 隐藏高德 logo 与版权（注意：使用免费 key 时请保留官方版权信息 / 已在条款约定下） */
+globalStyle('.amap-logo, .amap-copyright', {
+	opacity: '0.55',
+	transition: 'opacity 0.2s ease',
 });
 
-globalStyle('.leaflet-control-zoom a:hover', {
-	background: vars.color.backgroundElevated,
-	color: vars.color.accentStrong,
-});
-
-globalStyle('.leaflet-bar', {
-	borderRadius: '8px',
-	overflow: 'hidden',
-	boxShadow: '0 4px 12px rgba(15, 23, 42, 0.12)',
-});
-
-globalStyle('.leaflet-control-attribution', {
-	display: 'none',
+globalStyle('.amap-logo:hover, .amap-copyright:hover', {
+	opacity: '1',
 });

@@ -86,7 +86,7 @@ export const explorePageConfig: ExplorePageConfig = {
 			description: '点亮过的城市与时间',
 			href: '/travel/',
 			icon: 'travel',
-			layout: 'default',
+			layout: 'wide',
 			routeKind: 'file',
 		},
 	],

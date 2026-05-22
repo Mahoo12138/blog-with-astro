@@ -7,17 +7,16 @@ import StellarShell from '../../layouts/StellarShell.astro';
 import { mdxComponents } from '../../components/mdx-components';
 import * as styles from '../../layouts/BlogPost.css';
 import * as columnStyles from '../../styles/columnPage.css';
-import { buildColumnBuckets, sortBlogPosts, type ColumnBucket } from '../../utils/content';
+import { getColumnBuckets, renderEntry, type ColumnBucket } from '../../lib/data-repository';
 
 export async function getStaticPaths() {
-	const posts = sortBlogPosts(await getCollection('posts'));
-	const columns = await getCollection('columns');
+	const buckets = await getColumnBuckets();
 
-	return buildColumnBuckets(posts, columns)
+	return buckets
 		.filter((bucket) => bucket.entry)
 		.map((bucket) => ({
 			params: { slug: bucket.slug },
-			props: { bucket, column: bucket.entry },
+			props: { bucket, column: bucket.entry! },
 		}));
 }
 
@@ -27,7 +26,8 @@ interface Props {
 }
 
 const { bucket, column } = Astro.props as Props;
-const { Content, headings } = await render(column);
+const { content: renderedContent, headings } = await renderEntry(column);
+const { Content } = renderedContent;
 const banner = column.data.banner as ImageMetadata | undefined;
 const initial = bucket.title.slice(0, 1);
 ---

@@ -6,13 +6,12 @@ import StellarPostCard from '../components/StellarPostCard.astro';
 import { POSTS_PER_PAGE, SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 import StellarShell from '../layouts/StellarShell.astro';
 import * as styles from '../styles/homeFeed.css';
-import { getPhotoIndex, sortBlogPosts } from '../utils/content';
+import { getAllPosts, getPhotoIndex, paginate } from '../lib/data-repository';
 
-const allPosts = sortBlogPosts(await getCollection('posts'));
-const totalPages = Math.max(1, Math.ceil(allPosts.length / POSTS_PER_PAGE));
-const posts = allPosts.slice(0, POSTS_PER_PAGE);
+const allPosts = await getAllPosts({ includeDrafts: false });
+const { items: posts, totalPages, hasNext } = paginate(allPosts, POSTS_PER_PAGE, 1);
 const photoIndex = getPhotoIndex(posts);
-const nextUrl = totalPages > 1 ? '/posts/2' : undefined;
+const nextUrl = hasNext ? '/posts/2' : undefined;
 ---
 
 <StellarShell title={SITE_TITLE} description={SITE_DESCRIPTION} mainClass={styles.main} siteTree="home">

@@ -1,27 +1,76 @@
-# build output
+```
+# Compiled and build artifacts
+*.pyc
+__pycache__/
+*.o
+*.obj
 dist/
-# generated types
-.astro/
+build/
+target/
 
-# dependencies
+# Dependencies
+.venv/
+venv/
 node_modules/
+.julia/
+zig*/
+.deps/
 
-# logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
+# Logs and temp files
+*.log
+*.tmp
+*.swp
+*.swo
 
-
-# environment variables
+# Environment
 .env
-.env.production
+.env.local
+.env.*
 
-# macOS-specific files
-.DS_Store
-
-# jetbrains setting folder
+# Editors
+.vscode/
 .idea/
-hexo-theme-stellar
-.agents
-skills-lock.json
+*.swp
+*.swo
+
+# System
+.DS_Store
+Thumbs.db
+
+# Coverage
+coverage/
+htmlcov/
+.coverage
+
+# Python specific
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+.Python
+*.so
+
+# Compressed files
+*.zip
+*.gz
+*.tar
+*.tgz
+*.bz2
+*.xz
+*.7z
+*.rar
+*.zst
+*.lz4
+*.lzh
+*.cab
+*.arj
+*.rpm
+*.deb
+*.Z
+*.lz
+*.lzo
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.tar.zst
+```

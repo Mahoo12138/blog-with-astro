@@ -107,6 +107,13 @@ export const stellarConfig = {
 					{ label: 'RSS', url: '/rss.xml' },
 				],
 			},
+			{
+				title: '其他',
+				items: [
+					{ label: '隐私政策', url: '/privacy' },
+					{ label: '服务条款', url: '/terms' },
+				],
+			},
 		] satisfies FooterSitemapGroup[],
 		social: [
 			{

@@ -1,0 +1,93 @@
+---
+import StellarShell from '../layouts/StellarShell.astro';
+import { SITE_TITLE } from '../consts';
+import * as styles from '../styles/legal.css';
+
+const updatedAt = '2026-05-25';
+const pageTitle = `隐私政策 · ${SITE_TITLE}`;
+const description = `${SITE_TITLE} 的隐私政策：说明本站如何收集、使用与保护访问者的信息。`;
+---
+
+<StellarShell title={pageTitle} description={description} mainClass={styles.main} siteTree="page">
+	<section class={styles.root}>
+		<header class={styles.header}>
+			<p class={styles.kicker}><span>Privacy</span> · 隐私政策</p>
+			<h1 class={styles.title}>隐私政策</h1>
+			<p class={styles.meta}>最近更新：{updatedAt}</p>
+		</header>
+
+		<article class={styles.article}>
+			<p class={styles.intro}>
+				欢迎访问 {SITE_TITLE}（以下简称"本站"）。我们尊重并保护所有访问者的个人隐私。本隐私政策说明本站会收集哪些信息、如何使用这些信息，以及你拥有的权利。继续访问本站即表示你已阅读并同意本政策。
+			</p>
+
+			<div class={styles.section}>
+				<h2 class={styles.sectionTitle}>我们收集的信息</h2>
+				<div class={styles.sectionBody}>
+					<p>本站为个人博客，不要求注册账户，也不会主动收集任何可直接识别个人身份的信息。我们仅会接触到以下数据：</p>
+					<ul class={styles.list}>
+						<li>访问日志：服务器在处理请求时记录的 IP 地址、User-Agent、Referer、访问时间等技术信息，用于安全防护和故障排查。</li>
+						<li>本地存储：浏览器的 localStorage 用于保存你的主题偏好（亮色 / 暗色）等设置，仅存储于你本地设备。</li>
+						<li>评论或留言（若启用）：当你主动提交评论时，所填写的昵称、邮箱、链接、内容会被保存与展示。</li>
+					</ul>
+				</div>
+			</div>
+
+			<div class={styles.section}>
+				<h2 class={styles.sectionTitle}>第三方服务</h2>
+				<div class={styles.sectionBody}>
+					<p>本站使用以下第三方服务，访问这些资源时可能会向相应服务方传递必要的请求信息（如 IP、User-Agent）：</p>
+					<ul class={styles.list}>
+						<li>高德地图（AMap）：在"旅行地图"等页面用于地图渲染。</li>
+						<li>CDN 与字体托管：用于加速静态资源加载。</li>
+						<li>统计与分析（若启用）：仅用于了解整体访问情况，不与具体个人关联。</li>
+					</ul>
+					<p>这些服务的隐私实践由其自身政策约束，本站无法控制其数据处理方式。</p>
+				</div>
+			</div>
+
+			<div class={styles.section}>
+				<h2 class={styles.sectionTitle}>Cookie 与本地存储</h2>
+				<div class={styles.sectionBody}>
+					<p>本站本身不主动设置追踪型 Cookie。仅会使用 localStorage 保存你的界面偏好（如主题），这些数据不会被发送至服务器。你可以随时通过浏览器设置清除这些数据。</p>
+				</div>
+			</div>
+
+			<div class={styles.section}>
+				<h2 class={styles.sectionTitle}>信息的使用</h2>
+				<div class={styles.sectionBody}>
+					<p>访问日志与统计数据仅用于：</p>
+					<ul class={styles.list}>
+						<li>保障网站安全、定位异常访问。</li>
+						<li>了解阅读偏好，改善内容与展示。</li>
+						<li>履行法律法规要求的信息保留义务。</li>
+					</ul>
+					<p>我们不会将上述信息出售、出租或与无关第三方共享。</p>
+				</div>
+			</div>
+
+			<div class={styles.section}>
+				<h2 class={styles.sectionTitle}>你的权利</h2>
+				<div class={styles.sectionBody}>
+					<p>你可以：</p>
+					<ul class={styles.list}>
+						<li>通过浏览器随时清除本站的 Cookie 与本地存储。</li>
+						<li>要求删除你主动提交的评论或留言内容。</li>
+						<li>就本政策的任何条款提出疑问或意见。</li>
+					</ul>
+				</div>
+			</div>
+
+			<div class={styles.section}>
+				<h2 class={styles.sectionTitle}>政策更新</h2>
+				<div class={styles.sectionBody}>
+					<p>本政策可能因功能变化或法律法规更新而调整，调整后将在本页面公布最新版本与更新日期，恕不再单独通知。建议定期回访本页面以了解最新内容。</p>
+				</div>
+			</div>
+
+			<div class={styles.contact}>
+				如对本政策有任何疑问，欢迎通过 <a href="/about">关于</a> 页面提供的方式与我联系。
+			</div>
+		</article>
+	</section>
+</StellarShell>

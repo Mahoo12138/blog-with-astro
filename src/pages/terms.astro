@@ -1,0 +1,84 @@
+---
+import StellarShell from '../layouts/StellarShell.astro';
+import { SITE_TITLE } from '../consts';
+import * as styles from '../styles/legal.css';
+
+const updatedAt = '2026-05-25';
+const pageTitle = `服务条款 · ${SITE_TITLE}`;
+const description = `${SITE_TITLE} 的服务条款：访问与使用本站时所适用的约定。`;
+---
+
+<StellarShell title={pageTitle} description={description} mainClass={styles.main} siteTree="page">
+	<section class={styles.root}>
+		<header class={styles.header}>
+			<p class={styles.kicker}><span>Terms</span> · 服务条款</p>
+			<h1 class={styles.title}>服务条款</h1>
+			<p class={styles.meta}>最近更新：{updatedAt}</p>
+		</header>
+
+		<article class={styles.article}>
+			<p class={styles.intro}>
+				欢迎访问 {SITE_TITLE}（以下简称"本站"）。本站为个人创作与技术分享平台，访问与使用本站即表示你已阅读并同意以下条款。如不同意任何条款，请停止使用本站。
+			</p>
+
+			<div class={styles.section}>
+				<h2 class={styles.sectionTitle}>关于本站</h2>
+				<div class={styles.sectionBody}>
+					<p>本站由 {SITE_TITLE} 作者个人维护，旨在分享技术笔记、写作与生活记录，不代表任何机构或组织的立场，也不构成专业建议。</p>
+				</div>
+			</div>
+
+			<div class={styles.section}>
+				<h2 class={styles.sectionTitle}>内容版权</h2>
+				<div class={styles.sectionBody}>
+					<p>除特别注明外，本站发布的原创文章、图片与代码示例均归作者本人所有。在转载或引用时请遵守以下要求：</p>
+					<ul class={styles.list}>
+						<li>注明作者署名与原文链接。</li>
+						<li>非商业用途下可自由分享，商业用途请提前联系并获得许可。</li>
+						<li>不得对内容进行歪曲、篡改或用于违法用途。</li>
+					</ul>
+					<p>本站引用的第三方内容（如图片、引用语录等）版权归原作者所有，如有侵权请与我联系，确认后将及时处理。</p>
+				</div>
+			</div>
+
+			<div class={styles.section}>
+				<h2 class={styles.sectionTitle}>使用规范</h2>
+				<div class={styles.sectionBody}>
+					<p>在访问与互动过程中，请遵守以下原则：</p>
+					<ul class={styles.list}>
+						<li>不发布违反法律法规、含有恶意攻击、骚扰或歧视性内容的评论与留言。</li>
+						<li>不进行未授权的扫描、爬取或对服务进行干扰的行为。</li>
+						<li>不冒充他人身份或发布虚假信息。</li>
+					</ul>
+					<p>本站保留对违规内容进行删除或对违规访问采取限制措施的权利。</p>
+				</div>
+			</div>
+
+			<div class={styles.section}>
+				<h2 class={styles.sectionTitle}>免责声明</h2>
+				<div class={styles.sectionBody}>
+					<p>本站内容仅供学习与参考。读者基于本站内容采取的任何行动均由其自行承担风险，本站不对因使用、引用或依赖本站内容而产生的任何直接或间接损失负责。</p>
+					<p>本站包含的外部链接仅为方便阅读，其内容由对应站点维护，与本站无关，本站对其准确性、可用性或安全性不作保证。</p>
+				</div>
+			</div>
+
+			<div class={styles.section}>
+				<h2 class={styles.sectionTitle}>服务可用性</h2>
+				<div class={styles.sectionBody}>
+					<p>本站作为个人项目，可能因维护、升级或不可抗力等原因暂时中断或调整服务。我们会尽量确保稳定性，但不对服务不间断或无错误作出明示或默示的承诺。</p>
+				</div>
+			</div>
+
+			<div class={styles.section}>
+				<h2 class={styles.sectionTitle}>条款更新</h2>
+				<div class={styles.sectionBody}>
+					<p>本条款可能根据需要进行修订，更新后的版本将在本页面公布，并以页面顶部的"最近更新"日期为准。继续访问本站即视为接受最新版本条款。</p>
+				</div>
+			</div>
+
+			<div class={styles.contact}>
+				如对本条款有任何疑问，欢迎通过 <a href="/about">关于</a> 页面提供的方式与我联系。
+			</div>
+		</article>
+	</section>
+</StellarShell>

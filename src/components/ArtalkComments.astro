@@ -1,0 +1,88 @@
+---
+import 'artalk/Artalk.css';
+
+const server = import.meta.env.ARTALK_SERVER ?? '';
+const site = import.meta.env.ARTALK_SITE ?? '';
+const enabled = Boolean(server && site);
+
+interface Props {
+	pageKey?: string;
+	pageTitle?: string;
+}
+
+const { pageKey, pageTitle } = Astro.props;
+---
+
+{enabled && (
+	<section class="artalk-section" data-pagefind-ignore>
+		<div
+			id="artalk"
+			class="artalk-mount"
+			data-server={server}
+			data-site={site}
+			data-page-key={pageKey ?? ''}
+			data-page-title={pageTitle ?? ''}
+		></div>
+		<script>
+			import Artalk from 'artalk';
+
+			const mount = document.getElementById('artalk') as HTMLElement | null;
+			if (mount && mount.dataset.artalkInited !== '1') {
+				const root = document.documentElement;
+				const darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+				const resolveDark = () => {
+					const theme = root.getAttribute('data-theme');
+					if (theme === 'dark') return true;
+					if (theme === 'light') return false;
+					return darkQuery.matches;
+				};
+
+				mount.dataset.artalkInited = '1';
+				const instance = Artalk.init({
+					el: '#artalk',
+					pageKey: mount.dataset.pageKey || location.pathname,
+					pageTitle: mount.dataset.pageTitle || document.title,
+					server: mount.dataset.server!,
+					site: mount.dataset.site!,
+					darkMode: resolveDark(),
+					locale: 'zh-CN',
+				});
+
+				const applyDark = () => {
+					try { instance.setDarkMode(resolveDark()); } catch {}
+				};
+				new MutationObserver(applyDark).observe(root, {
+					attributes: true,
+					attributeFilter: ['data-theme'],
+				});
+				darkQuery.addEventListener('change', applyDark);
+			}
+		</script>
+	</section>
+)}
+
+<style>
+	.artalk-section {
+		margin: 1.5rem 1rem 2rem;
+		padding: 1.25rem 1.25rem 0.5rem;
+		border-radius: 16px;
+		background: rgba(255, 255, 255, 0.62);
+		border: 1px solid rgba(18, 25, 38, 0.08);
+	}
+
+	:global(:root[data-theme='dark']) .artalk-section {
+		background: rgba(18, 27, 40, 0.6);
+		border-color: rgba(148, 163, 184, 0.16);
+	}
+
+	@media (prefers-color-scheme: dark) {
+		:global(:root:not([data-theme='light'])) .artalk-section {
+			background: rgba(18, 27, 40, 0.6);
+			border-color: rgba(148, 163, 184, 0.16);
+		}
+	}
+
+	.artalk-mount {
+		min-height: 120px;
+	}
+</style>

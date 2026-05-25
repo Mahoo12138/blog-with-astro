@@ -1,6 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
+import ArtalkComments from '../components/ArtalkComments.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import KatexStyles from '../components/KatexStyles.astro';
 import type { SiteTreeKey } from '../config/stellar';
@@ -69,5 +70,6 @@ const blogPostingJsonLdSafe = JSON.stringify(blogPostingJsonLd).replace(/</g, '\
 		<div class:list={[styles.prose, 'md-text', 'content']}>
 			<slot />
 		</div>
+		<ArtalkComments pageKey={canonicalURL.pathname} pageTitle={title} />
 	</article>
 </StellarShell>

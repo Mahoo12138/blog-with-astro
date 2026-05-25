@@ -1,0 +1,15 @@
+name: iPhone 17 Pro Max
+alias: apple-iphone-17-pro-max
+brand: Apple
+brandAlias: apple
+releaseYear: 2025
+yearFrom: 2025
+yearTo: null
+stillOwn: true
+isPrimary: true
+color: "#c0c0c0"
+colorName: 银色
+like: y
+imagePath: apple/apple-iphone-17-pro-max.jpg
+addedAt: 2026-05-25
+order: 1

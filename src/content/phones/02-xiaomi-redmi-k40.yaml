@@ -1,0 +1,15 @@
+name: Redmi K40
+alias: xiaomi-redmi-k40
+brand: Xiaomi
+brandAlias: xiaomi
+releaseYear: 2021
+yearFrom: 2021
+yearTo: null
+stillOwn: true
+isPrimary: true
+color: "#000000"
+colorName: 黑色
+like: y
+imagePath: xiaomi/xiaomi-redmi-k40.jpg
+addedAt: 2022-07-30
+order: 2

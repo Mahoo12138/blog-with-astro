@@ -1,0 +1,15 @@
+name: M6 Note
+alias: meizu-m6-note
+brand: Meizu
+brandAlias: meizu
+releaseYear: 2017
+yearFrom: 2018
+yearTo: 2019
+stillOwn: true
+isPrimary: false
+color: "#000000"
+colorName: 曜石黑
+like: y
+imagePath: meizu/meizu-m6-note.jpg
+addedAt: 2020-07-04
+order: 4

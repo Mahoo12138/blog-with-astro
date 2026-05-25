@@ -1,0 +1,15 @@
+name: Mi A1 (Mi 5X)
+alias: xiaomi-mi-a1-mi-5x
+brand: Xiaomi
+brandAlias: xiaomi
+releaseYear: 2017
+yearFrom: 2018
+yearTo: 2019
+stillOwn: false
+isPrimary: false
+color: "#ffd700"
+colorName: 流沙金
+like: y
+imagePath: xiaomi/xiaomi-mi-a1-mi-5x.jpg
+addedAt: 2020-07-05
+order: 5

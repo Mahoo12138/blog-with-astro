@@ -1,0 +1,15 @@
+name: Nubia Z7 Max
+alias: zte-nubia-z7-max
+brand: ZTE
+brandAlias: zte
+releaseYear: 2014
+yearFrom: 2016
+yearTo: 2018
+stillOwn: false
+isPrimary: false
+color: "#000000"
+colorName: 钛金黑
+like: y
+imagePath: zte/zte-nubia-z7-max.jpg
+addedAt: 2020-07-04
+order: 8

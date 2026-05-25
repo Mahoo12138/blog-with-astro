@@ -126,6 +126,28 @@ const goods = defineCollection({
   }),
 });
 
+const phones = defineCollection({
+  loader: glob({ base: "./src/content/phones", pattern: "**/*.{yaml,yml}" }),
+  schema: z.object({
+    name: z.string(),
+    alias: z.string(),
+    brand: z.string(),
+    brandAlias: z.string(),
+    releaseYear: z.number().int(),
+    yearFrom: z.number().int(),
+    yearTo: z.number().int().nullable().default(null),
+    stillOwn: z.boolean().default(false),
+    isPrimary: z.boolean().default(false),
+    color: z.string(),
+    colorName: z.string().optional(),
+    like: z.enum(["y", "n", ""]).default(""),
+    review: z.string().optional(),
+    imagePath: z.string(),
+    addedAt: z.coerce.date().optional(),
+    order: z.number().int().default(0),
+  }),
+});
+
 const loveTimeline = defineCollection({
   loader: file("./src/content/love/timeline.yaml"),
   schema: z.object({
@@ -265,6 +287,7 @@ export const collections = {
   columns,
   notes,
   goods,
+  phones,
 	cities,
 	residences,
   loveTimeline,

@@ -1,0 +1,15 @@
+name: U280
+alias: zte-u280
+brand: ZTE
+brandAlias: zte
+releaseYear: 2011
+yearFrom: 2014
+yearTo: 2014
+stillOwn: false
+isPrimary: false
+color: "#000000"
+colorName: 哑光黑
+like: y
+imagePath: zte/zte-u280.jpg
+addedAt: 2020-07-05
+order: 10

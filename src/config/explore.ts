@@ -67,6 +67,14 @@ export const explorePageConfig: ExplorePageConfig = {
 			routeKind: 'file',
 		},
 		{
+			title: '玩机岁月',
+			description: '十四年间陪我走过的手机们',
+			href: '/phones/',
+			icon: 'phone',
+			layout: 'wide',
+			routeKind: 'file',
+		},
+		{
 			title: '我的穿搭',
 			description: '我的日常穿搭分享',
 			href: '/my-outfits/',

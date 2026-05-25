@@ -1,0 +1,15 @@
+name: MI-2s
+alias: xiaomi-mi-2s
+brand: Xiaomi
+brandAlias: xiaomi
+releaseYear: 2013
+yearFrom: 2018
+yearTo: 2018
+stillOwn: true
+isPrimary: false
+color: "#ffffff"
+colorName: 经典白
+like: y
+imagePath: xiaomi/xiaomi-mi-2s.jpg
+addedAt: 2020-07-04
+order: 6

@@ -1,0 +1,15 @@
+name: OnePlus 5
+alias: oneplus-5
+brand: OnePlus
+brandAlias: oneplus
+releaseYear: 2017
+yearFrom: 2019
+yearTo: 2022
+stillOwn: true
+isPrimary: false
+color: "#000000"
+colorName: 月岩灰
+like: y
+imagePath: oneplus/oneplus-5.jpg
+addedAt: 2020-07-04
+order: 3

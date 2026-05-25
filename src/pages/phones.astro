@@ -1,0 +1,810 @@
+---
+import { getCollection } from 'astro:content';
+import { getExploreInternalItemByHref } from '../config/explore';
+import ExploreShell from '../layouts/ExploreShell.astro';
+
+const item = getExploreInternalItemByHref('/phones/');
+if (!item) {
+	throw new Error('Explore item for /phones/ was not found.');
+}
+
+const MOWNED_IMAGE_BASE = 'https://mowned.com/html/phones/big/';
+
+const entries = await getCollection('phones');
+
+type PhoneEntry = (typeof entries)[number]['data'];
+
+const phones = entries
+	.map((e) => e.data)
+	.sort((a, b) => {
+		if (b.yearFrom !== a.yearFrom) return b.yearFrom - a.yearFrom;
+		return a.order - b.order;
+	});
+
+const CURRENT_YEAR = 2026;
+
+function deriveStatus(p: PhoneEntry) {
+	if (p.yearTo === null && p.isPrimary && p.stillOwn) return { key: 'primary', label: '现役主力' };
+	if (p.yearTo === null && p.stillOwn) return { key: 'active', label: '仍在使用' };
+	if (p.yearTo !== null && p.stillOwn) return { key: 'kept', label: '已收藏' };
+	return { key: 'retired', label: '已退役' };
+}
+
+function deriveEra(year: number) {
+	if (year >= 2024) return '当代';
+	if (year >= 2020) return '5G 时代';
+	if (year >= 2017) return '全面屏元年';
+	if (year >= 2014) return '安卓黄金期';
+	return '功能机末梢';
+}
+
+function ownershipYears(p: PhoneEntry) {
+	const end = p.yearTo ?? CURRENT_YEAR;
+	const span = end - p.yearFrom;
+	if (span <= 0) return '不足一年';
+	return `${span} 年`;
+}
+
+function yearRange(p: PhoneEntry) {
+	if (p.yearTo === null) return `${p.yearFrom} — 至今`;
+	if (p.yearTo === p.yearFrom) return `${p.yearFrom}`;
+	return `${p.yearFrom} — ${p.yearTo}`;
+}
+
+const totalCount = phones.length;
+const yearMin = Math.min(...phones.map((p) => p.yearFrom));
+const yearMax = Math.max(...phones.map((p) => p.yearFrom));
+const yearSpan = yearMax - yearMin;
+const brandCount = new Set(phones.map((p) => p.brandAlias)).size;
+const activeCount = phones.filter((p) => p.yearTo === null).length;
+const lovedCount = phones.filter((p) => p.like === 'y').length;
+
+const memoir = phones.find((p) => p.review && p.review.trim() !== '');
+
+const brandSummary = Array.from(
+	phones.reduce((m, p) => {
+		const k = p.brandAlias;
+		const cur = m.get(k) ?? { brand: p.brand, count: 0 };
+		cur.count += 1;
+		m.set(k, cur);
+		return m;
+	}, new Map<string, { brand: string; count: number }>()).values(),
+).sort((a, b) => b.count - a.count);
+---
+
+<ExploreShell item={item}>
+	<div class="phones-page">
+		<!-- Breadcrumb -->
+		<nav class="breadcrumb" aria-label="面包屑导航">
+			<a href="/" class="bc-link">首页</a>
+			<span class="bc-sep" aria-hidden="true">/</span>
+			<a href="/explore/" class="bc-link">探索</a>
+			<span class="bc-sep" aria-hidden="true">/</span>
+			<span class="bc-current">玩机岁月</span>
+		</nav>
+
+		<!-- Header -->
+		<header class="page-header">
+			<h1 class="page-title">
+				<span class="title-icon" aria-hidden="true">📱</span>
+				玩机岁月
+			</h1>
+			<p class="page-desc">
+				从一台诺基亚 6230i 开始，<strong>{yearSpan} 年</strong>间陪我入眠又被我遗忘的 <strong>{totalCount}</strong> 台手机。
+				数据来源于
+				<a href="https://mowned.com/mahoo12138" target="_blank" rel="noopener noreferrer">mowned.com</a>。
+			</p>
+		</header>
+
+		<!-- Stats ribbon -->
+		<section class="stats-card" aria-label="数据汇总">
+			<div class="stats-row">
+				<div class="stat-cell">
+					<span class="stat-num">{totalCount}</span>
+					<span class="stat-lbl">总数</span>
+				</div>
+				<div class="stat-cell">
+					<span class="stat-num">{yearSpan}</span>
+					<span class="stat-lbl">跨越年份</span>
+				</div>
+				<div class="stat-cell">
+					<span class="stat-num">{brandCount}</span>
+					<span class="stat-lbl">品牌</span>
+				</div>
+				<div class="stat-cell">
+					<span class="stat-num accent-warm">{activeCount}</span>
+					<span class="stat-lbl">现役</span>
+				</div>
+				<div class="stat-cell">
+					<span class="stat-num accent-warm">{lovedCount}</span>
+					<span class="stat-lbl">挚爱</span>
+				</div>
+			</div>
+			<div class="stats-divider" aria-hidden="true"></div>
+			<div class="brand-list">
+				{
+					brandSummary.map((b) => (
+						<span class="brand-chip">
+							{b.brand}
+							<span class="brand-chip-num">×{b.count}</span>
+						</span>
+					))
+				}
+			</div>
+		</section>
+
+		<!-- Memoir quote (Nokia review) -->
+		{
+			memoir && (
+				<aside class="memoir">
+					<svg class="memoir-quote" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+						<path d="M9.5 6c-3 1.5-5 4.5-5 8 0 2.2 1.5 4 3.7 4 1.8 0 3.3-1.4 3.3-3.2 0-1.6-1.2-3-2.8-3-.3 0-.7.1-1 .2.7-2 2.2-3.6 4.4-4.5L9.5 6Zm9 0c-3 1.5-5 4.5-5 8 0 2.2 1.5 4 3.7 4 1.8 0 3.3-1.4 3.3-3.2 0-1.6-1.2-3-2.8-3-.3 0-.7.1-1 .2.7-2 2.2-3.6 4.4-4.5L18.5 6Z" />
+					</svg>
+					<blockquote class="memoir-body">
+						<p>{memoir.review}</p>
+						<footer>
+							<span class="memoir-attr">— 关于 {memoir.brand} {memoir.name}</span>
+							<span class="memoir-year">{memoir.yearFrom} — {memoir.yearTo ?? '至今'}</span>
+						</footer>
+					</blockquote>
+				</aside>
+			)
+		}
+
+		<!-- Catalog header -->
+		<div class="catalog-head">
+			<h2 class="catalog-title">服役年表</h2>
+			<span class="catalog-meta">按入手时间倒序 · 共 {totalCount} 部</span>
+		</div>
+
+		<!-- Timeline / catalog -->
+		<ol class="catalog" reversed>
+			{
+				phones.map((p, i) => {
+					const prev = phones[i - 1];
+					const showYearMarker = !prev || prev.yearFrom !== p.yearFrom;
+					const status = deriveStatus(p);
+					const era = deriveEra(p.yearFrom);
+					const ownYears = ownershipYears(p);
+					const cardIndex = String(i + 1).padStart(2, '0');
+					const imgUrl = `${MOWNED_IMAGE_BASE}${p.imagePath}`;
+					return (
+						<li
+							class={`spec spec-${status.key}`}
+							data-year={p.yearFrom}
+							style={`--enter-delay: ${Math.min(i * 60, 480)}ms`}
+						>
+							<div class="spec-axis">
+								{showYearMarker ? (
+									<div class="year-stamp">
+										<span class="year-stamp-num">{p.yearFrom}</span>
+									</div>
+								) : (
+									<div class="year-stamp year-stamp-cont" aria-hidden="true">
+										<span class="year-stamp-dot" />
+									</div>
+								)}
+								<div class="spec-thread" aria-hidden="true" />
+							</div>
+
+							<article class="spec-card">
+								<div class="spec-card-header">
+									<div class="spec-no">
+										<span class="spec-no-label">No.</span>
+										<span class="spec-no-num">{cardIndex}</span>
+									</div>
+									<div class={`spec-status spec-status-${status.key}`}>
+										<span class="spec-status-dot" aria-hidden="true" />
+										{status.label}
+									</div>
+								</div>
+
+								<div class="spec-body">
+									<figure class="spec-figure">
+										<img
+											class="spec-image"
+											src={imgUrl}
+											alt={`${p.brand} ${p.name}`}
+											loading="lazy"
+											decoding="async"
+											referrerpolicy="no-referrer"
+										/>
+									</figure>
+
+									<div class="spec-info">
+										<div class="spec-brand">{p.brand}</div>
+										<h3 class="spec-name">{p.name}</h3>
+
+										<div class="spec-meta">
+											<div class="spec-meta-row">
+												<span class="spec-meta-lbl">在役</span>
+												<span class="spec-meta-val">{yearRange(p)}</span>
+												<span class="spec-meta-pill">{ownYears}</span>
+											</div>
+											<div class="spec-meta-row">
+												<span class="spec-meta-lbl">发布</span>
+												<span class="spec-meta-val">{p.releaseYear}</span>
+												<span class="spec-meta-era">{era}</span>
+											</div>
+											<div class="spec-meta-row">
+												<span class="spec-meta-lbl">机身</span>
+												<span
+													class="spec-color-swatch"
+													style={`--swatch:${p.color};`}
+													aria-hidden="true"
+												/>
+												<span class="spec-meta-val">{p.colorName ?? p.color}</span>
+												<span class="spec-meta-hex">{p.color.toUpperCase()}</span>
+											</div>
+											{p.like === 'y' && (
+												<div class="spec-meta-row">
+													<span class="spec-meta-lbl">心情</span>
+													<span class="spec-meta-val spec-loved">
+														<svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+															<path d="M8 14s-5.5-3.6-5.5-7.4C2.5 4.6 4.1 3 6.1 3c1.1 0 2.1.5 2.7 1.4.6-.9 1.6-1.4 2.7-1.4 2 0 3.6 1.6 3.6 3.6C15.1 10.4 8 14 8 14Z" />
+														</svg>
+														喜爱
+													</span>
+												</div>
+											)}
+										</div>
+									</div>
+								</div>
+							</article>
+						</li>
+					);
+				})
+			}
+		</ol>
+
+		<!-- Footer note -->
+		<p class="end-note">— 档案到此为止，新机入手时会自动续编 —</p>
+	</div>
+</ExploreShell>
+
+<style>
+	/* ===== layout ===== */
+	.phones-page {
+		padding: 1.25rem 1.5rem 3rem;
+		max-width: 64rem;
+	}
+
+	/* ===== breadcrumb (same pattern as /my-goods) ===== */
+	.breadcrumb {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		margin-bottom: 1.25rem;
+		font-size: 13px;
+		color: rgba(18, 25, 38, 0.5);
+	}
+	:global([data-theme='dark']) .breadcrumb { color: rgba(241, 245, 249, 0.45); }
+	.bc-link { color: inherit; text-decoration: none; }
+	.bc-link:hover { color: #2196f3; }
+	.bc-sep { opacity: 0.5; }
+	.bc-current { color: rgba(18, 25, 38, 0.72); }
+	:global([data-theme='dark']) .bc-current { color: rgba(241, 245, 249, 0.72); }
+
+	/* ===== page header ===== */
+	.page-header { margin-bottom: 1.5rem; }
+	.page-title {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		margin: 0 0 0.5rem;
+		font-size: 28px;
+		font-weight: 800;
+		line-height: 1.2;
+		color: rgba(18, 25, 38, 0.96);
+	}
+	:global([data-theme='dark']) .page-title { color: rgba(241, 245, 249, 0.96); }
+	.title-icon { font-size: 24px; }
+	.page-desc {
+		margin: 0;
+		font-size: 14px;
+		line-height: 1.7;
+		color: rgba(18, 25, 38, 0.62);
+		max-width: 50rem;
+	}
+	:global([data-theme='dark']) .page-desc { color: rgba(241, 245, 249, 0.6); }
+	.page-desc strong { color: #2196f3; font-weight: 700; }
+	:global([data-theme='dark']) .page-desc strong { color: #7ecbff; }
+	.page-desc a {
+		color: #2196f3;
+		text-decoration: none;
+		border-bottom: 1px dotted currentColor;
+	}
+	.page-desc a:hover { border-bottom-style: solid; }
+	:global([data-theme='dark']) .page-desc a { color: #7ecbff; }
+
+	/* ===== stats card ===== */
+	.stats-card {
+		margin: 1.5rem 0 2rem;
+		padding: 1.25rem 1.5rem;
+		background: #ffffff;
+		border-radius: 16px;
+		box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+		border: 1px solid rgba(18, 25, 38, 0.06);
+	}
+	:global([data-theme='dark']) .stats-card {
+		background: #151e2b;
+		border-color: rgba(148, 163, 184, 0.12);
+		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+	}
+	.stats-row {
+		display: grid;
+		grid-template-columns: repeat(5, 1fr);
+		gap: 0.5rem;
+	}
+	.stat-cell {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.25rem;
+		padding: 0.25rem;
+		border-right: 1px solid rgba(18, 25, 38, 0.06);
+	}
+	:global([data-theme='dark']) .stat-cell { border-right-color: rgba(148, 163, 184, 0.12); }
+	.stat-cell:last-child { border-right: none; }
+	.stat-num {
+		font-size: clamp(24px, 3vw, 32px);
+		font-weight: 800;
+		line-height: 1;
+		color: #2196f3;
+		letter-spacing: -0.04em;
+		font-variant-numeric: tabular-nums;
+	}
+	:global([data-theme='dark']) .stat-num { color: #7ecbff; }
+	.stat-num.accent-warm { color: #f59e0b; }
+	:global([data-theme='dark']) .stat-num.accent-warm { color: #fbbf24; }
+	.stat-lbl {
+		font-size: 12px;
+		font-weight: 500;
+		color: rgba(18, 25, 38, 0.45);
+	}
+	:global([data-theme='dark']) .stat-lbl { color: rgba(241, 245, 249, 0.42); }
+
+	.stats-divider {
+		height: 1px;
+		background: rgba(18, 25, 38, 0.06);
+		margin: 1rem 0 0.9rem;
+	}
+	:global([data-theme='dark']) .stats-divider { background: rgba(148, 163, 184, 0.12); }
+
+	.brand-list {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.45rem;
+	}
+	.brand-chip {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35rem;
+		padding: 0.2rem 0.65rem;
+		border-radius: 999px;
+		background: rgba(33, 150, 243, 0.08);
+		font-size: 12px;
+		font-weight: 600;
+		color: rgba(18, 25, 38, 0.78);
+	}
+	:global([data-theme='dark']) .brand-chip {
+		background: rgba(126, 203, 255, 0.12);
+		color: rgba(241, 245, 249, 0.82);
+	}
+	.brand-chip-num {
+		color: #2196f3;
+		font-weight: 700;
+		font-size: 11px;
+	}
+	:global([data-theme='dark']) .brand-chip-num { color: #7ecbff; }
+
+	/* ===== memoir quote ===== */
+	.memoir {
+		position: relative;
+		margin: 0 0 2rem;
+		padding: 1.25rem 1.5rem 1.25rem 3rem;
+		background: rgba(33, 150, 243, 0.04);
+		border-left: 3px solid #2196f3;
+		border-radius: 0 16px 16px 0;
+	}
+	:global([data-theme='dark']) .memoir {
+		background: rgba(126, 203, 255, 0.06);
+		border-left-color: #7ecbff;
+	}
+	.memoir-quote {
+		position: absolute;
+		top: 1.1rem;
+		left: 1.2rem;
+		width: 20px;
+		height: 20px;
+		color: #2196f3;
+		opacity: 0.55;
+	}
+	:global([data-theme='dark']) .memoir-quote { color: #7ecbff; }
+	.memoir-body { margin: 0; }
+	.memoir-body p {
+		margin: 0;
+		font-size: 15.5px;
+		line-height: 1.75;
+		color: rgba(18, 25, 38, 0.85);
+		font-style: italic;
+	}
+	:global([data-theme='dark']) .memoir-body p { color: rgba(241, 245, 249, 0.85); }
+	.memoir-body footer {
+		margin-top: 0.65rem;
+		display: flex;
+		justify-content: space-between;
+		gap: 1rem;
+		flex-wrap: wrap;
+		font-size: 12.5px;
+		color: rgba(18, 25, 38, 0.5);
+	}
+	:global([data-theme='dark']) .memoir-body footer { color: rgba(241, 245, 249, 0.45); }
+	.memoir-year { color: #2196f3; font-weight: 600; }
+	:global([data-theme='dark']) .memoir-year { color: #7ecbff; }
+
+	/* ===== catalog head ===== */
+	.catalog-head {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: 1rem;
+		margin: 0 0 1.25rem;
+		flex-wrap: wrap;
+	}
+	.catalog-title {
+		margin: 0;
+		font-size: 18px;
+		font-weight: 700;
+		color: rgba(18, 25, 38, 0.9);
+	}
+	:global([data-theme='dark']) .catalog-title { color: rgba(241, 245, 249, 0.9); }
+	.catalog-meta {
+		font-size: 12.5px;
+		color: rgba(18, 25, 38, 0.45);
+	}
+	:global([data-theme='dark']) .catalog-meta { color: rgba(241, 245, 249, 0.45); }
+
+	/* ===== catalog / timeline ===== */
+	.catalog {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 1.1rem;
+	}
+
+	.spec {
+		display: grid;
+		grid-template-columns: 72px 1fr;
+		gap: 1rem;
+		opacity: 0;
+		transform: translateY(8px);
+		animation: spec-enter 600ms cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+		animation-delay: var(--enter-delay, 0ms);
+	}
+	@keyframes spec-enter {
+		to { opacity: 1; transform: translateY(0); }
+	}
+
+	/* axis */
+	.spec-axis {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		padding-top: 0.65rem;
+	}
+	.year-stamp {
+		position: sticky;
+		top: 1rem;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+	}
+	.year-stamp-num {
+		font-size: 18px;
+		font-weight: 800;
+		line-height: 1;
+		color: rgba(18, 25, 38, 0.9);
+		letter-spacing: -0.02em;
+		font-variant-numeric: tabular-nums;
+		padding: 0.35rem 0.55rem;
+		background: #ffffff;
+		border-radius: 999px;
+		box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+		border: 1px solid rgba(18, 25, 38, 0.08);
+	}
+	:global([data-theme='dark']) .year-stamp-num {
+		background: #1c2433;
+		color: rgba(241, 245, 249, 0.9);
+		border-color: rgba(148, 163, 184, 0.16);
+		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+	}
+	.year-stamp-cont {
+		justify-content: center;
+	}
+	.year-stamp-dot {
+		width: 8px;
+		height: 8px;
+		border-radius: 50%;
+		background: rgba(33, 150, 243, 0.55);
+		box-shadow: 0 0 0 4px rgba(33, 150, 243, 0.12);
+	}
+	:global([data-theme='dark']) .year-stamp-dot {
+		background: rgba(126, 203, 255, 0.65);
+		box-shadow: 0 0 0 4px rgba(126, 203, 255, 0.12);
+	}
+	.spec-thread {
+		flex: 1;
+		width: 2px;
+		margin-top: 0.65rem;
+		background: repeating-linear-gradient(
+			to bottom,
+			rgba(18, 25, 38, 0.12) 0 4px,
+			transparent 4px 8px
+		);
+		border-radius: 999px;
+	}
+	:global([data-theme='dark']) .spec-thread {
+		background: repeating-linear-gradient(
+			to bottom,
+			rgba(148, 163, 184, 0.22) 0 4px,
+			transparent 4px 8px
+		);
+	}
+	.spec:last-child .spec-thread { display: none; }
+
+	/* spec card — matches /my-goods card style */
+	.spec-card {
+		background: #ffffff;
+		border-radius: 16px;
+		box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+		border: 1px solid rgba(18, 25, 38, 0.06);
+		padding: 1rem 1.25rem 1.1rem;
+		transition: transform 0.2s ease, box-shadow 0.2s ease;
+	}
+	:global([data-theme='dark']) .spec-card {
+		background: #151e2b;
+		border-color: rgba(148, 163, 184, 0.12);
+		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+	}
+	.spec-card:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 8px 24px rgba(15, 23, 42, 0.10);
+	}
+	:global([data-theme='dark']) .spec-card:hover {
+		box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+	}
+
+	.spec-card-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.75rem;
+		padding-bottom: 0.7rem;
+		border-bottom: 1px dashed rgba(18, 25, 38, 0.08);
+		margin-bottom: 0.85rem;
+		flex-wrap: wrap;
+	}
+	:global([data-theme='dark']) .spec-card-header { border-bottom-color: rgba(148, 163, 184, 0.14); }
+
+	.spec-no {
+		display: inline-flex;
+		align-items: baseline;
+		gap: 0.2rem;
+		font-size: 12px;
+		font-weight: 600;
+		color: rgba(18, 25, 38, 0.4);
+	}
+	:global([data-theme='dark']) .spec-no { color: rgba(241, 245, 249, 0.38); }
+	.spec-no-num {
+		font-size: 15px;
+		font-weight: 800;
+		color: rgba(18, 25, 38, 0.82);
+		letter-spacing: -0.02em;
+		font-variant-numeric: tabular-nums;
+	}
+	:global([data-theme='dark']) .spec-no-num { color: rgba(241, 245, 249, 0.85); }
+
+	.spec-status {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35rem;
+		padding: 0.2rem 0.6rem;
+		border-radius: 999px;
+		font-size: 11.5px;
+		font-weight: 600;
+		line-height: 1.4;
+	}
+	.spec-status-dot {
+		display: inline-block;
+		width: 6px;
+		height: 6px;
+		border-radius: 50%;
+		background: currentColor;
+	}
+	.spec-status-primary { background: rgba(33, 150, 243, 0.12); color: #2196f3; }
+	.spec-status-active  { background: #e8f8f0; color: #1a8c52; }
+	.spec-status-kept    { background: #fff8e6; color: #b07a00; }
+	.spec-status-retired { background: #f0f0f0; color: #777; }
+	:global([data-theme='dark']) .spec-status-primary { background: rgba(126, 203, 255, 0.16); color: #7ecbff; }
+	:global([data-theme='dark']) .spec-status-active  { background: rgba(26, 140, 82, 0.2); color: #4ade80; }
+	:global([data-theme='dark']) .spec-status-kept    { background: rgba(176, 122, 0, 0.18); color: #fbbf24; }
+	:global([data-theme='dark']) .spec-status-retired { background: rgba(148, 163, 184, 0.15); color: #94a3b8; }
+
+	/* body */
+	.spec-body {
+		display: grid;
+		grid-template-columns: 140px 1fr;
+		gap: 1.25rem;
+		align-items: center;
+	}
+
+	.spec-figure {
+		margin: 0;
+		padding: 0;
+	}
+	.spec-image {
+		display: block;
+		width: 100%;
+		height: 160px;
+		object-fit: contain;
+		object-position: center;
+		border-radius: 12px;
+		background: linear-gradient(135deg, #f0f4ff 0%, #e0eaff 100%);
+		padding: 0.5rem;
+		filter: drop-shadow(0 4px 12px rgba(15, 23, 42, 0.08));
+	}
+	:global([data-theme='dark']) .spec-image {
+		background: linear-gradient(135deg, rgba(126, 203, 255, 0.08) 0%, rgba(33, 103, 214, 0.08) 100%);
+		filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
+	}
+
+	.spec-info { min-width: 0; }
+	.spec-brand {
+		display: inline-block;
+		padding: 0.15rem 0.55rem;
+		border-radius: 999px;
+		background: rgba(33, 150, 243, 0.1);
+		color: #2196f3;
+		font-size: 11px;
+		font-weight: 700;
+		letter-spacing: 0.04em;
+		margin-bottom: 0.4rem;
+		text-transform: uppercase;
+	}
+	:global([data-theme='dark']) .spec-brand {
+		background: rgba(126, 203, 255, 0.14);
+		color: #7ecbff;
+	}
+	.spec-name {
+		margin: 0 0 0.75rem;
+		font-size: 18px;
+		font-weight: 700;
+		line-height: 1.25;
+		letter-spacing: -0.01em;
+		color: rgba(18, 25, 38, 0.92);
+	}
+	:global([data-theme='dark']) .spec-name { color: rgba(241, 245, 249, 0.92); }
+
+	.spec-meta {
+		display: flex;
+		flex-direction: column;
+		gap: 0.45rem;
+	}
+	.spec-meta-row {
+		display: flex;
+		align-items: center;
+		gap: 0.55rem;
+		flex-wrap: wrap;
+		font-size: 13px;
+	}
+	.spec-meta-lbl {
+		flex: 0 0 32px;
+		font-size: 11.5px;
+		font-weight: 600;
+		color: rgba(18, 25, 38, 0.42);
+	}
+	:global([data-theme='dark']) .spec-meta-lbl { color: rgba(241, 245, 249, 0.4); }
+	.spec-meta-val {
+		font-weight: 500;
+		color: rgba(18, 25, 38, 0.75);
+		font-variant-numeric: tabular-nums;
+	}
+	:global([data-theme='dark']) .spec-meta-val { color: rgba(241, 245, 249, 0.75); }
+	.spec-meta-pill {
+		padding: 0.05rem 0.5rem;
+		border-radius: 999px;
+		background: rgba(33, 150, 243, 0.1);
+		color: #2196f3;
+		font-size: 11px;
+		font-weight: 700;
+	}
+	:global([data-theme='dark']) .spec-meta-pill {
+		background: rgba(126, 203, 255, 0.14);
+		color: #7ecbff;
+	}
+	.spec-meta-era {
+		padding-left: 0.55rem;
+		border-left: 1px solid rgba(18, 25, 38, 0.1);
+		font-size: 11.5px;
+		font-weight: 500;
+		color: rgba(18, 25, 38, 0.55);
+	}
+	:global([data-theme='dark']) .spec-meta-era {
+		border-left-color: rgba(148, 163, 184, 0.18);
+		color: rgba(241, 245, 249, 0.52);
+	}
+	.spec-meta-hex {
+		margin-left: auto;
+		font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+		font-size: 11px;
+		color: rgba(18, 25, 38, 0.42);
+	}
+	:global([data-theme='dark']) .spec-meta-hex { color: rgba(241, 245, 249, 0.4); }
+
+	.spec-color-swatch {
+		display: inline-block;
+		width: 16px;
+		height: 16px;
+		border-radius: 50%;
+		background: var(--swatch);
+		border: 1.5px solid rgba(18, 25, 38, 0.08);
+		box-shadow: inset 0 0 0 1.5px #ffffff;
+		flex-shrink: 0;
+	}
+	:global([data-theme='dark']) .spec-color-swatch {
+		border-color: rgba(148, 163, 184, 0.18);
+		box-shadow: inset 0 0 0 1.5px #151e2b;
+	}
+
+	.spec-loved {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.25rem;
+		color: #e11d48;
+		font-weight: 600;
+	}
+	.spec-loved svg {
+		width: 13px;
+		height: 13px;
+	}
+	:global([data-theme='dark']) .spec-loved { color: #fb7185; }
+
+	/* end note */
+	.end-note {
+		text-align: center;
+		margin: 2.5rem 0 0;
+		font-size: 13px;
+		color: rgba(18, 25, 38, 0.3);
+	}
+	:global([data-theme='dark']) .end-note { color: rgba(241, 245, 249, 0.28); }
+
+	/* ===== responsive ===== */
+	@media (max-width: 900px) {
+		.stats-row { grid-template-columns: repeat(5, 1fr); gap: 0.25rem; }
+		.spec-body { grid-template-columns: 110px 1fr; gap: 0.85rem; }
+		.spec-image { height: 130px; }
+	}
+	@media (max-width: 620px) {
+		.phones-page { padding: 1rem 0.875rem 2.5rem; }
+		.stats-row { grid-template-columns: repeat(3, 1fr); }
+		.stat-cell:nth-child(3) { border-right: none; }
+		.stat-cell:nth-child(n+4) { border-top: 1px solid rgba(18, 25, 38, 0.06); padding-top: 0.65rem; margin-top: 0.5rem; }
+		:global([data-theme='dark']) .stat-cell:nth-child(n+4) { border-top-color: rgba(148, 163, 184, 0.12); }
+		.spec { grid-template-columns: 52px 1fr; gap: 0.6rem; }
+		.year-stamp-num { font-size: 14px; padding: 0.3rem 0.45rem; }
+		.spec-card { padding: 0.85rem 0.95rem 1rem; }
+		.spec-body { grid-template-columns: 1fr; gap: 0.85rem; }
+		.spec-image { height: 180px; }
+		.spec-meta-hex { margin-left: 0; }
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.spec { animation: none; opacity: 1; transform: none; }
+		.spec-card { transition: none; }
+	}
+</style>

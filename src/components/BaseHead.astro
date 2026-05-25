@@ -5,6 +5,7 @@ import FallbackImage from '../assets/blog-placeholder-1.jpg';
 import { SITE_AUTHOR, SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 import { Font } from 'astro:assets';
 import { ClientRouter } from 'astro:transitions';
+import UmamiAnalytics from './UmamiAnalytics.astro';
 
 interface Props {
 	title: string;
@@ -86,3 +87,5 @@ const safeStringify = (value: unknown) => JSON.stringify(value).replace(/</g, '\
 
 <!-- JSON-LD: WebSite -->
 <script is:inline type="application/ld+json" set:html={safeStringify(websiteJsonLd)} />
+
+<UmamiAnalytics />

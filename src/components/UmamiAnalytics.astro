@@ -1,0 +1,14 @@
+---
+const host = (import.meta.env.UMAMI_HOST ?? '').replace(/\/$/, '');
+const websiteId = import.meta.env.UMAMI_WEBSITE_ID ?? '';
+const enabled = Boolean(host && websiteId);
+---
+
+{enabled && (
+	<script
+		is:inline
+		defer
+		src={`${host}/script.js`}
+		data-website-id={websiteId}
+	></script>
+)}

@@ -26,8 +26,12 @@ const { pageKey, pageTitle } = Astro.props;
 		<script>
 			import Artalk from 'artalk';
 
-			const mount = document.getElementById('artalk') as HTMLElement | null;
-			if (mount && mount.dataset.artalkInited !== '1') {
+			let instance: ReturnType<typeof Artalk.init> | null = null;
+
+			const setup = () => {
+				const mount = document.getElementById('artalk') as HTMLElement | null;
+				if (!mount) return;
+
 				const root = document.documentElement;
 				const darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
 				const resolveDark = () => {
@@ -37,8 +41,12 @@ const { pageKey, pageTitle } = Astro.props;
 					return darkQuery.matches;
 				};
 
-				mount.dataset.artalkInited = '1';
-				const instance = Artalk.init({
+				if (instance) {
+					try { instance.destroy(); } catch {}
+					instance = null;
+				}
+
+				instance = Artalk.init({
 					el: '#artalk',
 					pageKey: mount.dataset.pageKey || location.pathname,
 					pageTitle: mount.dataset.pageTitle || document.title,
@@ -49,14 +57,21 @@ const { pageKey, pageTitle } = Astro.props;
 				});
 
 				const applyDark = () => {
-					try { instance.setDarkMode(resolveDark()); } catch {}
+					try { instance?.setDarkMode(resolveDark()); } catch {}
 				};
-				new MutationObserver(applyDark).observe(root, {
-					attributes: true,
-					attributeFilter: ['data-theme'],
-				});
+				const observer = new MutationObserver(applyDark);
+				observer.observe(root, { attributes: true, attributeFilter: ['data-theme'] });
 				darkQuery.addEventListener('change', applyDark);
-			}
+
+				document.addEventListener('astro:before-swap', () => {
+					observer.disconnect();
+					darkQuery.removeEventListener('change', applyDark);
+					try { instance?.destroy(); } catch {}
+					instance = null;
+				}, { once: true });
+			};
+
+			document.addEventListener('astro:page-load', setup);
 		</script>
 	</section>
 )}

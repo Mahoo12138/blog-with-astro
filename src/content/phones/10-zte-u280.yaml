@@ -10,6 +10,7 @@ isPrimary: false
 color: "#000000"
 colorName: 哑光黑
 like: y
+comment: 路上捡到的，后来同样丢了，玩了很多 Java 游戏，还登录过 QQ。
 imagePath: zte/zte-u280.jpg
 addedAt: 2020-07-05
 order: 10

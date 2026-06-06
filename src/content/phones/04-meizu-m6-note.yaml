@@ -10,6 +10,7 @@ isPrimary: false
 color: "#000000"
 colorName: 曜石黑
 like: y
+comment: 煤油的青春纪念，那枚 mBack 实体键是我用过最贴心的交互。
 imagePath: meizu/meizu-m6-note.jpg
 addedAt: 2020-07-04
 order: 4

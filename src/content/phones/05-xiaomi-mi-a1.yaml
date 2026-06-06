@@ -10,6 +10,7 @@ isPrimary: false
 color: "#ffd700"
 colorName: 流沙金
 like: y
+comment: 第一次接触原生安卓，干净得让人意识到 MIUI 也可以不用——后来又用回来了。
 imagePath: xiaomi/xiaomi-mi-a1-mi-5x.jpg
 addedAt: 2020-07-05
 order: 5

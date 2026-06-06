@@ -10,7 +10,7 @@ isPrimary: false
 color: "#000000"
 colorName: 经典黑
 like: y
-review: 这部手机的内存太小了，装不下太多游戏。而且 2G 网络也确实慢，但我真的很喜欢它——它是我的互联网启蒙老师。
+comment: 老妈退下来的，我的互联网启蒙老师，没有它就没有后来这一切折腾的开始。
 imagePath: nokia/nokia-6230i.jpg
 addedAt: 2020-07-04
 order: 11

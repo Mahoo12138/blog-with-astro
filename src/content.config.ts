@@ -141,7 +141,7 @@ const phones = defineCollection({
     color: z.string(),
     colorName: z.string().optional(),
     like: z.enum(["y", "n", ""]).default(""),
-    review: z.string().optional(),
+    comment: z.string().optional(),
     imagePath: z.string(),
     addedAt: z.coerce.date().optional(),
     order: z.number().int().default(0),

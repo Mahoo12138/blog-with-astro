@@ -10,6 +10,7 @@ isPrimary: false
 color: "#ffffff"
 colorName: 经典白
 like: y
+comment: 临时用下，二手淘来的小米经典，致敬那个为发烧而生的雷军和小米。
 imagePath: xiaomi/xiaomi-mi-2s.jpg
 addedAt: 2020-07-04
 order: 6

@@ -10,6 +10,7 @@ isPrimary: false
 color: "#ffffff"
 colorName: 珠光白
 like: y
+comment: 第一台正式拥有的智能机，剥夺生活费买的，刷 Recovery、玩 Root 的入门启蒙。
 imagePath: huawei/huawei-ascend-g6.jpg
 addedAt: 2020-07-04
 order: 9

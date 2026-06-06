@@ -1,0 +1,87 @@
+---
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+  entries: Array<CollectionEntry<"loveDestinations">>;
+}
+
+const { entries } = Astro.props;
+---
+
+<section class="sec">
+  <div class="sec-in">
+    <div class="sh a0">
+      <h2>我们去过的地方</h2><div class="sh-l"></div>
+      <span class="sh-tag"
+        >{entries.filter((d) => d.data.visited).length} 个足迹</span
+      >
+    </div>
+    <div class="dr a0 d1">
+      {
+        entries.map((entry) => (
+          <div class:list={["dc", "glass", !entry.data.visited && "ft"]}>
+            <div class="dc-no">{entry.data.number}</div>
+            <div class="dc-ct">{entry.data.city}</div>
+            <div class="dc-nt">{entry.data.description}</div>
+            <div class="dc-tg">{entry.data.tag}</div>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .dr {
+    display: flex;
+    gap: 14px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .dr::-webkit-scrollbar {
+    height: 3px;
+  }
+  .dr::-webkit-scrollbar-track {
+    background: var(--bd);
+  }
+  .dr::-webkit-scrollbar-thumb {
+    background: var(--gw);
+    border-radius: 2px;
+  }
+  .dc {
+    flex: 0 0 150px;
+    border-radius: 14px;
+    padding: 1.125rem;
+    cursor: default;
+    transition: all 0.3s;
+  }
+  .dc.ft {
+    border-style: dashed !important;
+    opacity: 0.6;
+  }
+  .dc-no {
+    font-size: 10px;
+    color: var(--txh);
+    margin-bottom: 5px;
+  }
+  .dc-ct {
+    font-family: "Noto Serif SC", serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--gw2);
+    margin-bottom: 6px;
+    transition: color 0.7s;
+  }
+  .dc-nt {
+    font-size: 12px;
+    color: var(--txm);
+    line-height: 1.55;
+    margin-bottom: 10px;
+  }
+  .dc-tg {
+    font-size: 11px;
+    color: var(--gw);
+    transition: color 0.7s;
+  }
+</style>

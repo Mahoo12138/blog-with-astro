@@ -1,27 +1,27 @@
-- id: 01-warm
-  icon: "☀️"
-  label: "温暖"
-  size: lg
-- id: 02-smile
-  icon: "😄"
-  label: "爱笑"
-  size: md
-- id: 03-kind
-  icon: "💛"
-  label: "善良"
-  size: lg
-- id: 04-hardworking
-  icon: "🔥"
-  label: "努力"
-  size: sm
-- id: 05-smart
-  icon: "✨"
-  label: "聪明"
-  size: md
-- id: 06-cute
+- id: 01-cute
   icon: "🐱"
   label: "可爱"
   size: lg
+- id: 02-warm
+  icon: "☀️"
+  label: "温暖"
+  size: lg
+- id: 03-smile
+  icon: "😄"
+  label: "爱笑"
+  size: md
+- id: 04-kind
+  icon: "💛"
+  label: "善良"
+  size: lg
+- id: 05-generous
+  icon: "🩷"
+  label: "宽容"
+  size: sm
+- id: 06-smart
+  icon: "✨"
+  label: "聪明"
+  size: md
 - id: 07-caring
   icon: "🤗"
   label: "体贴"

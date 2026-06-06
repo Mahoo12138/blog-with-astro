@@ -15,7 +15,7 @@
   label: "一起打游戏"
 - id: 04-photos
   icon: "📸"
-  target: 400
+  target: 520
   suffix: "+"
   label: "一起拍照片"
 - id: 05-trips

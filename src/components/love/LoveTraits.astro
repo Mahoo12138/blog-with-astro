@@ -1,0 +1,89 @@
+---
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+  entries: Array<CollectionEntry<"loveTraits">>;
+}
+
+const { entries } = Astro.props;
+const d = (i: number, max = 6) => `d${(i % max) + 1}`;
+---
+
+<section class="sec">
+  <div class="sec-in">
+    <div class="sh a0" style="justify-content:center;">
+      <div class="sh-l r"></div><h2>我眼中的你</h2><div class="sh-l"></div>
+    </div>
+    <p class="trait-intro a0 d1">
+      有很多话不知道怎么说，<br />
+      但你所有的样子我都记得。
+    </p>
+    <div class="trait-wrap">
+      {
+        entries.map((entry, i) => (
+          <div
+            class:list={[
+              "tp",
+              entry.data.size === "lg" && "lg",
+              entry.data.size === "sm" && "sm",
+              "a0",
+              d(i),
+            ]}
+          >
+            <span class="tp-ic">{entry.data.icon}</span>
+            {entry.data.label}
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .trait-intro {
+    text-align: center;
+    font-family: "Noto Serif SC", serif;
+    font-size: 14px;
+    color: var(--txm);
+    margin-bottom: 2rem;
+    line-height: 1.9;
+  }
+  .trait-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+  }
+  .tp {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 50px;
+    border: 1px solid var(--bd);
+    background: var(--sf);
+    font-size: 13px;
+    color: var(--gw2);
+    transition: all 0.3s;
+    cursor: default;
+    font-family: "Noto Serif SC", serif;
+  }
+  .tp:hover {
+    border-color: var(--bds);
+    background: var(--gd);
+    box-shadow: 0 0 18px var(--gd);
+    transform: translateY(-2px);
+  }
+  .tp.lg {
+    font-size: 15px;
+    padding: 12px 24px;
+  }
+  .tp.sm {
+    font-size: 11px;
+    padding: 8px 16px;
+    opacity: 0.85;
+  }
+  .tp-ic {
+    font-size: 1.1em;
+  }
+</style>

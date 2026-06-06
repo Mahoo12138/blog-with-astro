@@ -1,30 +1,30 @@
 - id: 01-first-meet
   icon: "👋"
   title: "第一次相见"
-  date: "2025 · 11 · 20"
-  description: "第一次见到你，比照片里好看多了，心跳快了一拍。"
+  date: "2026 · 02 · 06"
+  description: "初见相拥，落下我们所有的第一次。"
 - id: 02-first-hand
   icon: "🤝"
   title: "第一次牵手"
-  date: "2025 · 12 · 06"
+  date: "2026 · 02 · 06"
   description: "手握在一起的瞬间，好像什么都确定了。"
-- id: 03-first-movie
+- id: 03-first-sing
+  icon: "🕯️"
+  title: "第一次去 KTV"
+  date: "2026 · 04 · 06"
+  description: "是我的生日，我们在万家丽，唱了好多的歌。"
+- id: 04-first-movie
   icon: "🎬"
   title: "第一次看电影"
-  date: "2026 · 01 · 12"
-  description: "坐在黑暗的影院里，一直偷偷看你的侧脸。"
-- id: 04-first-cook
+  date: "2026 · 04 · 18"
+  description: "是你的电影心理课，边看边讨论，我还上去发言了呢。"
+- id: 05-first-rollercoaster
   icon: "🍳"
-  title: "第一次一起做饭"
-  date: "2026 · 02 · 08"
-  description: "做得有点焦，但味道是世界上最好吃的。"
-- id: 05-first-fight
-  icon: "🕯️"
-  title: "第一次吵架 & 和好"
-  date: "2026 · 02 · 28"
-  description: "和好之后发现，比之前更喜欢你了一点。"
-- id: 06-first-allnight
-  icon: "🌙"
-  title: "第一次通宵聊天"
-  date: "2025 · 12 · 24"
-  description: "聊到天亮，才发现对方原来有这么多故事。"
+  title: "第一次去游乐园"
+  date: "2026 · 05 · 17"
+  description: "玩过很多游戏，特别是过山车，我们在上面一直高呼我爱你。"
+- id: 06-first-fight
+  icon: "🚲"
+  title: "第一次一起骑自行车"
+  date: "2026 · 05 · 31"
+  description: "下了地铁，我骑我的自行车，宝宝骑共享单车，一起回家。"

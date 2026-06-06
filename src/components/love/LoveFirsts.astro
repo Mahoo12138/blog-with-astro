@@ -1,0 +1,80 @@
+---
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+  entries: Array<CollectionEntry<"loveFirsts">>;
+}
+
+const { entries } = Astro.props;
+const d = (i: number) => `d${(i % 9) + 1}`;
+---
+
+<section class="sec">
+  <div class="sec-in">
+    <div class="sh a0"><h2>我们的第一次</h2><div class="sh-l"></div></div>
+    <div class="fg">
+      {
+        entries.map((entry, i) => (
+          <div class:list={["fc", "glass", "tilt", "a0", d(i)]}>
+            <div class="fc-ic">{entry.data.icon}</div>
+            <div class="fc-tt">{entry.data.title}</div>
+            <div class="fc-dt">{entry.data.date}</div>
+            <div class="fc-tx">{entry.data.description}</div>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .fg {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+  @media (max-width: 640px) {
+    .fg {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .fc {
+    padding: 1.25rem 1.125rem;
+    cursor: default;
+    border-radius: 16px;
+  }
+  .fc:hover {
+    transform: translateY(-3px);
+  }
+  .fc-ic {
+    font-size: 22px;
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background: var(--gd);
+    border: 1px solid var(--bd);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.75rem;
+    transition: all 0.7s;
+  }
+  .fc-tt {
+    font-family: "Noto Serif SC", serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--gw2);
+    margin-bottom: 2px;
+    transition: color 0.7s;
+  }
+  .fc-dt {
+    font-size: 11px;
+    color: var(--txh);
+    margin-bottom: 6px;
+  }
+  .fc-tx {
+    font-size: 12px;
+    color: var(--txm);
+    line-height: 1.65;
+  }
+</style>

@@ -1,0 +1,49 @@
+---
+interface Props {
+  startDate: string;
+}
+
+const { startDate } = Astro.props;
+---
+
+<footer class="love-footer">
+  <div class="f1">永远爱你 <span class="fh">♥</span></div>
+  <div class="f2">Love Story · {startDate.replace(/-/g, ".")}</div>
+</footer>
+
+<style>
+  .love-footer {
+    padding: 5rem 2rem 3rem;
+    text-align: center;
+    position: relative;
+  }
+  .love-footer::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1px;
+    height: 3rem;
+    background: linear-gradient(to bottom, transparent, var(--bd));
+  }
+  .f1 {
+    font-family: "Ma Shan Zheng", serif;
+    font-size: 28px;
+    color: var(--gw2);
+    text-shadow: 0 0 20px var(--gd2);
+    margin-bottom: 0.5rem;
+    transition: all 0.7s;
+  }
+  .f2 {
+    font-size: 12px;
+    color: var(--txh);
+    letter-spacing: 0.08em;
+  }
+  .fh {
+    color: var(--gw);
+    animation: lovePulse 2.2s ease-in-out infinite;
+    display: inline-block;
+    transition: color 0.7s;
+  }
+</style>

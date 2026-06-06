@@ -1,0 +1,87 @@
+---
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+  entries: Array<CollectionEntry<"lovePromises">>;
+}
+
+const { entries } = Astro.props;
+const d = (i: number) => `d${(i % 9) + 1}`;
+---
+
+<section class="sec">
+  <div class="sec-in">
+    <div class="sh a0"><h2>我们的约定</h2><div class="sh-l"></div></div>
+    <div class="pg">
+      {
+        entries.map((entry, i) => (
+          <div class:list={["pc", "glass", "tilt", "a0", d(i)]}>
+            <div class="pc-ic">{entry.data.icon}</div>
+            <div>
+              <div class="pc-tt">{entry.data.title}</div>
+              <div class="pc-nt">{entry.data.description}</div>
+              <div class="pc-tg">{entry.data.tag}</div>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .pg {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  @media (max-width: 520px) {
+    .pg {
+      grid-template-columns: 1fr;
+    }
+  }
+  .pc {
+    border-radius: 16px;
+    padding: 1.375rem 1.25rem;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .pc-ic {
+    font-size: 20px;
+    flex-shrink: 0;
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background: var(--gd);
+    border: 1px solid var(--bd);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.7s;
+  }
+  .pc-tt {
+    font-family: "Noto Serif SC", serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--gw2);
+    margin-bottom: 4px;
+    transition: color 0.7s;
+  }
+  .pc-nt {
+    font-size: 12px;
+    color: var(--txm);
+    line-height: 1.65;
+  }
+  .pc-tg {
+    display: inline-block;
+    margin-top: 7px;
+    font-size: 10px;
+    color: var(--gw);
+    background: var(--gd);
+    border: 1px solid var(--bd);
+    padding: 1px 7px;
+    border-radius: 8px;
+    transition: all 0.7s;
+  }
+</style>

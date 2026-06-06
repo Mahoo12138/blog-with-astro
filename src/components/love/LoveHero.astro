@@ -1,0 +1,256 @@
+---
+interface Partner {
+  initial: string;
+  name: string;
+  avatar: string;
+}
+
+interface Props {
+  left: Partner;
+  right: Partner;
+}
+
+const { left, right } = Astro.props;
+---
+
+<header class="hero">
+  <div class="h-grid"></div>
+  <div class="h-bg">LOVE</div>
+  <div class="orb o1"></div>
+  <div class="orb o2"></div>
+  <div class="orb o3"></div>
+  <div class="hc">
+    <p class="hen">Love Story · 恋爱纪念册</p>
+    <h1 class="htl">我们的故事</h1>
+    <p class="hsb">每一天都是礼物，每一刻都值得珍藏</p>
+    <div class="avs">
+      <div class="av">
+        <div class="av-ring">
+          <img class="av-img" src={left.avatar} alt={left.name} />
+        </div>
+        <div class="av-nm">{left.name}</div>
+      </div>
+      <div class="av-cn">
+        <div class="av-ht">♡</div>
+        <div class="av-dy" id="av-dy">···</div>
+      </div>
+      <div class="av">
+        <div class="av-ring">
+          <img class="av-img" src={right.avatar} alt={right.name} />
+        </div>
+        <div class="av-nm">{right.name}</div>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-cue">
+    <div class="sc-arr"></div><span>向下探索</span>
+  </div>
+</header>
+
+<style>
+  .hero {
+    position: relative;
+    height: 100vh;
+    min-height: 680px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .h-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 64px 64px;
+    mask-image: radial-gradient(
+      ellipse 85% 75% at 50% 50%,
+      black,
+      transparent
+    );
+    -webkit-mask-image: radial-gradient(
+      ellipse 85% 75% at 50% 50%,
+      black,
+      transparent
+    );
+    pointer-events: none;
+  }
+  .h-bg {
+    position: absolute;
+    font-family: "Ma Shan Zheng", serif;
+    font-size: min(28vw, 320px);
+    letter-spacing: 0.15em;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(255, 255, 255, 0.03);
+    user-select: none;
+    pointer-events: none;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  .orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(90px);
+    pointer-events: none;
+    will-change: transform;
+    transition: background 0.7s;
+  }
+  .o1 {
+    width: 380px;
+    height: 380px;
+    background: var(--gd2);
+    top: -90px;
+    left: -110px;
+    animation: loveOf1 14s ease-in-out infinite alternate;
+  }
+  .o2 {
+    width: 300px;
+    height: 300px;
+    background: var(--gd);
+    top: 80px;
+    right: -90px;
+    animation: loveOf2 18s ease-in-out infinite alternate;
+  }
+  .o3 {
+    width: 220px;
+    height: 220px;
+    background: var(--gd2);
+    bottom: -70px;
+    left: 40%;
+    animation: loveOf3 11s ease-in-out infinite alternate;
+  }
+  @keyframes loveOf1 {
+    to { transform: translate(60px, 44px); }
+  }
+  @keyframes loveOf2 {
+    to { transform: translate(-52px, 60px); }
+  }
+  @keyframes loveOf3 {
+    to { transform: translate(-40px, -32px); }
+  }
+  .hc {
+    position: relative;
+    z-index: 2;
+    padding: 0 1.5rem;
+  }
+  .hen {
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--txh);
+    margin-bottom: 0.75rem;
+  }
+  .htl {
+    font-family: "Ma Shan Zheng", serif;
+    font-size: clamp(44px, 9vw, 80px);
+    font-weight: 400;
+    line-height: 1.1;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, var(--tx) 30%, var(--gw2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hsb {
+    font-size: 15px;
+    color: var(--txm);
+    font-weight: 300;
+    margin-bottom: 2.5rem;
+  }
+  .avs {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+  }
+  .av {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .av-ring {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    padding: 2.5px;
+    background: linear-gradient(135deg, var(--bd), var(--gw));
+    animation: loveRingP 3s ease-in-out infinite;
+    transition: background 0.7s;
+  }
+  @keyframes loveRingP {
+    0%, 100% { box-shadow: 0 0 0 0 var(--gd); }
+    50% { box-shadow: 0 0 20px 4px var(--gd2); }
+  }
+  .av-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: var(--bg2);
+    border: 2px solid var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Noto Serif SC", serif;
+    font-size: 24px;
+    color: var(--gw2);
+    user-select: none;
+    transition: all 0.7s;
+    opacity: 0.75;
+  }
+  .av-nm {
+    font-size: 12px;
+    color: var(--txm);
+    font-weight: 500;
+  }
+  .av-cn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .av-ht {
+    font-size: 22px;
+    color: var(--gw);
+    animation: lovePulse 2.2s ease-in-out infinite;
+    transition: color 0.7s;
+  }
+  @keyframes lovePulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.22); }
+  }
+  .av-dy {
+    font-size: 10px;
+    color: var(--txh);
+    white-space: nowrap;
+  }
+  .scroll-cue {
+    position: absolute;
+    bottom: 2.25rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    animation: loveCueB 2.5s ease-in-out infinite;
+    color: var(--txh);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    z-index: 2;
+  }
+  .sc-arr {
+    width: 18px;
+    height: 18px;
+    border-right: 1.5px solid var(--gw);
+    border-bottom: 1.5px solid var(--gw);
+    transform: rotate(45deg);
+    transition: border-color 0.7s;
+  }
+  @keyframes loveCueB {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(9px); }
+  }
+</style>

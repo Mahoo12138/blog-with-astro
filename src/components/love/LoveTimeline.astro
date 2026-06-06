@@ -1,0 +1,106 @@
+---
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+  entries: Array<CollectionEntry<"loveTimeline">>;
+}
+
+const { entries } = Astro.props;
+const d = (i: number) => `d${(i % 9) + 1}`;
+---
+
+<section class="sec">
+  <div class="sec-in">
+    <div class="sh a0"><h2>我们走过的路</h2><div class="sh-l"></div></div>
+    <div class="tl">
+      {
+        entries.map((entry, i) => (
+          <div class:list={["tli", "al", d(i)]}>
+            <div class="tl-dot" />
+            <div class="tl-badge">{entry.data.badge}</div>
+            <div class="tl-date">{entry.data.date}</div>
+            <div class="tl-ev">{entry.data.title}</div>
+            <div class="tl-desc">{entry.data.description}</div>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .tl {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    padding-left: 2.5rem;
+  }
+  .tl::before {
+    content: "";
+    position: absolute;
+    left: 8px;
+    top: 10px;
+    bottom: 0;
+    width: 1px;
+    background: linear-gradient(to bottom, var(--bds), transparent);
+    transition: background 0.7s;
+  }
+  .tli {
+    position: relative;
+    padding: 0 0 2rem 1.5rem;
+  }
+  .tli:last-child {
+    padding-bottom: 0;
+  }
+  .tl-dot {
+    position: absolute;
+    left: -2rem;
+    top: 4px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--bg2);
+    border: 1.5px solid var(--gw);
+    box-shadow: 0 0 12px var(--gd2);
+    transition: all 0.7s;
+  }
+  .tl-dot::after {
+    content: "";
+    position: absolute;
+    inset: 3px;
+    border-radius: 50%;
+    background: var(--gw);
+    transition: background 0.7s;
+  }
+  .tl-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: var(--gw);
+    background: var(--gd);
+    border: 1px solid var(--bd);
+    padding: 1px 8px;
+    border-radius: 10px;
+    margin-bottom: 5px;
+    transition: all 0.7s;
+  }
+  .tl-date {
+    font-size: 12px;
+    color: var(--txh);
+    margin-bottom: 3px;
+  }
+  .tl-ev {
+    font-family: "Noto Serif SC", serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--gw2);
+    margin-bottom: 5px;
+    transition: color 0.7s;
+  }
+  .tl-desc {
+    font-size: 13px;
+    color: var(--txm);
+    line-height: 1.7;
+  }
+</style>

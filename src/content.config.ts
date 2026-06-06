@@ -164,7 +164,7 @@ const lovePhotos = defineCollection({
     date: z.string(),
     title: z.string(),
     caption: z.string(),
-    gradient: z.string(),
+    image: z.string(),
   }),
 });
 
@@ -227,12 +227,18 @@ const lovePromises = defineCollection({
   }),
 });
 
-const loveDateIdeas = defineCollection({
-  loader: file("./src/content/love/date-ideas.yaml"),
+const loveCalendar = defineCollection({
+  loader: file("./src/content/love/calendar.yaml"),
   schema: z.object({
-    icon: z.string(),
+    date: z.string(),
     title: z.string(),
     description: z.string(),
+    weatherIcon: z.string(),
+    weather: z.string(),
+    moodIcon: z.string(),
+    mood: z.string(),
+    icon: z.string(),
+    category: z.string(),
   }),
 });
 
@@ -298,6 +304,6 @@ export const collections = {
   loveDestinations,
   loveWishes,
   lovePromises,
-  loveDateIdeas,
+  loveCalendar,
   loveNotes,
 };

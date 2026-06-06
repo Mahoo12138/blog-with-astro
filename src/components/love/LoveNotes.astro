@@ -1,0 +1,66 @@
+---
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+  entries: Array<CollectionEntry<"loveNotes">>;
+}
+
+const { entries } = Astro.props;
+const d = (i: number) => `d${(i % 9) + 1}`;
+---
+
+<section class="sec">
+  <div class="sec-in">
+    <div class="sh a0"><h2>心动纸条墙</h2><div class="sh-l"></div></div>
+    <div class="ng">
+      {
+        entries.map((entry, i) => (
+          <div class:list={["nc", "glass", "a0", d(i)]}>
+            {entry.data.text}
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .ng {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+  @media (max-width: 560px) {
+    .ng {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  .nc {
+    border-radius: 12px;
+    padding: 1.125rem 1rem 1rem;
+    font-size: 13px;
+    color: var(--gw2);
+    line-height: 1.75;
+    font-family: "Noto Serif SC", serif;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+  }
+  .nc::before {
+    content: "\201C";
+    position: absolute;
+    top: -4px;
+    right: 8px;
+    font-size: 56px;
+    color: var(--bd);
+    font-family: Georgia, serif;
+    line-height: 1;
+    pointer-events: none;
+    transition: color 0.7s;
+  }
+  .nc:hover {
+    border-color: var(--bds) !important;
+    box-shadow: 0 0 20px var(--gd);
+    transform: translateY(-2px);
+  }
+</style>

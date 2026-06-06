@@ -1,0 +1,103 @@
+---
+interface LetterData {
+  date: string;
+  greeting: string;
+  paragraphs: string[];
+  signature: string;
+}
+
+interface Props {
+  letter: LetterData;
+}
+
+const { letter } = Astro.props;
+---
+
+<section class="sec">
+  <div class="sec-in">
+    <div class="sh a0" style="justify-content:center;">
+      <div class="sh-l r"></div><h2>写给你的话</h2><div class="sh-l"></div>
+    </div>
+    <div class="letter-outer">
+      <div class="letter-card glass a0 d1">
+        <div class="lc-deco">"</div>
+        <div class="lc-date">{letter.date}</div>
+        <p class="lc-dear">{letter.greeting}</p>
+        <div class="lc-body">
+          {letter.paragraphs.map((p) => <p>{p}</p>)}
+        </div>
+        <div class="lc-sig">{letter.signature}</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .letter-outer {
+    display: flex;
+    justify-content: center;
+  }
+  .letter-card {
+    width: 100%;
+    max-width: 600px;
+    border-radius: 20px;
+    padding: 3rem 3.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .letter-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      ellipse at 30% 80%,
+      var(--gd2),
+      transparent 65%
+    );
+    pointer-events: none;
+    opacity: 0.7;
+  }
+  .lc-deco {
+    position: absolute;
+    top: 2rem;
+    right: 2.5rem;
+    font-size: 32px;
+    color: var(--bd);
+    font-family: Georgia, serif;
+    line-height: 1;
+  }
+  .lc-date {
+    font-size: 11px;
+    color: var(--txh);
+    letter-spacing: 0.1em;
+    margin-bottom: 1.5rem;
+  }
+  .lc-dear {
+    font-family: "Noto Serif SC", serif;
+    font-size: 17px;
+    color: var(--gw2);
+    margin-bottom: 1.25rem;
+    font-weight: 600;
+    transition: color 0.7s;
+  }
+  .lc-body {
+    font-family: "Noto Serif SC", serif;
+    font-size: 14px;
+    color: var(--txm);
+    line-height: 2.1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .lc-body p {
+    margin: 0;
+  }
+  .lc-sig {
+    font-family: "Ma Shan Zheng", serif;
+    font-size: 20px;
+    color: var(--gw2);
+    margin-top: 2rem;
+    text-align: right;
+    transition: color 0.7s;
+  }
+</style>

@@ -4,6 +4,7 @@
   "exclude": ["dist"],
   "compilerOptions": {
     "strictNullChecks": true,
-    "types": ["astro"]
+    "jsx": "react-jsx",
+    "jsxImportSource": "react"
   }
 }

@@ -6,15 +6,15 @@
   text: "在海边看一次日出"
   category: "旅行"
   done: false
-- id: 03-new-recipe
-  text: "一起学做一道新菜"
+- id: 03-hiking-camping
+  text: "一起去徒步露营"
   category: "日常"
   done: false
 - id: 04-four-seasons-photo
   text: "拍一组四季合照"
   category: "回忆"
   done: false
-- id: 05-game-clear
-  text: "一起打游戏通关"
-  category: "游戏"
-  done: true
+- id: 05-travel-abroad
+  text: "一起去国外旅行"
+  category: "旅行"
+  done: false

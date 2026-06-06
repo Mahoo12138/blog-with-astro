@@ -4,11 +4,11 @@
   description: "城墙、鸡鸣寺，拍了很多照片"
   tag: "🌸 2026.05.02"
   visited: true
-- id: 02-hangzhou
+- id: 02-shanghai
   number: "心愿"
-  city: "杭州"
-  description: "秋天去看看西湖和断桥"
-  tag: "🍂 计划中"
+  city: "上海"
+  description: "计划中，去参加 Vue Conf"
+  tag: "🥬 计划中"
   visited: false
 - id: 03-suzhou
   number: "心愿"

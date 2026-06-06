@@ -1,0 +1,116 @@
+---
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+  entries: Array<CollectionEntry<"lovePhotos">>;
+}
+
+const { entries } = Astro.props;
+const d = (i: number) => `d${(i % 9) + 1}`;
+---
+
+<section class="sec">
+  <div class="sec-in">
+    <div class="sh a0">
+      <h2>相册记忆</h2><div class="sh-l"></div>
+      <span class="sh-tag">{entries.length} 个瞬间</span>
+    </div>
+    <div class="ph-grid">
+      {
+        entries.map((entry, i) => (
+          <div class:list={["ph-card", "sc2", d(i)]}>
+            <div
+              class="ph-bg"
+              style={`background:url('${entry.data.image}') center/cover;position:absolute;inset:0;`}
+            />
+            <div class="ph-ov">
+              <div class="ph-dt">{entry.data.date}</div>
+              <div class="ph-tt">{entry.data.title}</div>
+              <div class="ph-tx">{entry.data.caption}</div>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .ph-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+  @media (max-width: 600px) {
+    .ph-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .ph-card {
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+    aspect-ratio: 4/3;
+    cursor: pointer;
+    border: 1px solid var(--bd);
+    transition:
+      border-color 0.3s,
+      transform 0.3s,
+      box-shadow 0.3s;
+  }
+  .ph-card:hover {
+    border-color: var(--bds);
+    transform: translateY(-3px);
+    box-shadow: 0 0 28px var(--gd);
+  }
+  .ph-bg {
+    position: absolute;
+    inset: 0;
+    transition: transform 0.5s;
+    opacity: 0.8;
+  }
+  .ph-card:hover .ph-bg {
+    transform: scale(1.04);
+  }
+  .ph-ov {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.82) 0%,
+      rgba(0, 0, 0, 0.18) 55%,
+      transparent 100%
+    );
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+  .ph-dt {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 3px;
+    letter-spacing: 0.06em;
+  }
+  .ph-tt {
+    font-family: "Noto Serif SC", serif;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.92);
+    font-weight: 600;
+    margin-bottom: 3px;
+  }
+  .ph-tx {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.52);
+    line-height: 1.5;
+    opacity: 0;
+    transform: translateY(6px);
+    transition:
+      opacity 0.3s,
+      transform 0.3s;
+  }
+  .ph-card:hover .ph-tx {
+    opacity: 1;
+    transform: none;
+  }
+</style>

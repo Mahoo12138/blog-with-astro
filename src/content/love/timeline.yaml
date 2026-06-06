@@ -3,13 +3,18 @@
   date: "2025 · 12 · 06"
   title: "💘 在一起啦"
   description: "这一天，我们决定在一起，开始了属于我们的故事。"
-- id: 02-first-date
-  badge: "🌸 春 · 花开时节"
-  date: "2026 · 03 · 20"
-  title: "🌸 第一次约会"
-  description: "春日里，手牵手逛了公园，吃了很多好吃的。"
-- id: 03-first-trip
-  badge: "🌸 春 · 踏上旅途"
+- id: 02-first-meeting
+  badge: "🌸 初春 · 花开时节"
+  date: "2026 · 02 · 06"
+  title: "🤗 第一次见面"
+  description: "我去到了她的城市，第一次见到了她，拥抱了朝思暮想的人。"
+- id: 03-meet-come
+  badge: "🌸 仲春 · 繁花正盛"
+  date: "2026 · 04 · 03"
+  title: "🥹 她来找我了"
+  description: "换她跨过山水奔赴而来，春风与心上人双双如约而至。"
+- id: 04-first-trip
+  badge: "🌸 晚春 · 踏上旅途"
   date: "2026 · 05 · 02"
   title: "🚆 第一次旅行"
   description: "一起去了南京，看了城墙和鸡鸣寺，拍了好多照片。"

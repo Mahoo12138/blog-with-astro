@@ -73,7 +73,7 @@
 					body {
 						margin: 0;
 						min-height: 100vh;
-						font-family: "Atkinson Hyperlegible", "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+						font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
 						font-size: 18px;
 						line-height: 1.8;
 						color: var(--text);

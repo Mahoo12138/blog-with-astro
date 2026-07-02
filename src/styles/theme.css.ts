@@ -1,4 +1,5 @@
 import { createGlobalTheme, globalStyle } from '@vanilla-extract/css';
+import { siteFontConfig } from '../config/fonts';
 
 export const breakpoints = {
 	mobile: '667px',
@@ -55,8 +56,9 @@ export const vars = createGlobalTheme(':root', {
 		header: '4.5rem',
 	},
 	font: {
-		body: 'var(--font-atkinson), "Segoe UI", sans-serif',
-		mono: '"SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace',
+		body: siteFontConfig.stacks.body,
+		heading: siteFontConfig.stacks.heading,
+		mono: siteFontConfig.stacks.mono,
 	},
 });
 
@@ -177,6 +179,7 @@ globalStyle('h1, h2, h3, h4, h5, h6', {
 	color: vars.color.textStrong,
 	lineHeight: 1.1,
 	letterSpacing: '-0.025em',
+	fontFamily: vars.font.heading,
 });
 
 globalStyle('h1', {

@@ -77,13 +77,13 @@ export const stellarConfig = {
 				title: '关于',
 				url: '/about',
 			},
-			{
-				id: 'rss',
-				theme: '#FFB300',
-				icon: 'stellar:menu-rss',
-				title: 'RSS',
-				url: '/rss.xml',
-			},
+			// {
+			// 	id: 'rss',
+			// 	theme: '#FFB300',
+			// 	icon: 'stellar:menu-rss',
+			// 	title: 'RSS',
+			// 	url: '/rss.xml',
+			// },
 		] satisfies MenubarItem[],
 	},
 	footer: {

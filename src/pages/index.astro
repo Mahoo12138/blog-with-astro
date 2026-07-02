@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content';
 import Pagination from '../components/Pagination.astro';
 import StellarNavTabs from '../components/StellarNavTabs.astro';
 import StellarPostCard from '../components/StellarPostCard.astro';
+import HeroSection from '../components/hero/HeroSection.astro';
 import { POSTS_PER_PAGE, SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 import StellarShell from '../layouts/StellarShell.astro';
 import * as styles from '../styles/homeFeed.css';
@@ -16,6 +17,7 @@ const nextUrl = totalPages > 1 ? '/posts/2' : undefined;
 ---
 
 <StellarShell title={SITE_TITLE} description={SITE_DESCRIPTION} mainClass={styles.main} siteTree="home">
+	<HeroSection slot="hero" />
 	<header class={styles.header}>
 		<StellarNavTabs active="home" />
 	</header>

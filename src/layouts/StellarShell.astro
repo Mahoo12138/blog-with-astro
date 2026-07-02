@@ -22,6 +22,7 @@ interface Props {
 }
 
 const { title, description, lang = 'en', mainClass, siteTree = 'page', menuId, leftbar, rightbar, tocHeadings = [], column } = Astro.props;
+const hasHero = Astro.slots.has('hero');
 const hasLead = Astro.slots.has('lead');
 const hasLeftbar = Astro.slots.has('leftbar');
 const hasRightbar = Astro.slots.has('rightbar');
@@ -39,6 +40,7 @@ const hasRightbarContent = shellConfig.rightbar.length > 0 || hasRightbar;
 			<div class={styles.glowLeft}></div>
 			<div class={styles.glowRight}></div>
 		</div>
+		{hasHero && <slot name="hero" />}
 		<div class={styles.shell} data-stellar-shell>
 			<aside class={styles.left} data-pagefind-ignore>
 				<StellarLeftSidebar menuId={shellConfig.menuId} widgets={shellConfig.leftbar} column={column} />

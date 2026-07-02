@@ -226,5 +226,7 @@ const socialItems = stellarConfig.footer.social;
 		} else {
 			initializeThemePicker();
 		}
+
+		document.addEventListener('astro:page-load', initializeThemePicker);
 	})();
 </script>

@@ -59,6 +59,13 @@ const safeStringify = (value: unknown) => JSON.stringify(value).replace(/</g, '\
 
 		document.documentElement.removeAttribute('data-theme');
 	})();
+
+	document.addEventListener('astro:before-swap', (event) => {
+		const currentTheme = document.documentElement.dataset.theme;
+		if (currentTheme) {
+			event.newDocument.documentElement.dataset.theme = currentTheme;
+		}
+	});
 </script>
 
 <Font cssVariable="--font-atkinson" preload />

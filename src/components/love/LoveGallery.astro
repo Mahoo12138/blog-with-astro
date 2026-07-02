@@ -21,7 +21,7 @@ const d = (i: number) => `d${(i % 9) + 1}`;
           <div class:list={["ph-card", "sc2", d(i)]}>
             <div
               class="ph-bg"
-              style={`background:url('/${entry.data.image}') center/cover;position:absolute;inset:0;`}
+              style={`background:url('${entry.data.image}') center/cover;position:absolute;inset:0;`}
             />
             <div class="ph-ov">
               <div class="ph-dt">{entry.data.date}</div>

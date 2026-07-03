@@ -1,0 +1,91 @@
+---
+import { getCollection } from 'astro:content';
+import type { WidgetProps } from './types';
+import { sortBlogPosts, buildTaxonomyBuckets } from '../../utils/content';
+import * as leftStyles from '../StellarLeftSidebar.css';
+import * as rightStyles from '../StellarRightSidebar.css';
+import * as styles from './archives-stats.css';
+
+const { widget, side } = Astro.props as WidgetProps;
+
+const allPosts = sortBlogPosts(await getCollection('posts'));
+const totalPosts = allPosts.length;
+
+const years = allPosts.map((p) => p.data.pubDate.getFullYear());
+const yearSpan = years.length > 0 ? Math.max(...years) - Math.min(...years) + 1 : 0;
+
+function countWords(value: unknown) {
+	if (typeof value !== 'string') return 0;
+	const content = value
+		.replace(/```[\s\S]*?```/g, ' ')
+		.replace(/`[^`]*`/g, ' ')
+		.replace(/<[^>]+>/g, ' ');
+	const cjkCount = content.match(/[\u3400-\u9fff]/g)?.length ?? 0;
+	const latinWordCount = content.match(/[A-Za-z0-9]+(?:[-'][A-Za-z0-9]+)*/g)?.length ?? 0;
+	return cjkCount + latinWordCount;
+}
+
+const totalWords = allPosts.reduce((sum, post) => sum + countWords('body' in post ? post.body : ''), 0);
+const wordDisplay = totalWords >= 10000 ? `${(totalWords / 10000).toFixed(1)}万` : totalWords.toLocaleString();
+
+const allCategories = buildTaxonomyBuckets(allPosts, 'categories');
+const categories = allCategories.slice(0, 5);
+const tags = buildTaxonomyBuckets(allPosts, 'tags').slice(0, 5);
+
+const widgetClass = side === 'left' ? leftStyles.widget : rightStyles.widget;
+const headerClass = side === 'left' ? leftStyles.widgetTitle : rightStyles.widgetHeader;
+---
+
+<section class:list={[widgetClass, styles.statsWidget]}>
+	<div class={headerClass}><span>{widget.title}</span></div>
+	<div class={styles.statsGrid}>
+		<div class={styles.statCard}>
+			<span class={styles.statValue}>{totalPosts}</span>
+			<span class={styles.statLabel}>文章总数</span>
+		</div>
+		<div class={styles.statCard}>
+			<span class={styles.statValue}>{wordDisplay}</span>
+			<span class={styles.statLabel}>累计字数</span>
+		</div>
+		<div class={styles.statCard}>
+			<span class={styles.statValue}>{yearSpan}</span>
+			<span class={styles.statLabel}>跨度年份</span>
+		</div>
+		<div class={styles.statCard}>
+			<span class={styles.statValue}>{allCategories.length}</span>
+			<span class={styles.statLabel}>分类数</span>
+		</div>
+	</div>
+	{categories.length > 0 && (
+		<>
+			<div class={styles.sectionTitle}>Top 分类</div>
+			<ul class={styles.rankList}>
+				{categories.map((bucket) => (
+					<li class={styles.rankItem}>
+						<span class={styles.rankLabel}>
+							<span class={styles.rankDot} aria-hidden="true"></span>
+							<span class={styles.rankName}>{bucket.label}</span>
+						</span>
+						<span class={styles.rankCount}>{bucket.posts.length}</span>
+					</li>
+				))}
+			</ul>
+		</>
+	)}
+	{tags.length > 0 && (
+		<>
+			<div class={styles.sectionTitle}>Top 标签</div>
+			<ul class={styles.rankList}>
+				{tags.map((bucket) => (
+					<li class={styles.rankItem}>
+						<span class={styles.rankLabel}>
+							<span class={styles.rankDot} aria-hidden="true"></span>
+							<span class={styles.rankName}>{bucket.label}</span>
+						</span>
+						<span class={styles.rankCount}>{bucket.posts.length}</span>
+					</li>
+				))}
+			</ul>
+		</>
+	)}
+</section>

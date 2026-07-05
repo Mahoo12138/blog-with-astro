@@ -5,10 +5,9 @@ import StellarPostCard from '../../components/StellarPostCard.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
 import StellarShell from '../../layouts/StellarShell.astro';
 import * as styles from '../../styles/homeFeed.css';
-import { getPhotoIndex, sortBlogPosts } from '../../utils/content';
+import { sortBlogPosts } from '../../utils/content';
 
 const posts = sortBlogPosts(await getCollection('posts'));
-const photoIndex = getPhotoIndex(posts);
 ---
 
 <StellarShell title={SITE_TITLE} description={SITE_DESCRIPTION} mainClass={styles.main} siteTree="index_blog">
@@ -17,9 +16,9 @@ const photoIndex = getPhotoIndex(posts);
 	</header>
 	<ul class={styles.list}>
 		{
-			posts.map((post, index) => (
+			posts.map((post) => (
 				<li class={styles.item}>
-					<StellarPostCard post={post} variant={index === photoIndex ? 'photo' : 'default'} />
+					<StellarPostCard post={post} />
 				</li>
 			))
 		}

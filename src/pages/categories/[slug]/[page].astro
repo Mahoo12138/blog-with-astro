@@ -6,7 +6,7 @@ import StellarPostCard from '../../../components/StellarPostCard.astro';
 import { POSTS_PER_PAGE, SITE_DESCRIPTION, SITE_TITLE } from '../../../consts';
 import StellarShell from '../../../layouts/StellarShell.astro';
 import * as styles from '../../../styles/taxonomy.css';
-import { buildTaxonomyBuckets, getPhotoIndex, sortBlogPosts } from '../../../utils/content';
+import { buildTaxonomyBuckets, sortBlogPosts } from '../../../utils/content';
 
 export async function getStaticPaths() {
 	const posts = sortBlogPosts(await getCollection('posts'));
@@ -41,7 +41,6 @@ interface Props {
 }
 
 const { label, slug, page, totalPages, posts } = Astro.props as Props;
-const photoIndex = getPhotoIndex(posts);
 const prevUrl = page === 2 ? `/categories/${slug}` : `/categories/${slug}/${page - 1}`;
 const nextUrl = page < totalPages ? `/categories/${slug}/${page + 1}` : undefined;
 ---
@@ -54,9 +53,9 @@ const nextUrl = page < totalPages ? `/categories/${slug}/${page + 1}` : undefine
 	<div class={styles.postList}>
 		<ul class={styles.list}>
 			{
-				posts.map((post, index) => (
+				posts.map((post) => (
 					<li class={styles.item}>
-						<StellarPostCard post={post} variant={index === photoIndex ? 'photo' : 'default'} />
+						<StellarPostCard post={post} />
 					</li>
 				))
 			}

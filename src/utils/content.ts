@@ -20,6 +20,12 @@ export interface ColumnBucket {
 	entry?: ColumnEntry;
 }
 
+export interface ResolvedPostCover {
+	variant: 'cover' | 'photo' | 'default';
+	src: {}; // TODO: type this better
+	isLocal: boolean;
+}
+
 const collator = new Intl.Collator('en', { numeric: true, sensitivity: 'base' });
 
 export function sortBlogPosts(posts: BlogPost[]) {
@@ -28,8 +34,36 @@ export function sortBlogPosts(posts: BlogPost[]) {
 		.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 }
 
-export function getPhotoIndex(posts: BlogPost[]) {
-	return posts.findIndex((post, index) => index > 1 && post.data.heroImage);
+/**
+ * Resolve a post's cover from frontmatter.
+ * - `cover` field → `cover` variant (top-of-card thumbnail)
+ * - `img` field   → `photo` variant (full-bleed)
+ * - both set      → `cover` wins, `img` ignored
+ *
+ * Source can be either a remote URL string or a local ImageMetadata.
+ * `isLocal` lets callers choose between <Image> and plain <img>.
+ */
+export function resolvePostCover(post: BlogPost): ResolvedPostCover | null {
+	const coverVal = post.data.cover;
+	if (coverVal !== undefined && coverVal !== null) {
+		return {
+			variant: 'cover',
+			src: coverVal,
+			isLocal: typeof coverVal !== 'string',
+		};
+	}
+	const imgVal = post.data.img;
+	if (imgVal !== undefined && imgVal !== null) {
+		const trimmed = typeof imgVal === 'string' ? imgVal.trim() : imgVal;
+		if (trimmed) {
+			return {
+				variant: 'photo',
+				src: trimmed,
+				isLocal: typeof trimmed !== 'string',
+			};
+		}
+	}
+	return null;
 }
 
 export function slugifySegment(value: string) {

@@ -7,12 +7,11 @@ import HeroSection from '../components/hero/HeroSection.astro';
 import { POSTS_PER_PAGE, SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 import StellarShell from '../layouts/StellarShell.astro';
 import * as styles from '../styles/homeFeed.css';
-import { getPhotoIndex, sortBlogPosts } from '../utils/content';
+import { sortBlogPosts } from '../utils/content';
 
 const allPosts = sortBlogPosts(await getCollection('posts'));
 const totalPages = Math.max(1, Math.ceil(allPosts.length / POSTS_PER_PAGE));
 const posts = allPosts.slice(0, POSTS_PER_PAGE);
-const photoIndex = getPhotoIndex(posts);
 const nextUrl = totalPages > 1 ? '/posts/2' : undefined;
 ---
 
@@ -23,9 +22,9 @@ const nextUrl = totalPages > 1 ? '/posts/2' : undefined;
 	</header>
 	<ul class={styles.list}>
 		{
-			posts.map((post, index) => (
+			posts.map((post) => (
 				<li class={styles.item}>
-					<StellarPostCard post={post} variant={index === photoIndex ? 'photo' : 'default'} />
+					<StellarPostCard post={post} />
 				</li>
 			))
 		}

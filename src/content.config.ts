@@ -14,9 +14,8 @@ const publicationFields = {
 };
 
 const mediaFields = (image: () => z.ZodTypeAny) => ({
-  heroImage: image().optional(),
-  cover: image().optional(),
-  banner: image().optional(),
+	cover: z.union([image(), z.string()]).optional(),
+	banner: z.union([image(), z.string()]).optional(),
 });
 
 const posts = defineCollection({
@@ -35,7 +34,7 @@ const posts = defineCollection({
         layout: z.string().optional(),
         columnId: z.string().optional(),
         // Hexo fields
-        img: z.string().optional(), // Hexo cover image URL
+        img: z.union([image(), z.string()]).optional(), // cover image: local path or remote URL
         mathjax: z.boolean().default(false),
         topic: z.string().optional(),
         updated: z.coerce.date().optional(), // Hexo alias for updatedDate

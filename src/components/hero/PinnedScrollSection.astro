@@ -38,15 +38,30 @@ import * as styles from '../../styles/pinnedScroll.css';
 				const distance = targetY - startY;
 				if (distance <= 0) return;
 
-				const duration = Math.min(700, Math.max(400, distance * 0.4));
+				// 关键：暂停钉屏动画（lerp RAF + scroll 监听）
+				// 避免和点击滚动互相干扰（双重动画导致视觉卡顿）
+				if (window.__pinnedScrollCleanup) {
+					window.__pinnedScrollCleanup();
+				}
+
+				// 自定义滚动动画：固定 450ms 时长 + easeInOutCubic
+				// 比浏览器 behavior: 'smooth' 的 ease-out 末期减速更轻，后半段不拖
+				const duration = 450;
 				const startTime = performance.now();
 				const easeInOutCubic = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 
 				const step = (now) => {
 					const elapsed = now - startTime;
 					const p = Math.min(1, elapsed / duration);
-					window.scrollTo(0, startY + distance * easeInOutCubic(p));
-					if (p < 1) requestAnimationFrame(step);
+					const eased = easeInOutCubic(p);
+					window.scrollTo(0, startY + distance * eased);
+					if (p < 1) {
+						requestAnimationFrame(step);
+					} else {
+						// 滚动到位后重新初始化钉屏
+						// 此时 scrollY === targetY，targetProgress = 1，welcome 完全显示
+						init();
+					}
 				};
 				requestAnimationFrame(step);
 			});
@@ -59,6 +74,11 @@ import * as styles from '../../styles/pinnedScroll.css';
 			const welcomeLayer = document.querySelector('[data-pinned-layer="welcome"]');
 			if (!container || !heroLayer || !welcomeLayer) return;
 
+			// 清理上一次 init 留下的 RAF 和监听（避免 ClientRouter 跨页面切换时叠加）
+			if (window.__pinnedScrollCleanup) {
+				window.__pinnedScrollCleanup();
+			}
+
 			const heroSection = heroLayer.querySelector('[data-hero-section]');
 			const welcomeSection = welcomeLayer.querySelector('[data-welcome-cards]');
 
@@ -69,18 +89,19 @@ import * as styles from '../../styles/pinnedScroll.css';
 				return t * t * (3 - 2 * t);
 			};
 
-			const update = () => {
-				const rect = container.getBoundingClientRect();
-				const viewport = window.innerHeight || document.documentElement.clientHeight;
-				// 容器在视口中的位置：top 从 0 到 -(container.height - viewport)
-				// 滚动驱动距离 = 容器总高 - 视口高
-				const pinDistance = container.offsetHeight - viewport;
-				// 已滚动的距离（仅在容器顶部到达视口顶后开始计算）
-				const scrolled = clamp(-rect.top, 0, pinDistance);
-				const progress = pinDistance > 0 ? scrolled / pinDistance : 0;
+			// ── 关键优化：把"目标进度"和"显示进度"分离 ──
+			// targetProgress 由 scroll 事件即时更新（跟手）
+			// currentProgress 由 RAF 循环通过 lerp 慢慢追上 targetProgress（平滑）
+			// 这样滚动的小抖动会被 currentProgress 的"阻尼"吸收掉，视觉上不再卡顿
+			let targetProgress = 0;
+			let currentProgress = 0;
+			const SMOOTHING = 0.18; // 越大越跟手、越小越平滑
+			let running = true;
+			let rafId = null;
 
+			const apply = () => {
 				// hero：快速淡出（0~0.4 完成）
-				const heroT = smoothstep(0, 0.4, progress);
+				const heroT = smoothstep(0, 0.4, currentProgress);
 				const heroOpacity = 1 - heroT;
 				heroLayer.style.opacity = String(heroOpacity.toFixed(3));
 				heroLayer.style.transform = `scale(${(0.96 + 0.04 * heroOpacity).toFixed(3)})`;
@@ -89,45 +110,69 @@ import * as styles from '../../styles/pinnedScroll.css';
 				}
 
 				// welcome：稍后淡入（0.15~0.5 完成），之后保持稳定
-				const welcomeT = smoothstep(0.15, 0.5, progress);
+				const welcomeT = smoothstep(0.15, 0.5, currentProgress);
 				welcomeLayer.style.opacity = String(welcomeT.toFixed(3));
 				welcomeLayer.style.transform = `translateY(${((1 - welcomeT) * 24).toFixed(2)}px)`;
 				welcomeLayer.style.pointerEvents = welcomeT > 0.6 ? 'auto' : 'none';
 
 				// 触发卡片入场动画
-				if (welcomeSection) {
-					if (welcomeT > 0.5) {
-						welcomeSection.setAttribute('data-visible', 'true');
-					}
+				if (welcomeSection && welcomeT > 0.5) {
+					welcomeSection.setAttribute('data-visible', 'true');
 				}
 
-				// 进度提示
+				// 进度提示（基于 targetProgress，反映用户真实意图）
 				const hint = document.querySelector('[data-pinned-progress]');
 				const value = document.querySelector('[data-pinned-progress-value]');
 				if (hint) {
-					if (progress > 0 && progress < 1) {
+					if (targetProgress > 0 && targetProgress < 1) {
 						hint.setAttribute('data-active', 'true');
-						if (value) value.textContent = `${Math.round(progress * 100)}%`;
+						if (value) value.textContent = `${Math.round(targetProgress * 100)}%`;
 					} else {
 						hint.removeAttribute('data-active');
 					}
 				}
-
-				ticking = false;
 			};
 
-			let ticking = false;
-			const onScroll = () => {
-				if (!ticking) {
-					window.requestAnimationFrame(update);
-					ticking = true;
+			// RAF 循环：每帧把 currentProgress 朝 targetProgress 推进一小步
+			const tick = () => {
+				if (!running) return;
+				const diff = targetProgress - currentProgress;
+				if (Math.abs(diff) > 0.0005) {
+					currentProgress += diff * SMOOTHING;
+					apply();
+				} else if (currentProgress !== targetProgress) {
+					// 极接近时直接 snap 到目标，避免无限微小 RAF
+					currentProgress = targetProgress;
+					apply();
 				}
+				rafId = requestAnimationFrame(tick);
+			};
+
+			// scroll/resize 只更新 targetProgress，不直接动 DOM
+			const onScroll = () => {
+				const rect = container.getBoundingClientRect();
+				const viewport = window.innerHeight || document.documentElement.clientHeight;
+				const pinDistance = container.offsetHeight - viewport;
+				const scrolled = clamp(-rect.top, 0, pinDistance);
+				targetProgress = pinDistance > 0 ? scrolled / pinDistance : 0;
 			};
 
 			window.addEventListener('scroll', onScroll, { passive: true });
 			window.addEventListener('resize', onScroll, { passive: true });
-			// 关键：立即同步一次初始状态（顶部 / 任意 scrollY），避免 DOM 刷新后两侧都停留在 opacity:1
-			update();
+
+			// 立即同步初始状态（顶部 / 任意 scrollY）
+			onScroll();
+			currentProgress = targetProgress;
+			apply();
+			rafId = requestAnimationFrame(tick);
+
+			// 暴露 cleanup，下一次 init 进来时调用
+			window.__pinnedScrollCleanup = () => {
+				running = false;
+				if (rafId) cancelAnimationFrame(rafId);
+				window.removeEventListener('scroll', onScroll);
+				window.removeEventListener('resize', onScroll);
+			};
 		};
 
 		// 首次加载 + ClientRouter 页面切换（包括同页跳转）后都重新初始化滚动驱动逻辑

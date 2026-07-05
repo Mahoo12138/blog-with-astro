@@ -6,7 +6,7 @@ import { style, globalStyle } from '@vanilla-extract/css';
 export const pinContainer = style({
 	position: 'relative',
 	width: '100%',
-	height: '320vh',
+	height: '220vh',
 	zIndex: 1,
 });
 

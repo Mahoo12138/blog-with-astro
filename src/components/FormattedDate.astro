@@ -8,12 +8,13 @@ const { date } = Astro.props;
 
 <time datetime={date.toISOString()}>
 	{
+		// 与 datetime 属性保持同一时区（UTC），避免构建机时区与作者意图时区不一致时
+		// 显示日期和 datetime 出现「错位一天」的问题。
 		date.toLocaleDateString('en-us', {
 			year: 'numeric',
 			month: 'short',
 			day: 'numeric',
-			// 锁定到上海时区，避免构建环境时区不同导致日期向前/向后偏移一天
-			timeZone: 'Asia/Shanghai',
+			timeZone: 'UTC',
 		})
 	}
 </time>

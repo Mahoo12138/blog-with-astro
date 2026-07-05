@@ -43,6 +43,7 @@ export const card = style({
 
 export const cardVariant = styleVariants({
 	default: {},
+	cover: {},
 	photo: {
 		position: 'relative',
 		minHeight: 0,
@@ -57,6 +58,29 @@ export const cardVariant = styleVariants({
 
 export const textBody = style({
 	padding: vars.space.lg,
+});
+
+export const coverWrap = style({
+	marginInline: `calc(${vars.space.lg} * -1)`,
+	marginTop: `calc(${vars.space.lg} * -1)`,
+	marginBottom: vars.space.lg,
+	overflow: 'hidden',
+	selectors: {
+		[`${card}:hover &`]: {
+			// @ts-ignore
+			'--stellar-img-br': '75%',
+			'--stellar-img-sat': '120%',
+		},
+	},
+});
+
+export const cover = style({
+	display: 'block',
+	width: '100%',
+	aspectRatio: '16 / 9',
+	objectFit: 'cover',
+	filter: 'brightness(var(--stellar-img-br)) saturate(var(--stellar-img-sat))',
+	transition: 'filter 240ms ease',
 });
 
 export const cap = style({
@@ -203,4 +227,16 @@ export const photoTitle = style({
 	lineHeight: 1.2,
 	color: '#ffffff',
 	textShadow: '0 6px 18px rgba(0, 0, 0, 0.28)',
+});
+
+export const photoExcerpt = style({
+	margin: '0.4rem 0 0 0',
+	fontSize: '0.85rem',
+	lineHeight: 1.5,
+	color: 'rgba(255, 255, 255, 0.86)',
+	textShadow: '0 4px 12px rgba(0, 0, 0, 0.32)',
+	display: '-webkit-box',
+	WebkitLineClamp: 2,
+	WebkitBoxOrient: 'vertical',
+	overflow: 'hidden',
 });

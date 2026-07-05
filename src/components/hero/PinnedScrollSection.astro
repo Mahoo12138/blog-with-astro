@@ -21,6 +21,38 @@ import * as styles from '../../styles/pinnedScroll.css';
 
 <script is:inline>
 	(() => {
+		// 事件委托：避免 init() 多次执行时重复绑定 handler，也避免旧 DOM 引用过期
+		// 用 window 上的标记跨 ClientRouter 页面切换持久化
+		if (!window.__pinnedScrollExploreBound) {
+			document.addEventListener('click', (event) => {
+				const target = event.target;
+				const btn = target && target.closest ? target.closest('[data-scroll-to-welcome]') : null;
+				if (!btn) return;
+
+				// 目标：钉屏容器底部 = 文章列表顶部
+				// 每次点击实时查询，避免闭包内引用过期
+				const container = document.querySelector('[data-pinned-container]');
+				if (!container) return;
+				const targetY = container.getBoundingClientRect().bottom + window.scrollY;
+				const startY = window.scrollY;
+				const distance = targetY - startY;
+				if (distance <= 0) return;
+
+				const duration = Math.min(700, Math.max(400, distance * 0.4));
+				const startTime = performance.now();
+				const easeInOutCubic = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+
+				const step = (now) => {
+					const elapsed = now - startTime;
+					const p = Math.min(1, elapsed / duration);
+					window.scrollTo(0, startY + distance * easeInOutCubic(p));
+					if (p < 1) requestAnimationFrame(step);
+				};
+				requestAnimationFrame(step);
+			});
+			window.__pinnedScrollExploreBound = true;
+		}
+
 		const init = () => {
 			const container = document.querySelector('[data-pinned-container]');
 			const heroLayer = document.querySelector('[data-pinned-layer="hero"]');
@@ -96,34 +128,9 @@ import * as styles from '../../styles/pinnedScroll.css';
 			window.addEventListener('resize', onScroll, { passive: true });
 			// 关键：立即同步一次初始状态（顶部 / 任意 scrollY），避免 DOM 刷新后两侧都停留在 opacity:1
 			update();
-
-			// 点击「探索」按钮：直接跳过整个钉屏动画，跳跃到下方的文章内容
-			const btn = document.querySelector('[data-scroll-to-welcome]');
-			if (btn) {
-				btn.addEventListener('click', () => {
-					const startY = window.scrollY;
-					// 直接选 [data-stellar-shell]，避开容器后跟 <script> 等兄弟节点
-					const target = document.querySelector('[data-stellar-shell]');
-					if (!target) return;
-					const targetY = target.getBoundingClientRect().top + window.scrollY;
-					const distance = targetY - startY;
-					if (distance <= 0) return;
-					const duration = Math.min(700, Math.max(400, distance * 0.4));
-					const startTime = performance.now();
-					const easeInOutCubic = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
-
-					const step = (now) => {
-						const elapsed = now - startTime;
-						const p = Math.min(1, elapsed / duration);
-						window.scrollTo(0, startY + distance * easeInOutCubic(p));
-						if (p < 1) requestAnimationFrame(step);
-					};
-					requestAnimationFrame(step);
-				});
-			}
 		};
 
-		// 首次加载 + ClientRouter 页面切换（包括同页跳转）后都重新初始化
+		// 首次加载 + ClientRouter 页面切换（包括同页跳转）后都重新初始化滚动驱动逻辑
 		init();
 		document.addEventListener('astro:page-load', init);
 	})();

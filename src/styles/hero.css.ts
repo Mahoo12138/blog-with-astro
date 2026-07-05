@@ -74,12 +74,11 @@ export const heroTitle = style({
 	fontSize: 'clamp(2.5rem, 6vw, 4.5rem)',
 	fontWeight: 800,
 	margin: 0,
-	lineHeight: 1.1,
+	// 1.1 偏紧，大号粗体的下伸笔画（g/y/p/q）会被裁掉，这里放宽到 1.25
+	lineHeight: 1.4,
 	letterSpacing: '-0.03em',
-	background: `linear-gradient(135deg, ${vars.color.textStrong} 0%, ${vars.color.accent} 100%)`,
-	WebkitBackgroundClip: 'text',
-	WebkitTextFillColor: 'transparent',
-	backgroundClip: 'text',
+	// 纯色：与第二屏欢迎语形成色彩对位（主标中性、点睛留给副标）
+	color: vars.color.textStrong,
 });
 
 export const heroTagline = style({

@@ -86,10 +86,9 @@ export const headline = style({
 	margin: 0,
 	lineHeight: 1.15,
 	letterSpacing: '-0.03em',
-	background: `linear-gradient(135deg, ${vars.color.textStrong} 0%, ${vars.color.accent} 100%)`,
-	WebkitBackgroundClip: 'text',
-	WebkitTextFillColor: 'transparent',
-	backgroundClip: 'text',
+	// 纯色：用品牌重点蓝与首屏主标形成色彩对位
+	// light: #3367d6  /  dark: #a8ddff（已在 theme.css.ts 定义）
+	color: vars.color.accentStrong,
 });
 
 export const subline = style({

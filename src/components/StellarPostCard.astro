@@ -1,5 +1,5 @@
 ---
-import { Image } from 'astro:assets';
+import { Image, getImage } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 import { getCollection, type CollectionEntry } from 'astro:content';
 import FormattedDate from './FormattedDate.astro';
@@ -17,6 +17,18 @@ interface Props {
 const { post, variant: variantProp } = Astro.props;
 const cover = resolvePostCover(post);
 const variant: CardVariant = variantProp ?? cover?.variant ?? 'default';
+
+// 用于 cover 变体的左侧模糊背景：远程 URL 直接用，本地图片走 getImage 拿到构建后的资源 URL，
+// 保证 background-image: url(...) 在产物里能命中。
+let coverBgUrl = '';
+if (cover) {
+	if (typeof cover.src === 'string') {
+		coverBgUrl = cover.src;
+	} else {
+		const processed = await getImage({ src: cover.src });
+		coverBgUrl = processed.src;
+	}
+}
 
 const href = `/post/${post.id}/`;
 const excerpt = post.data.description || '';
@@ -71,29 +83,56 @@ if (columnId) {
 						{excerpt && <p class={styles.photoExcerpt}>{excerpt}</p>}
 					</div>
 				</>
+			) : variant === 'cover' && cover ? (
+				<div class={styles.coverBody} style={`--cover-bg: url(${JSON.stringify(coverBgUrl)})`}>
+					<div class={styles.coverBackdrop} aria-hidden="true"></div>
+					<div class={styles.coverContent}>
+						{(primaryCategory || column) && (
+							<div class={styles.capRow}>
+								{primaryCategory && (
+									<div class={styles.coverCap}>
+										<StellarIcon name="default:category" class={styles.capIcon} />
+										<span>{primaryCategory}</span>
+									</div>
+								)}
+								{column && (
+									<span class:list={[styles.columnBadge, styles.columnBadgeOnPhoto]}>
+										<StellarIcon name="stellar:menu-columns" class={styles.columnBadgeIcon} />
+										<span>专栏 · {column.title}</span>
+									</span>
+								)}
+							</div>
+						)}
+						<h2 class={styles.coverTitle}>{post.data.title}</h2>
+						{excerpt && <p class={styles.coverExcerpt}>{excerpt}</p>}
+						<div class={styles.coverMeta}>
+							<StellarIcon name="default:calendar" class={styles.metaIcon} />
+							<FormattedDate date={post.data.pubDate} />
+							{tags.slice(0, 2).map((tag) => <span class={styles.coverTag}>#{tag}</span>)}
+						</div>
+					</div>
+					<div class={styles.coverImageWrap}>
+						{cover.isLocal ? (
+							<Image
+								class={styles.coverImage}
+								src={cover.src as ImageMetadata}
+								width={480}
+								height={480}
+								alt={post.data.title}
+							/>
+						) : (
+							<img
+								class={styles.coverImage}
+								src={cover.src as string}
+								alt={post.data.title}
+								loading="lazy"
+								decoding="async"
+							/>
+						)}
+					</div>
+				</div>
 			) : (
 				<article class={styles.textBody}>
-					{variant === 'cover' && cover && (
-						<div class={styles.coverWrap}>
-							{cover.isLocal ? (
-								<Image
-									class={styles.cover}
-									src={cover.src as ImageMetadata}
-									width={1280}
-									height={720}
-									alt={post.data.title}
-								/>
-							) : (
-								<img
-									class={styles.cover}
-									src={cover.src as string}
-									alt={post.data.title}
-									loading="lazy"
-									decoding="async"
-								/>
-							)}
-						</div>
-					)}
 					{(primaryCategory || column) && (
 						<div class={styles.capRow}>
 							{primaryCategory && (

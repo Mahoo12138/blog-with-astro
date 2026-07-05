@@ -60,29 +60,6 @@ export const textBody = style({
 	padding: vars.space.lg,
 });
 
-export const coverWrap = style({
-	marginInline: `calc(${vars.space.lg} * -1)`,
-	marginTop: `calc(${vars.space.lg} * -1)`,
-	marginBottom: vars.space.lg,
-	overflow: 'hidden',
-	selectors: {
-		[`${card}:hover &`]: {
-			// @ts-ignore
-			'--stellar-img-br': '75%',
-			'--stellar-img-sat': '120%',
-		},
-	},
-});
-
-export const cover = style({
-	display: 'block',
-	width: '100%',
-	aspectRatio: '16 / 9',
-	objectFit: 'cover',
-	filter: 'brightness(var(--stellar-img-br)) saturate(var(--stellar-img-sat))',
-	transition: 'filter 240ms ease',
-});
-
 export const cap = style({
 	display: 'inline-flex',
 	alignItems: 'center',
@@ -131,7 +108,7 @@ export const columnBadgeIcon = style({
 export const columnBadgeOnPhoto = style({
 	background: 'rgba(255, 255, 255, 0.22)',
 	color: '#fff',
-	marginBottom: vars.space.sm,
+	// marginBottom: vars.space.sm,
 	backdropFilter: 'blur(6px)',
 	WebkitBackdropFilter: 'blur(6px)',
 });
@@ -239,4 +216,154 @@ export const photoExcerpt = style({
 	WebkitLineClamp: 2,
 	WebkitBoxOrient: 'vertical',
 	overflow: 'hidden',
+});
+
+// ---------- cover variant: right image + left blurred backdrop ----------
+
+export const coverBody = style({
+	position: 'relative',
+	display: 'grid',
+	gridTemplateColumns: 'minmax(0, 1fr) clamp(180px, 34%, 340px)',
+	minHeight: 200,
+	color: '#ffffff',
+	overflow: 'hidden',
+	'@media': {
+		'screen and (max-width: 640px)': {
+			gridTemplateColumns: '1fr',
+			gridTemplateRows: 'auto 200px',
+		},
+	},
+});
+
+export const coverBackdrop = style({
+	position: 'absolute',
+	inset: 0,
+	backgroundImage: 'var(--cover-bg)',
+	backgroundSize: 'cover',
+	backgroundPosition: 'center',
+	filter: 'blur(28px) saturate(125%) brightness(78%)',
+	transform: 'scale(1.18)',
+	transformOrigin: 'center center',
+	zIndex: 0,
+	pointerEvents: 'none',
+	selectors: {
+		'&::after': {
+			content: '""',
+			position: 'absolute',
+			inset: 0,
+			background:
+				'linear-gradient(to right, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.18) 55%, rgba(0, 0, 0, 0) 100%)',
+		},
+	},
+});
+
+export const coverImageWrap = style({
+	position: 'relative',
+	zIndex: 1,
+	height: '100%',
+	minHeight: 'inherit',
+	overflow: 'hidden',
+	background: 'rgba(0, 0, 0, 0.18)',
+});
+
+export const coverImage = style({
+	width: '100%',
+	height: '100%',
+	display: 'block',
+	objectFit: 'cover',
+	transition: 'transform 360ms ease',
+	// 显式声明：图片左侧不取圆角，右侧由外层 card 的 borderRadius 负责裁剪。
+	borderTopLeftRadius: 0,
+	borderBottomLeftRadius: 0,
+	selectors: {
+		[`${card}:hover &`]: {
+			transform: 'scale(1.05)',
+		},
+	},
+});
+
+export const coverContent = style({
+	position: 'relative',
+	zIndex: 1,
+	padding: vars.space.lg,
+	display: 'flex',
+	flexDirection: 'column',
+	justifyContent: 'center',
+	gap: vars.space.xl,
+	color: '#ffffff',
+});
+
+// cover variant 子元素的"白字 + 阴影"变体类 —— 显式 class 避免 vanilla-extract
+// 拒绝的 `& h2` / `& .${cap}` 这类跨类选择器。
+export const coverTitle = style({
+	margin: 0,
+	fontSize: 'calc(1rem + 4px)',
+	fontWeight: 500,
+	lineHeight: 1.2,
+	color: '#ffffff',
+	textShadow: '0 6px 18px rgba(0, 0, 0, 0.32)',
+	display: '-webkit-box',
+	WebkitLineClamp: 2,
+	WebkitBoxOrient: 'vertical',
+	overflow: 'hidden',
+});
+
+export const coverExcerpt = style({
+	margin: 0,
+	fontSize: '0.85rem',
+	lineHeight: 1.5,
+	color: 'rgba(255, 255, 255, 0.88)',
+	textShadow: '0 4px 12px rgba(0, 0, 0, 0.4)',
+	display: '-webkit-box',
+	WebkitLineClamp: 2,
+	WebkitBoxOrient: 'vertical',
+	overflow: 'hidden',
+});
+
+export const coverCap = style({
+	display: 'inline-flex',
+	alignItems: 'center',
+	gap: '0.35rem',
+	maxWidth: '100%',
+	padding: '0.2rem 0.48rem',
+	borderRadius: '8px',
+	background: 'rgba(255, 255, 255, 0.22)',
+	color: '#ffffff',
+	backdropFilter: 'blur(6px)',
+	WebkitBackdropFilter: 'blur(6px)',
+	fontSize: '0.72rem',
+	fontWeight: 700,
+	lineHeight: 1.4,
+});
+
+export const coverMeta = style({
+	display: 'flex',
+	alignItems: 'center',
+	flexWrap: 'wrap',
+	gap: '8px',
+	lineHeight: 2,
+	fontSize: 'calc(1rem - 1px)',
+	color: 'rgba(255, 255, 255, 0.82)',
+	textShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
+});
+
+export const coverTag = style({
+	display: 'inline-flex',
+	alignItems: 'center',
+	minHeight: '1.65rem',
+	padding: '0 0.5rem',
+	borderRadius: '999px',
+	background: 'rgba(255, 255, 255, 0.18)',
+	color: '#ffffff',
+	fontSize: '0.78rem',
+});
+
+// 让 cover 内的 title 在卡片 hover 时仍保持白色，不被 title 默认 hover 的 accentStrong 覆盖。
+// 必须显式写一个修饰过的选择器：vanilla-extract 不允许 `& h2` 这种跨类规则。
+export const coverTitleHover = style({
+	selectors: {
+		[`${card}:hover &`]: {
+			color: '#ffffff',
+		},
+	},
 });

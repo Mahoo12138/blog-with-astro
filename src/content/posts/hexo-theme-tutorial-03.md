@@ -3,7 +3,7 @@ title: Hexo 主题开发系列教程（三）：主题结构与模板系统
 date: 2025-11-24 22:42:23
 author: Mahoo12138
 columnId: hexo-theme-tutorial
-img: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/hexo.png
+cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/hexo.png
 tags: 
 - Hexo
 categories:
@@ -13,6 +13,7 @@ categories:
 ## 前言
 
 在前两章中，我们学习了：
+
 - [第一章](./hexo-theme-tutorial-01.md)：Hexo 的核心概念（事件、变量、路由、Box、渲染、文章、模板）
 - [第二章](./hexo-theme-tutorial-02-part1.md)：Hexo 的扩展系统（Console、Deployer、Filter、Generator、Helper、Injector 等）
 

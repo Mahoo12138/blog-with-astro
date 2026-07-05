@@ -1,5 +1,5 @@
 ---
-title: 前端学习之React中的CSS动画效果
+title: 前端学习之 React 中的 CSS 动画效果
 date: 2020-09-27 22:52:12
 img: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/react.png
 categories: 

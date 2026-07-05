@@ -25,7 +25,7 @@ categories:
 
 说明已经内置，无需额外安装；如果没有，则重新安装`Nginx`，且需要添加自定义模块：
 
-```
+```plaintext
 模块名称：http_dav_module
 模块描述：webdev
 模块参数：--with-http_dav_module --add-module=/root/nginx-dav-ext-module
@@ -41,7 +41,7 @@ nginx 配置依赖好后，就可以开始搭建服务了。在【网站】一�
 ```nginx
 location /dav/
 {
-    alias /root/workbench/data/dav/;			# Webdav 服务根目录
+    alias /root/workbench/data/dav/;   # Webdav 服务根目录
     autoindex on;
     autoindex_localtime on;
 
@@ -59,7 +59,7 @@ location /dav/
         rewrite ^(.*[^/])$ $1/ break;
     }
     dav_methods             PUT DELETE MKCOL COPY MOVE;       # DAV支持的请求方法
-    dav_ext_methods         PROPFIND OPTIONS;     			 # DAV扩展支持的请求方法
+    dav_ext_methods         PROPFIND OPTIONS;                 # DAV扩展支持的请求方法
     # dav_ext_lock            zone=davlock;                   # DAV扩展锁绑定的内存区域
     client_max_body_size    0M;
     create_full_put_path    on;                               # 启用创建目录支持
@@ -78,13 +78,10 @@ openssl passwd 12345
 
 然后以如下格式存储：
 
-```
+```plaintext
 name:password
 ```
 
 ## 小插曲
 
-搭建好 Webdav 后，在安卓客户端中，部分 app 访问会报错 405 not allowed，很离谱，查询了网上的资料后，从相关 [issue ](https://github.com/PhilippC/keepass2android/issues/747)中了解到，是安卓开发中一个 http 请求库 okhttp 对 http2 兼容存在问题，建议使用 http1.1 访问，然而大部分的 app 都无法配置请求方式，只能从本地服务器入手了，需要禁用 nginx 的 http2 模式，当然禁用某一个，例如这个搭建 Webdav 的网站是不行的，需要所有网站都关闭 http2，nginx 才完全关闭 http2。
-
-
-
+搭建好 Webdav 后，在安卓客户端中，部分 app 访问会报错 405 not allowed，很离谱，查询了网上的资料后，从相关 [issue](https://github.com/PhilippC/keepass2android/issues/747)中了解到，是安卓开发中一个 http 请求库 okhttp 对 http2 兼容存在问题，建议使用 http1.1 访问，然而大部分的 app 都无法配置请求方式，只能从本地服务器入手了，需要禁用 nginx 的 http2 模式，当然禁用某一个，例如这个搭建 Webdav 的网站是不行的，需要所有网站都关闭 http2，nginx 才完全关闭 http2。

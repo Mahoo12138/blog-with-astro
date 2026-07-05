@@ -1,5 +1,5 @@
 ---
-title: 前端学习之React中的JSX
+title: 前端学习之 React 中的 JSX
 date: 2020-09-11 15:42:04
 img: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/react.png
 categories: 

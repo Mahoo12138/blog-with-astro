@@ -1,5 +1,5 @@
 ---
-title: 香橙派5P折腾踩坑记录一揽子
+title: 香橙派 5P 折腾踩坑记录一揽子
 date: 2023-10-07 22:18:14
 author: Mahoo12138
 img: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/phone.png
@@ -10,7 +10,7 @@ categories:
 - 技术教程
 ---
 
-## Navicat 连接postgresql时出现‘datlastsysoid does not exist‘报错
+## Navicat 连接 postgresql 时出现 ‘datlastsysoid does not exist‘ 报错
 
 安装了最新的 Postgres 15 ，但该版本从表中删除了 `datlastsysoid` 字段，因此 Navicat 15.0.29 或 16.1 之前的任何版本都在连接执行查询时，会报错，要么升级 Navicat，要么修改这条查询语句，
 

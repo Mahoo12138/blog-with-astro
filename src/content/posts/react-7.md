@@ -1,5 +1,5 @@
 ---
-title: 前端学习之React中的组件复用
+title: 前端学习之 React 中的组件复用
 date: 2020-09-22 23:42:23
 img: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/react.png
 categories: 

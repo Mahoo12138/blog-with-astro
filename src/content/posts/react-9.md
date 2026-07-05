@@ -1,5 +1,5 @@
 ---
-title: 前端学习之React报错指北
+title: 前端学习之 React 报错指北
 date: 2020-09-13 16:52:33
 img: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/react.png
 categories: 

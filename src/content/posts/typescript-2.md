@@ -1,6 +1,7 @@
 ---
-title: TypeScript学习-02-实战爬虫开发
+title: TypeScript 学习-02-实战爬虫开发
 date: 2021-11-23 15:45:15
+description: 文章中主要记录了 TypeScript 的学习笔记，以及实战项目实战爬虫开发
 img: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/typescript.jpg
 categories: 
 - 学习笔记
@@ -13,8 +14,8 @@ tags:
 新建一个文件夹用于爬虫项目实战，并在目录下执行命令初始化项目：
 
 ```bash
-npm init -y	# 初始化npm配置文件，使用默认值
-tsc --init	# 初始化 typescript 转译配置文件
+npm init -y # 初始化npm配置文件，使用默认值
+tsc --init # 初始化 typescript 转译配置文件
 ```
 
 同样也需要将编译运行的模块包安装到项目目录：

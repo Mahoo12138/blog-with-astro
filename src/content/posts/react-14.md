@@ -1,5 +1,5 @@
 ---
-title: 前端学习之React项目实战Ⅱ
+title: 前端学习之 React 项目实战Ⅱ
 date: 2022-02-01 18:02:04
 img: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/react.png
 categories: 

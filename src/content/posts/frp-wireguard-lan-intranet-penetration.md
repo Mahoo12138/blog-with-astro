@@ -1,7 +1,6 @@
 ---
-title: SakuraFrp + WireGuard 组网实现内网穿透
+title: Frp + WireGuard 组网实现内网穿透
 date: 2024-06-10 15:37:30
-img: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo_images/cover/git.png
 category:
  - 技术教程
 tags:

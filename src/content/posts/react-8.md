@@ -1,5 +1,5 @@
 ---
-title: React学习之Reac原理解密
+title: 前端学习之 React 原理解密
 date: 2020-09-30 21:32:44
 img: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/react.png
 categories: 
@@ -68,7 +68,7 @@ this.setState(
 + 使用`PureComponent`，自动加载`shouldComponentUpdate`函数，当组件更新时，`shouldComponentUpdate`对 props 和 state 进行了一层**浅比较**，如果都没有发生改变，render方法就不会触发，省去Virtual DOM的生成和对比过程；
 + 浅比较（shallow compare）只对象的引用（地址）是否相同；所以对于引用类型应该创建新的数据而不是修改原数据；
 
-## 虚拟DOM和Diff算法
+## 虚拟 DOM 和 Diff 算法
 
 虚拟DOM：本质上是一个 JS 对象，用于描述在屏幕上看到的内容；
 

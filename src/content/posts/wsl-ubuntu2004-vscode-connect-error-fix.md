@@ -1,5 +1,5 @@
 ---
-title: 关于WSL Ubuntu 20.04使用VScode连接报错的解决方法
+title: 关于 WSL Ubuntu 20.04 使用 VScode 连接报错的解决方法
 date: 2022-07-22 09:00:26
 categories:
 - 技术教程

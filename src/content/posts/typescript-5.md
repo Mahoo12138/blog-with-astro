@@ -1,5 +1,5 @@
 ---
-title: TypeScript学习-05-项目前端开发
+title: TypeScript 学习-05-项目前端开发
 date: 2021-11-30 23:39:18
 img: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/typescript.jpg
 categories: 

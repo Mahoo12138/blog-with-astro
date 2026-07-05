@@ -1,5 +1,5 @@
 ---
-title: Win10 子系统 Ubuntu 使用经验
+title: 我的 WSL Ubuntu 使用经验与实用配置指南
 img: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/ubuntu.png
 categories: 
 - 技术教程

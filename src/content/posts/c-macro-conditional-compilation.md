@@ -1,33 +1,33 @@
 ---
-title: 小记C语言中的宏定义及条件编译
+title: 小记 C 语言中的宏定义及条件编译
 date: 2019-11-02 16:48:43
 img: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/c.jpg
-tags: 
-- C
+tags:
+  - C
 categories:
-- 学习笔记
+  - 学习笔记
 ---
 
 ## 普通宏定义
 
 ```c
 #define PI 3.14
-#define a (1+2)				//添加括号使语义表达更清楚
+#define a (1+2)    //添加括号使语义表达更清楚
 
-printf("%s:%d","PI",PI);	//引号中的宏定义不会被替换，输出：PI:3.14
-#undef PI					//取消PI的宏定义
+printf("%s:%d","PI",PI); //引号中的宏定义不会被替换，输出：PI:3.14
+#undef PI     //取消PI的宏定义
 
-#define 1111 F				//报错，宏定义起始位不能为数字
-#define word "apple			//宏定义中引号必须成对出现
+#define 1111 F    //报错，宏定义起始位不能为数字
+#define word "apple   //宏定义中引号必须成对出现
 #define char ‘a
 ```
 
 ## 带参数的宏定义
 
 ```c
-#define MAX(a,b)	(a>b ? a:b)
+#define MAX(a,b)    (a>b ? a:b)
 
-#define MIN(a,b)	(a<b ? a:b)
+#define MIN(a,b)    (a<b ? a:b)
 
 int main(){
     int sum = MAX(1,2) + MIN(2,3);
@@ -55,8 +55,9 @@ int main(){
 ## 宏定义中的特殊符号
 
 ```c
-#define TOSTRING(a)		#a
-#define CONNECT(a,b)	a##b
+#define TOSTRING(a)     #a
+#define CONNECT(a,b)    a##b
+
 int main(){
     char *str0 = TOSTRING(hello);
     char *str1 = CONNECT("hello","world");
@@ -65,13 +66,13 @@ int main(){
 
 ## 宏定义实现条件编译
 
-###  **基本用法** 
+### **基本用法**
 
 条件编译的控制与`if-else`语句相似，只不过控制的是是否将其后的代码段进行编译。
 
 ```c
 #if (判断条件)
-	{code}
+    {code}
 #else
     {code}
 #endif
@@ -80,7 +81,7 @@ int main(){
 ```c
 
 #if (判断条件1)
-	{code}
+    {code}
 #elif (判断条件2)
     {code}
 #else
@@ -105,9 +106,8 @@ int main(){
 ### 防止头文件重复引入的三种方法
 
 ```c
-#ifndef _HEADER		//_HEADER为自定义的名称
+#ifndef _HEADER    //_HEADER为自定义的名称
 #define _HEADER
-	/*头文件其余内容*/
+    /*头文件其余内容*/
 #endif
 ```
-

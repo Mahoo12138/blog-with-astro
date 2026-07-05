@@ -12,6 +12,8 @@ const { date } = Astro.props;
 			year: 'numeric',
 			month: 'short',
 			day: 'numeric',
+			// 锁定到上海时区，避免构建环境时区不同导致日期向前/向后偏移一天
+			timeZone: 'Asia/Shanghai',
 		})
 	}
 </time>

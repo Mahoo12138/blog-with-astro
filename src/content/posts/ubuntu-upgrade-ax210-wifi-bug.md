@@ -134,7 +134,6 @@ sudo nmcli connection up "Wi-Fi SSID"
 
 ## 参考资料
 
-+ [Linux系统Intel AX210无线网卡故障排除指南 - 知乎](https://zhuanlan.zhihu.com/p/578531885)
-+ [networking - Intel Wifi 6 AX210 - WiFi not working after Update - Ask Ubuntu](https://askubuntu.com/questions/1360175/intel-wifi-6-ax210-wifi-not-working-after-update)
-
+- [Linux系统Intel AX210无线网卡故障排除指南 - 知乎](https://zhuanlan.zhihu.com/p/578531885)
+- [networking - Intel Wifi 6 AX210 - WiFi not working after Update - Ask Ubuntu](https://askubuntu.com/questions/1360175/intel-wifi-6-ax210-wifi-not-working-after-update)
 - [networking - Ubuntu 20.04 LTS driver Intel Wi-Fi 6E AX210 160MHz - Ask Ubuntu](https://askubuntu.com/questions/1326386/ubuntu-20-04-lts-driver-intel-wi-fi-6e-ax210-160mhz)

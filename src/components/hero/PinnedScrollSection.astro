@@ -1,0 +1,130 @@
+---
+import HeroSection from './HeroSection.astro';
+import WelcomeCards from './WelcomeCards.astro';
+import * as styles from '../../styles/pinnedScroll.css';
+---
+
+<section class={styles.pinContainer} data-pinned-container>
+	<div class={styles.stage} data-pinned-stage>
+		<div class={styles.layer} data-pinned-layer="hero">
+			<HeroSection />
+		</div>
+		<div class={styles.layer} data-pinned-layer="welcome">
+			<WelcomeCards />
+		</div>
+	</div>
+	<div class={styles.progressHint} data-pinned-progress aria-hidden="true">
+		<span data-pinned-progress-label>滚动浏览</span>
+		<span data-pinned-progress-value>0%</span>
+	</div>
+</section>
+
+<script is:inline>
+	(() => {
+		const init = () => {
+			const container = document.querySelector('[data-pinned-container]');
+			const heroLayer = document.querySelector('[data-pinned-layer="hero"]');
+			const welcomeLayer = document.querySelector('[data-pinned-layer="welcome"]');
+			if (!container || !heroLayer || !welcomeLayer) return;
+
+			const heroSection = heroLayer.querySelector('[data-hero-section]');
+			const welcomeSection = welcomeLayer.querySelector('[data-welcome-cards]');
+
+			// 缓动函数
+			const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+			const smoothstep = (edge0, edge1, x) => {
+				const t = clamp((x - edge0) / (edge1 - edge0), 0, 1);
+				return t * t * (3 - 2 * t);
+			};
+
+			const update = () => {
+				const rect = container.getBoundingClientRect();
+				const viewport = window.innerHeight || document.documentElement.clientHeight;
+				// 容器在视口中的位置：top 从 0 到 -(container.height - viewport)
+				// 滚动驱动距离 = 容器总高 - 视口高
+				const pinDistance = container.offsetHeight - viewport;
+				// 已滚动的距离（仅在容器顶部到达视口顶后开始计算）
+				const scrolled = clamp(-rect.top, 0, pinDistance);
+				const progress = pinDistance > 0 ? scrolled / pinDistance : 0;
+
+				// hero：快速淡出（0~0.4 完成）
+				const heroT = smoothstep(0, 0.4, progress);
+				const heroOpacity = 1 - heroT;
+				heroLayer.style.opacity = String(heroOpacity.toFixed(3));
+				heroLayer.style.transform = `scale(${(0.96 + 0.04 * heroOpacity).toFixed(3)})`;
+				if (heroSection) {
+					heroSection.style.pointerEvents = heroOpacity < 0.05 ? 'none' : '';
+				}
+
+				// welcome：稍后淡入（0.15~0.5 完成），之后保持稳定
+				const welcomeT = smoothstep(0.15, 0.5, progress);
+				welcomeLayer.style.opacity = String(welcomeT.toFixed(3));
+				welcomeLayer.style.transform = `translateY(${((1 - welcomeT) * 24).toFixed(2)}px)`;
+				welcomeLayer.style.pointerEvents = welcomeT > 0.6 ? 'auto' : 'none';
+
+				// 触发卡片入场动画
+				if (welcomeSection) {
+					if (welcomeT > 0.5) {
+						welcomeSection.setAttribute('data-visible', 'true');
+					}
+				}
+
+				// 进度提示
+				const hint = document.querySelector('[data-pinned-progress]');
+				const value = document.querySelector('[data-pinned-progress-value]');
+				if (hint) {
+					if (progress > 0 && progress < 1) {
+						hint.setAttribute('data-active', 'true');
+						if (value) value.textContent = `${Math.round(progress * 100)}%`;
+					} else {
+						hint.removeAttribute('data-active');
+					}
+				}
+
+				ticking = false;
+			};
+
+			let ticking = false;
+			const onScroll = () => {
+				if (!ticking) {
+					window.requestAnimationFrame(update);
+					ticking = true;
+				}
+			};
+
+			window.addEventListener('scroll', onScroll, { passive: true });
+			window.addEventListener('resize', onScroll, { passive: true });
+			// 关键：立即同步一次初始状态（顶部 / 任意 scrollY），避免 DOM 刷新后两侧都停留在 opacity:1
+			update();
+
+			// 点击「探索」按钮：直接跳过整个钉屏动画，跳跃到下方的文章内容
+			const btn = document.querySelector('[data-scroll-to-welcome]');
+			if (btn) {
+				btn.addEventListener('click', () => {
+					const startY = window.scrollY;
+					// 直接选 [data-stellar-shell]，避开容器后跟 <script> 等兄弟节点
+					const target = document.querySelector('[data-stellar-shell]');
+					if (!target) return;
+					const targetY = target.getBoundingClientRect().top + window.scrollY;
+					const distance = targetY - startY;
+					if (distance <= 0) return;
+					const duration = Math.min(700, Math.max(400, distance * 0.4));
+					const startTime = performance.now();
+					const easeInOutCubic = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+
+					const step = (now) => {
+						const elapsed = now - startTime;
+						const p = Math.min(1, elapsed / duration);
+						window.scrollTo(0, startY + distance * easeInOutCubic(p));
+						if (p < 1) requestAnimationFrame(step);
+					};
+					requestAnimationFrame(step);
+				});
+			}
+		};
+
+		// 首次加载 + ClientRouter 页面切换（包括同页跳转）后都重新初始化
+		init();
+		document.addEventListener('astro:page-load', init);
+	})();
+</script>

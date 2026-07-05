@@ -8,6 +8,11 @@ export const pageMain = style({
 });
 
 export const header = style({
+	position: 'sticky',
+	top: 0,
+	zIndex: 9,
+	paddingTop: vars.space.lg,
+	paddingBottom: vars.space.md,
 	marginBottom: 0,
 });
 

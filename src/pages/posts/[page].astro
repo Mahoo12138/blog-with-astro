@@ -34,7 +34,7 @@ interface Props {
 }
 
 const { page, totalPages, posts } = Astro.props as Props;
-const prevUrl = page === 2 ? '/' : `/posts/${page - 1}`;
+const prevUrl = page === 2 ? '/posts/' : `/posts/${page - 1}`;
 const nextUrl = page < totalPages ? `/posts/${page + 1}` : undefined;
 ---
 

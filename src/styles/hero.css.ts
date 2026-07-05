@@ -17,14 +17,20 @@ const bounce = keyframes({
 });
 
 export const hero = style({
-	position: 'relative',
+	// 在 PinnedScrollSection 中以 absolute 填满父级（100vh 舞台）
+	position: 'absolute',
+	inset: 0,
 	width: '100%',
-	minHeight: '100vh',
+	height: '100%',
 	display: 'flex',
 	alignItems: 'center',
 	justifyContent: 'center',
 	overflow: 'hidden',
 	zIndex: 1,
+	opacity: 1,
+	visibility: 'visible',
+	pointerEvents: 'auto',
+	willChange: 'opacity, transform',
 });
 
 export const heroCanvas = style({

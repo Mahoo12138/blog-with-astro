@@ -1,13 +1,12 @@
 ---
 import { getCollection } from 'astro:content';
-import Pagination from '../components/Pagination.astro';
-import StellarNavTabs from '../components/StellarNavTabs.astro';
-import StellarPostCard from '../components/StellarPostCard.astro';
-import PinnedScrollSection from '../components/hero/PinnedScrollSection.astro';
-import { POSTS_PER_PAGE, SITE_DESCRIPTION, SITE_TITLE } from '../consts';
-import StellarShell from '../layouts/StellarShell.astro';
-import * as styles from '../styles/homeFeed.css';
-import { sortBlogPosts } from '../utils/content';
+import Pagination from '../../components/Pagination.astro';
+import StellarNavTabs from '../../components/StellarNavTabs.astro';
+import StellarPostCard from '../../components/StellarPostCard.astro';
+import { POSTS_PER_PAGE, SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
+import StellarShell from '../../layouts/StellarShell.astro';
+import * as styles from '../../styles/homeFeed.css';
+import { sortBlogPosts } from '../../utils/content';
 
 const allPosts = sortBlogPosts(await getCollection('posts'));
 const totalPages = Math.max(1, Math.ceil(allPosts.length / POSTS_PER_PAGE));
@@ -16,7 +15,6 @@ const nextUrl = totalPages > 1 ? '/posts/2' : undefined;
 ---
 
 <StellarShell title={SITE_TITLE} description={SITE_DESCRIPTION} mainClass={styles.main} siteTree="home">
-	<PinnedScrollSection slot="hero" />
 	<header class={styles.header}>
 		<StellarNavTabs active="home" />
 	</header>

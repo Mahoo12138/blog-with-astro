@@ -11,8 +11,6 @@ categories:
 
 
 
-# 在 RK3588 小主机上部署 Immich 开源相册服务
-
 ## 前言
 
 最近在我的 RK3588 小主机上成功部署了 Immich——一个高性能的开源照片和视频管理解决方案。Immich 可以作为 Google Photos 的完美替代品，支持自动备份、人脸识别、智能搜索等功能。本文将详细记录整个部署过程，特别是如何充分利用 RK3588 的硬件加速能力。
@@ -152,6 +150,7 @@ DB_DATABASE_NAME=immich
 ```
 
 **重要提示**:
+
 - `UPLOAD_LOCATION`: 照片存储路径，建议使用大容量存储
 - `DB_DATA_LOCATION`: 数据库路径，建议放在 SSD 上以提升性能
 - `MACHINE_LEARNING_RKNN_THREADS`: RKNN 线程数，RK3588 建议设置为 2
@@ -211,6 +210,7 @@ services:
 ```
 
 **RKMPP 配置说明**:
+
 - `/dev/rga`: 2D 图形加速器
 - `/dev/mpp_service`: 媒体处理平台服务
 - `/dev/mali0`: Mali GPU（用于 OpenCL HDR 到 SDR 色调映射）
@@ -279,7 +279,7 @@ services:
 cd ~/immich
 
 # 启动所有服务
-docker compose -f immich.yml up -d
+docker compose -f immich.yml --env-file ./immich.env up -d
 
 # 查看日志
 docker compose -f immich.yml logs -f
@@ -306,6 +306,7 @@ docker compose -f immich.yml ps
 - **使用 RKMPP 加速**: CPU 使用率降至 10-20%，转码速度提升 3-5 倍
 
 在 Immich Web 界面中启用硬件转码：
+
 1. 进入 `管理` → `视频转码设置`
 2. 选择 `硬件加速`: **RKMPP**
 3. 设置目标分辨率和码率
@@ -313,12 +314,14 @@ docker compose -f immich.yml ps
 #### 机器学习加速 (RKNN)
 
 RKNN 是 Rockchip 的 NPU 推理框架，可以大幅加速：
+
 - 人脸识别
 - 物体检测
 - 智能标签生成
 - CLIP 文本-图像搜索
 
 **性能对比**:
+
 - CPU 推理: ~2-3 张图片/秒
 - RKNN NPU 加速: ~8-12 张图片/秒
 
@@ -358,7 +361,7 @@ database:
 - **智能搜索**: 响应时间 < 1 秒
 - **视频转码**: 4K@30fps → 1080p@30fps，实时率约 1.5x
 - **功耗**: 整机约 15-25W（包括硬盘）
-- **内存占用**: 
+- **内存占用**:
   - immich-server: ~500MB
   - immich-machine-learning: ~800MB
   - postgres: ~200MB
@@ -366,7 +369,28 @@ database:
 
 ## 常见问题和解决方案
 
-### 1. 设备权限问题
+### 1. 手动下载模型
+
+```bash
+# 管理员用户通过ssh连接到FnOS服务器
+# 安装
+sudo apt install git-lfs
+wget https://hf-mirror.com/hfd/hfd.sh && chmod a+x hfd.sh
+export HF_ENDPOINT=https://hf-mirror.com
+
+./hfd.sh immich-app/XLM-Roberta-Large-Vit-B-16Plus --tool aria2c -x 4
+./hfd.sh immich-app/buffalo_l --tool aria2c -x 4
+```
+
+然后移动到 `model-cache/clip`和 `model-cache/facial-recognition`，但是要注意必须满足  `rknpu ≥ V0.9.8` ，可以查看：
+
+```bash
+cat /sys/kernel/debug/rknpu/version
+```
+
+可以参考：[cse-repon/orangepi-5b-rknpu-0.9.8-update](https://github.com/cse-repon/orangepi-5b-rknpu-0.9.8-update)。
+
+### 2. 设备权限问题
 
 如果遇到 `/dev/mpp_service` 或其他设备访问被拒绝：
 
@@ -379,18 +403,6 @@ sudo usermod -aG video $USER
 
 # 重启 Docker 服务
 sudo systemctl restart docker
-```
-
-### 2. RKNN 初始化失败
-
-确保系统内核支持 RKNN：
-
-```bash
-# 检查 NPU 设备
-ls -l /dev/dri/renderD*
-
-# 查看内核模块
-lsmod | grep rknpu
 ```
 
 ### 3. 内存不足
@@ -464,10 +476,10 @@ tar -czf immich_config_$(date +%Y%m%d).tar.gz \
 docker compose -f immich.yml down
 
 # 拉取最新镜像
-docker compose -f immich.yml pull
+docker compose -f immich.yml --env-file ./immich.env pull
 
 # 启动服务
-docker compose -f immich.yml up -d
+docker compose -f immich.yml --env-file ./immich.env up -d
 
 # 查看日志确认正常
 docker compose -f immich.yml logs -f
@@ -508,11 +520,11 @@ VACUUM ANALYZE;
 
 在 RK3588 小主机上部署 Immich 是一个非常值得的选择。通过合理配置硬件加速，可以获得：
 
-✅ **优秀的性能**: NPU 和硬件编解码器大幅提升处理速度  
-✅ **低功耗**: 相比 x86 方案，功耗更低，更环保  
-✅ **高性价比**: 硬件成本低，性能够用  
-✅ **完整功能**: 支持人脸识别、智能搜索、自动备份等全部功能  
-✅ **隐私安全**: 数据完全掌握在自己手中  
+- **优秀的性能**: NPU 和硬件编解码器大幅提升处理速度  
+- **低功耗**: 相比 x86 方案，功耗更低，更环保  
+- **高性价比**: 硬件成本低，性能够用  
+- **完整功能**: 支持人脸识别、智能搜索、自动备份等全部功能  
+- **隐私安全**: 数据完全掌握在自己手中  
 
 对于家庭用户来说，RK3588 + Immich 是替代 Google Photos 等云服务的理想方案。
 
@@ -526,7 +538,7 @@ VACUUM ANALYZE;
 ## 更新日志
 
 - **2025-02**: 初始部署，配置硬件加速
-- 持续优化中...
+- **2026-06**: 添加机器学习模型手动配置
 
 ---
 

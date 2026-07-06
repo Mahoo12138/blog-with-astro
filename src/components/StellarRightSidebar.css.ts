@@ -1,5 +1,5 @@
 import { globalStyle, style } from '@vanilla-extract/css';
-import { vars } from '../styles/theme.css';
+import { vars, breakpoints } from '../styles/theme.css';
 
 const gapMargin = '16px';
 const gapPadding = '16px';
@@ -19,6 +19,13 @@ export const root = style({
 	zIndex: 1,
 	lineHeight: 1.2,
 	margin: `0 ${gapMargin}`,
+	display: 'flex',
+	flexDirection: 'column',
+	'@media': {
+		[`screen and (min-width: ${breakpoints.laptop})`]: {
+			minHeight: '100dvh',
+		},
+	},
 });
 
 export const widget = style({

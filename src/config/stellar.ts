@@ -1,7 +1,7 @@
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 
 export type MenuId = 'post' | 'columns' | 'explore' | 'about' | 'rss' | 'wiki' | 'notebooks';
-export type SidebarWidgetId = 'welcome' | 'recent' | 'related' | 'timeline' | 'media' | 'toc' | 'ghrepo' | 'heatmap' | 'goods-stats' | 'gallery-info' | 'gallery-albums' | 'column-info' | 'column-posts' | 'travel-stats' | 'travel-recent' | 'archives-stats';
+export type SidebarWidgetId = 'welcome' | 'recent' | 'related' | 'timeline' | 'media' | 'toc' | 'ghrepo' | 'heatmap' | 'goods-stats' | 'gallery-info' | 'gallery-albums' | 'column-info' | 'column-posts' | 'travel-stats' | 'travel-recent' | 'archives-stats' | 'site-info';
 export type SiteTreeKey = 'home' | 'index_blog' | 'index_topic' | 'explore' | 'gallery' | 'post' | 'topic' | 'column' | 'wiki' | 'notebooks' | 'notes' | 'note' | 'author' | 'error_page' | 'page' | 'travel' | 'archives';
 
 export interface MenubarItem {
@@ -150,9 +150,10 @@ export const stellarConfig = {
 		'travel-stats': { id: 'travel-stats', layout: 'travel-stats', title: '足迹统计' },
 		'travel-recent': { id: 'travel-recent', layout: 'travel-recent', title: '最近点亮', limit: 6 },
 		'archives-stats': { id: 'archives-stats', layout: 'archives-stats', title: '归档统计' },
+		'site-info': { id: 'site-info', layout: 'site-info', title: '技术信息' },
 	} satisfies Record<SidebarWidgetId, SidebarWidgetConfig>,
 	siteTree: {
-		home: { menuId: 'post', leftbar: ['welcome', 'recent'], rightbar: ['heatmap'] },
+		home: { menuId: 'post', leftbar: ['welcome', 'recent'], rightbar: ['heatmap', 'site-info'] },
 		index_blog: { menuId: 'post', leftbar: ['welcome', 'recent'], rightbar: null },
 		index_topic: { menuId: 'columns', leftbar: ['welcome', 'recent'], rightbar: null },
 		explore: { menuId: 'explore', leftbar: ['welcome', 'recent'], rightbar: null },

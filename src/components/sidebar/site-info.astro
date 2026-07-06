@@ -1,0 +1,103 @@
+---
+/**
+ * 技术信息小部件
+ *
+ * 展示站点构建平台、协议、版本等静态元信息。
+ * EdgeOne 图标使用远端 favicon；其它图标内联 SVG。
+ */
+import type { WidgetProps } from './types';
+import * as rightStyles from '../StellarRightSidebar.css';
+import * as styles from './site-info.css';
+
+const { widget } = Astro.props as WidgetProps;
+
+const platform = {
+	name: 'EdgeOne',
+	icon: 'https://edgeone.ai/favicon.ico',
+};
+
+const storage = {
+	name: '本地',
+};
+
+const versions: Array<{ label: string; value: string }> = [
+	{ label: 'Astro', value: '^6.3.3' },
+	{ label: 'React', value: '^19.2.6' },
+	{ label: 'TypeScript', value: '^6.0.3' },
+	{ label: 'Vite', value: '7.3.2' },
+	{ label: 'MDX', value: '^5.0.6' },
+	{ label: 'Node', value: '>=22.12.0' },
+	{ label: 'Sharp', value: '^0.34.5' },
+	{ label: 'Artalk', value: '^2.9.1' },
+];
+---
+
+<section class:list={[rightStyles.widget, styles.widget]} id="data-site-info" data-site-info-widget aria-labelledby="site-info-title">
+	<div class={rightStyles.widgetHeader}><span id="site-info-title">{widget.title}</span></div>
+	<div class={styles.card}>
+		<div class={styles.row}>
+			<span class={styles.rowLabel}>构建平台</span>
+			<span class={styles.rowValue}>
+				<img class={styles.platformIcon} src={platform.icon} alt={platform.name} loading="lazy" decoding="async" />
+				{platform.name}
+			</span>
+		</div>
+		<div class={styles.row}>
+			<span class={styles.rowLabel}>图片存储</span>
+			<span class={styles.rowValue}>
+				<svg class={styles.folderIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+					<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+				</svg>
+				{storage.name}
+			</span>
+		</div>
+		<div class={styles.row}>
+			<span class={styles.rowLabel}>软件协议</span>
+			<span class={styles.rowValue}>MIT</span>
+		</div>
+		<div class={styles.row}>
+			<span class={styles.rowLabel}>文章许可</span>
+			<span class={styles.rowValue}>CC BY-NC-ND 4.0</span>
+		</div>
+		<div class={styles.row}>
+			<span class={styles.rowLabel}>规范域名</span>
+			<span class={styles.rowValue}>mahoo12138.cn</span>
+		</div>
+		<button class={styles.toggleRow} type="button" aria-label="收起构建信息" aria-pressed="false" data-site-info-toggle>
+			<span data-site-info-toggle-label>收起构建信息</span>
+			<svg class={styles.toggleIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+				<polyline points="6 9 12 15 18 9" />
+			</svg>
+		</button>
+		<div class={styles.detailPanel}>
+			<div class={styles.detailInner}>
+				<div class={styles.versionGrid}>
+					{versions.map((item) => (
+						<div class={styles.versionCard}>
+							<span class={styles.versionLabel}>{item.label}</span>
+							<span class={styles.versionValue}>{item.value}</span>
+						</div>
+					))}
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<script is:inline>
+	(() => {
+		const widget = document.querySelector('[data-site-info-widget]');
+		if (!widget) return;
+
+		const toggle = widget.querySelector('[data-site-info-toggle]');
+		const labelEl = widget.querySelector('[data-site-info-toggle-label]');
+
+		toggle?.addEventListener('click', () => {
+			const collapsed = widget.classList.toggle('collapse');
+			toggle.setAttribute('aria-pressed', String(collapsed));
+			if (labelEl) {
+				labelEl.textContent = collapsed ? '展开构建信息' : '收起构建信息';
+			}
+		});
+	})();
+</script>

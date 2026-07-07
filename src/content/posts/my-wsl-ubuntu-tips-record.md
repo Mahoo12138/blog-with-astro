@@ -9,7 +9,22 @@ tags:
 date: 2019-11-06 22:48:43
 ---
 
-## Win10 子系统 Ubuntu 安装 Apache2 错误
+## 国内网络安装/更新
+
+目前最新版是 2.7.10, 使用 `https://gh-proxy.org` 等代理加速加载：
+
+```plaintext
+https://gh-proxy.com/https://github.com/microsoft/WSL/releases/download/2.7.10/wsl.2.7.10.0.x64.msi
+```
+
+下载 Ubuntu WSL 镜像，通过源镜源镜像下载：
+
+```plaintext
+https://mirrors.ustc.edu.cn/ubuntu-releases/24.04/ubuntu-24.04.3-wsl-amd64.wsl
+```
+
+
+## 安装 Apache2 错误
 
 安装好 Apache2 后，通过命令`service apache2 start `启动，报错为：
 

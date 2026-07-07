@@ -1,0 +1,46 @@
+---
+/**
+ * 导航链接卡片 — 默认 1×2
+ * 自动根据 col/row 切换竖排/横排/大卡布局
+ */
+import type { NavigationCardProps, CardSpan } from '../../config/welcomeGrid';
+import * as styles from '../../styles/welcomeGrid.css';
+
+interface Props {
+	props: NavigationCardProps;
+	span: CardSpan;
+	title?: string;
+	accentColor?: string;
+}
+
+const { props, span, title, accentColor } = Astro.props as Props;
+
+const isLarge = span.col >= 2 && span.row >= 2;
+const isHorizontal = span.col >= 2 && span.row === 1;
+const layoutClass = isLarge ? styles.navLarge : isHorizontal ? styles.navHorizontal : styles.navVertical;
+const isExternal = props.openInNewTab || props.href.startsWith('http');
+---
+
+<a
+	class:list={[styles.card, styles.cardInteractive, layoutClass]}
+	href={props.href}
+	target={isExternal ? '_blank' : undefined}
+	rel={isExternal ? 'noopener' : undefined}
+	title={title ?? props.name}
+	style={`--card-accent:${accentColor ?? props.iconColor ?? '#2196f3'}`}
+	data-welcome-card="navigation"
+>
+	<span class={styles.navIcon} style={`color:${props.iconColor ?? 'currentColor'}`}>
+		{
+			props.icon ? (
+				<svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22" aria-hidden="true">
+					<path d={props.icon} />
+				</svg>
+			) : null
+		}
+	</span>
+	<span class={styles.navBody}>
+		<span class={styles.navName}>{props.name}</span>
+		{props.desc ? <span class={styles.navDesc}>{props.desc}</span> : null}
+	</span>
+</a>

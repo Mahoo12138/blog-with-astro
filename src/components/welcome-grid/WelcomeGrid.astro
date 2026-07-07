@@ -1,0 +1,76 @@
+---
+/**
+ * 第二屏可配置卡片 grid — 顶层容器
+ * - 从 welcomeGridConfig 读取布局和 items
+ * - 自动按 span.col/row 生成 grid-area 内联 style（响应式）
+ * - 入口脚本处理 contact 卡片的 copy 交互
+ */
+import { welcomeGridConfig } from '../../config/welcomeGridConfig';
+import { buildGridAreaStyle, visibleItems } from '../../config/welcomeGridUtils';
+import CardRenderer from './CardRenderer.astro';
+import * as styles from '../../styles/welcomeGrid.css';
+
+const { grid, items } = welcomeGridConfig;
+const list = visibleItems(items as any);
+---
+
+<div
+	class={styles.gridRoot}
+	data-welcome-grid
+	style={`grid-auto-rows:minmax(${grid.minRowHeight ?? '7rem'},auto);gap:${grid.gap ?? '0.75rem'};`}
+>
+	{
+	list.map((item) => (
+		<div
+			data-welcome-card-wrap
+			style={buildGridAreaStyle(item, grid.columns)}
+		>
+			<CardRenderer item={item} />
+		</div>
+	))
+}
+</div>
+
+<script>
+	// contact 卡片：点击触发复制 + toast 提示
+	(() => {
+		function bind() {
+			document.querySelectorAll<HTMLElement>('[data-welcome-card="contact"]').forEach((el) => {
+				if (el.dataset.bound) return;
+				el.dataset.bound = '1';
+
+				el.addEventListener('click', async (event) => {
+					const action = el.dataset.action;
+					if (action !== 'copy') return;
+					const value = el.dataset.copyValue;
+					if (!value) return;
+					event.preventDefault();
+					try {
+						if (navigator.clipboard?.writeText) {
+							await navigator.clipboard.writeText(value);
+						} else {
+							// 旧浏览器兜底
+							const ta = document.createElement('textarea');
+							ta.value = value;
+							ta.style.position = 'fixed';
+							ta.style.left = '-9999px';
+							document.body.appendChild(ta);
+							ta.select();
+							document.execCommand('copy');
+							document.body.removeChild(ta);
+						}
+						const toast = el.querySelector<HTMLElement>('[data-toast-target]');
+						if (toast) {
+							toast.setAttribute('data-toast', 'true');
+							setTimeout(() => toast.removeAttribute('data-toast'), 1200);
+						}
+					} catch (err) {
+						console.warn('[welcome-grid] copy failed', err);
+					}
+				});
+			});
+		}
+		bind();
+		document.addEventListener('astro:page-load', bind);
+	})();
+</script>

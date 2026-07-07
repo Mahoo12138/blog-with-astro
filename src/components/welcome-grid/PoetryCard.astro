@@ -1,0 +1,45 @@
+---
+/**
+ * 古诗词卡片 — 推荐 3×2
+ * 三种背景主题：starry（星空，深色）/ paper（米色纸面）/ plain（普通）
+ */
+import type { PoetryCardProps } from '../../config/welcomeGrid';
+import * as styles from '../../styles/poetryCard.css';
+
+interface Props {
+	props: PoetryCardProps;
+	title?: string;
+}
+
+const { props, title } = Astro.props as Props;
+
+const cardClass = props.background === 'paper'
+	? styles.cardPaper
+	: props.background === 'plain'
+		? styles.cardPlain
+		: styles.cardStarry;
+---
+
+<div
+	class={cardClass}
+	data-welcome-card="poetry"
+	data-poetry-bg={props.background ?? 'starry'}
+	title={title ?? `${props.dynasty}·${props.author} ${props.quote}`}
+>
+	{props.background === 'starry' && (
+		<svg class={styles.starLayer} viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+			<circle cx="12" cy="18" r="0.6" fill="#f1c976" />
+			<circle cx="35" cy="40" r="0.4" fill="#fff" />
+			<circle cx="78" cy="22" r="0.5" fill="#f1c976" />
+			<circle cx="90" cy="60" r="0.3" fill="#fff" />
+			<circle cx="22" cy="80" r="0.5" fill="#fff" />
+			<circle cx="62" cy="88" r="0.4" fill="#f1c976" />
+		</svg>
+	)}
+	<p class={styles.content}>{props.content}</p>
+	<div class={styles.meta}>
+		<span class={styles.dynasty}>{props.dynasty}</span>
+		<span class={styles.author}>{props.author}</span>
+		<span class={styles.quote}>{props.quote}</span>
+	</div>
+</div>

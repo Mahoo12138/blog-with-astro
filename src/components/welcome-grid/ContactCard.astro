@@ -1,0 +1,89 @@
+---
+/**
+ * 联系方式卡片
+ * 支持 1×1（紧凑）/ 2×1（横向）等尺寸
+ * 支持 copy / link / qrcode 三种交互
+ */
+import type { ContactCardProps, CardSpan } from '../../config/welcomeGrid';
+import * as styles from '../../styles/welcomeGrid.css';
+
+interface Props {
+	props: ContactCardProps;
+	span: CardSpan;
+	title?: string;
+	accentColor?: string;
+}
+
+const { props, span, title, accentColor } = Astro.props as Props;
+
+const isLarge = span.col >= 2 && span.row >= 2;
+const isHorizontal = span.col >= 2 && span.row === 1;
+const isCompact = span.col === 1 && span.row === 1;
+const layoutClass = isLarge
+	? styles.navLarge
+	: isHorizontal
+		? styles.navHorizontal
+		: isCompact
+			? styles.navCompact
+			: styles.navVertical;
+const isExternal = props.href?.startsWith('http');
+const tag = props.href ? 'a' : 'button';
+---
+
+<Fragment>
+	{tag === 'a' ? (
+		<a
+			class:list={[styles.card, styles.cardInteractive, layoutClass]}
+			href={props.href}
+			target={isExternal ? '_blank' : undefined}
+			rel={isExternal ? 'noopener' : undefined}
+			title={title ?? `${props.platform}: ${props.value}`}
+			style={`--card-accent:${accentColor ?? props.iconColor ?? '#3367d6'}`}
+			data-welcome-card="contact"
+			data-action={props.action ?? 'link'}
+			data-copy-value={props.action === 'copy' ? props.value : undefined}
+		>
+			<span class={styles.navIcon} style={`color:${props.iconColor ?? 'currentColor'}`}>
+				{props.icon ? (
+					<svg viewBox="0 0 24 24" fill="currentColor" width={isCompact ? '20' : '22'} height={isCompact ? '20' : '22'} aria-hidden="true">
+						<path d={props.icon} />
+					</svg>
+				) : null}
+			</span>
+			{!isCompact && (
+				<span class={styles.navBody}>
+					<span class={styles.navName}>{props.platform}</span>
+					<span class={styles.navDesc}>{props.value}</span>
+				</span>
+			)}
+			{isCompact && <span class={styles.navName}>{props.platform}</span>}
+			<span class={styles.toastHint} data-toast-target>已复制</span>
+		</a>
+	) : (
+		<button
+			class:list={[styles.card, styles.cardInteractive, layoutClass]}
+			type="button"
+			title={title ?? `${props.platform}: ${props.value}`}
+			style={`--card-accent:${accentColor ?? props.iconColor ?? '#3367d6'}`}
+			data-welcome-card="contact"
+			data-action={props.action ?? 'copy'}
+			data-copy-value={props.action === 'copy' ? props.value : undefined}
+		>
+			<span class={styles.navIcon} style={`color:${props.iconColor ?? 'currentColor'}`}>
+				{props.icon ? (
+					<svg viewBox="0 0 24 24" fill="currentColor" width={isCompact ? '20' : '22'} height={isCompact ? '20' : '22'} aria-hidden="true">
+						<path d={props.icon} />
+					</svg>
+				) : null}
+			</span>
+			{!isCompact && (
+				<span class={styles.navBody}>
+					<span class={styles.navName}>{props.platform}</span>
+					<span class={styles.navDesc}>{props.value}</span>
+				</span>
+			)}
+			{isCompact && <span class={styles.navName}>{props.platform}</span>}
+			<span class={styles.toastHint} data-toast-target>已复制</span>
+		</button>
+	)}
+</Fragment>

@@ -1,0 +1,25 @@
+---
+/**
+ * 共享侧边栏组件卡片 — 复用现有 sidebar widget 体系
+ * 用 SidebarRenderer 自动按 widget id 找到对应组件渲染
+ */
+import type { SidebarCardProps } from '../../config/welcomeGrid';
+import SidebarRenderer from '../SidebarRenderer.astro';
+import * as styles from '../../styles/welcomeGrid.css';
+
+interface Props {
+	props: SidebarCardProps;
+	title?: string;
+}
+
+const { props, title } = Astro.props as Props;
+const widget = props.widget;
+---
+
+<div
+	class={styles.card}
+	data-welcome-card="sidebar"
+	title={title ?? widget.title}
+>
+	<SidebarRenderer widgets={[widget]} side="right" />
+</div>

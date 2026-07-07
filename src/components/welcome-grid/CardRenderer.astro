@@ -1,0 +1,46 @@
+---
+/**
+ * 卡片渲染调度器 — 按 item.type 选择对应卡片组件
+ *
+ * 新增卡片类型只需两步：
+ *   1. 在 src/config/welcomeGrid.ts 扩展 WelcomeCardType 联合
+ *   2. 在本文件 registry 中追加 (type, Component) 映射
+ *
+ * 响应式策略：grid 容器在 CSS 层处理断点（8 列 → 4 列），
+ * 子组件只需考虑两种 span（宽屏 span / 窄屏 narrow），不需要关心具体断点宽度。
+ */
+import type { AnyCardItem } from '../../config/welcomeGrid';
+import NavigationCard from './NavigationCard.astro';
+import ContactCard from './ContactCard.astro';
+import PoetryCard from './PoetryCard.astro';
+import CountdownCard from './CountdownCard.astro';
+import SidebarCard from './SidebarCard.astro';
+
+interface Props {
+	item: AnyCardItem;
+}
+
+const { item } = Astro.props as Props;
+
+// 类型 → 组件 映射表
+const registry = {
+	navigation: NavigationCard,
+	contact: ContactCard,
+	poetry: PoetryCard,
+	countdown: CountdownCard,
+	sidebar: SidebarCard,
+} as const;
+
+const Component = registry[item.type];
+---
+
+{
+	Component ? (
+		<Component
+			props={(item as any).props}
+			span={item.span}
+			title={item.title}
+			accentColor={item.style?.accentColor}
+		/>
+	) : null
+}

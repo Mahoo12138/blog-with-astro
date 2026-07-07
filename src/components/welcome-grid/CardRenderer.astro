@@ -8,39 +8,37 @@
  *
  * 响应式策略：grid 容器在 CSS 层处理断点（8 列 → 4 列），
  * 子组件只需考虑两种 span（宽屏 span / 窄屏 narrow），不需要关心具体断点宽度。
+ *
+ * React 集成：countdown 卡片为 React island（chinese-days 客户端计算）
+ *  - SSR 渲染骨架，client:visible 触发 hydrate
+ *  - 其他卡片保持 Astro 组件
  */
 import type { AnyCardItem } from '../../config/welcomeGrid';
 import NavigationCard from './NavigationCard.astro';
 import ContactCard from './ContactCard.astro';
 import PoetryCard from './PoetryCard.astro';
-import CountdownCard from './CountdownCard.astro';
 import SidebarCard from './SidebarCard.astro';
+import CountdownCardIsland from './CountdownCardIsland.astro';
 
 interface Props {
 	item: AnyCardItem;
 }
 
 const { item } = Astro.props as Props;
-
-// 类型 → 组件 映射表
-const registry = {
-	navigation: NavigationCard,
-	contact: ContactCard,
-	poetry: PoetryCard,
-	countdown: CountdownCard,
-	sidebar: SidebarCard,
-} as const;
-
-const Component = registry[item.type];
 ---
 
-{
-	Component ? (
-		<Component
-			props={(item as any).props}
-			span={item.span}
-			title={item.title}
-			accentColor={item.style?.accentColor}
-		/>
-	) : null
-}
+<Fragment>
+	{item.type === 'navigation' && (
+		<NavigationCard props={(item as any).props} span={item.span} title={item.title} />
+	)}
+	{item.type === 'contact' && (
+		<ContactCard props={(item as any).props} span={item.span} title={item.title} />
+	)}
+	{item.type === 'poetry' && (
+		<PoetryCard props={(item as any).props} span={item.span} title={item.title} />
+	)}
+	{item.type === 'countdown' && <CountdownCardIsland />}
+	{item.type === 'sidebar' && (
+		<SidebarCard props={(item as any).props} span={item.span} title={item.title} />
+	)}
+</Fragment>

@@ -1,0 +1,17 @@
+---
+/**
+ * CountdownCardIsland — Astro 桥接 React 倒计时卡片
+ *
+ * 渲染策略：
+ * - 始终先渲染 SSR 骨架（保持卡片形状，避免布局抖动）
+ * - 通过 client:visible 触发 React island hydrate
+ * - hydrate 后，React 组件读取 chinese-days 计算最近节日
+ * - 不再需要 SSR 注入 props（date/holidays 全部客户端计算）
+ */
+import CountdownCard from './CountdownCard';
+import CountdownCardSkeleton from './CountdownCardSkeleton';
+---
+
+<CountdownCard client:visible>
+	<CountdownCardSkeleton slot="fallback" />
+</CountdownCard>

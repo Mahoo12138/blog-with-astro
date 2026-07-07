@@ -53,17 +53,9 @@ export const welcomeGridConfig: WelcomeGridConfig = {
 			type: 'countdown',
 			span: { col: 4, row: 2 },
 			narrow: { col: 2, row: 4 },
-			props: {
-				title: '距离春节',
-				date: '2027-01-29',
-				dateLabel: '2027-01-06',
-				milestones: [
-					{ label: '今日', total: 24, remaining: 2, unit: '小时' },
-					{ label: '本周', total: 7, remaining: 5, unit: '天' },
-					{ label: '本月', total: 31, remaining: 25, unit: '天' },
-					{ label: '本年', total: 365, remaining: 178, unit: '天' },
-				],
-			},
+			// 倒计时卡片为 React island，title/date/milestones 由客户端 chinese-days 动态计算
+			// 主题在 src/config/holidayThemes.ts（春节/中秋/国庆等 7 个法定节日）
+			props: {} as any,
 		},
 
 		// ─── 行 3：导航链接卡片（宽屏 2×1，窄屏 1×2）───

@@ -85,7 +85,7 @@ export const holidayThemes: Record<string, HolidayTheme> = {
 			border: 'rgba(26, 58, 90, 0.18)',
 		},
 		decor: { type: 'firework', glyph: '✦' },
-		typography: { layout: 'inline', template: '距{name} {n} 天', font: 'sans' },
+		typography: { layout: 'inline', template: '{name} {n} 天', font: 'sans' },
 		bigNumberColor: 'gradient',
 	},
 
@@ -148,7 +148,7 @@ export const holidayThemes: Record<string, HolidayTheme> = {
 			border: 'rgba(9, 132, 227, 0.18)',
 		},
 		decor: { type: 'flower', glyph: '✿' },
-		typography: { layout: 'inline', template: '距{name} {n} 天', font: 'sans' },
+		typography: { layout: 'inline', template: '{name} {n} 天', font: 'sans' },
 		bigNumberColor: 'gradient',
 	},
 
@@ -186,7 +186,7 @@ export const holidayThemes: Record<string, HolidayTheme> = {
 			border: 'rgba(217, 154, 58, 0.32)',
 		},
 		decor: { type: 'moon', glyph: '🌕' },
-		typography: { layout: 'inline', template: '距{name} {n} 天', font: 'serif' },
+		typography: { layout: 'inline', template: '{name} {n} 天', font: 'serif' },
 		bigNumberColor: 'primary',
 	},
 

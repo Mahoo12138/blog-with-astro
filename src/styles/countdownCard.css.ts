@@ -35,7 +35,7 @@ export const card = style({
 	width: '100%',
 	height: '100%',
 	padding: `${vars.space.lg} ${vars.space.xl}`,
-	borderRadius: '4px',
+	borderRadius: vars.radius.lg,
 	background: 'var(--theme-bg)',
 	backgroundImage: `
 		radial-gradient(circle at 12% 20%, color-mix(in srgb, var(--theme-primary) 6%, transparent) 0%, transparent 40%),
@@ -52,6 +52,9 @@ export const card = style({
 	fontFamily: 'var(--theme-font)',
 	transition: 'background 0.4s ease, color 0.4s ease, border-color 0.4s ease, box-shadow 0.2s ease',
 	boxShadow: '0 1px 0 color-mix(in srgb, var(--theme-primary) 6%, transparent), 0 16px 32px color-mix(in srgb, var(--theme-ink) 8%, transparent)',
+	// 容器查询：让内部字号使用 cqi 单位跟随卡片宽度
+	containerType: 'inline-size',
+	containerName: 'countdown',
 	selectors: {
 		'&:hover': {
 			boxShadow: `0 0 0 1px var(--theme-primary), 0 16px 32px color-mix(in srgb, var(--theme-ink) 12%, transparent)`,
@@ -164,10 +167,15 @@ export const divider = style({
 /* ─────────── 主体 ─────────── */
 export const body = style({
 	display: 'grid',
-	gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1.5fr)',
-	gap: vars.space.lg,
+	gridTemplateColumns: 'minmax(0, 1.1fr) minmax(0, 1fr)',
+	gap: vars.space.md,
 	alignItems: 'center',
 	minHeight: 0,
+});
+
+/* inline 模式：hero 拉宽（容纳 "距劳动节 79 天" 这类长模板） */
+export const bodyInline = style({
+	gridTemplateColumns: 'minmax(0, 1.8fr) minmax(0, 1fr)',
 });
 
 /* 左侧：大数字块（stacked 模式） */
@@ -203,13 +211,14 @@ export const heroLabel = style({
 });
 
 export const heroNumber = style({
-	fontSize: 'clamp(3.2rem, 6.5vw, 4.8rem)',
+	fontSize: 'clamp(1.8rem, 11cqi, 2.8rem)',
 	fontWeight: 700,
 	lineHeight: 0.95,
 	letterSpacing: '-0.04em',
 	fontFamily: 'var(--theme-font)',
 	fontVariantNumeric: 'tabular-nums',
 	margin: 0,
+	minWidth: 0,
 	'::after': {
 		content: '""',
 		display: 'block',
@@ -270,14 +279,18 @@ export const heroInlineLabel = style({
 });
 
 export const heroInlineNumber = style({
-	fontSize: 'clamp(2.5rem, 5.5vw, 3.8rem)',
+	fontSize: 'clamp(1.1rem, 12cqi, 2rem)',
 	fontWeight: 700,
-	lineHeight: 0.95,
-	letterSpacing: '-0.04em',
+	lineHeight: 1.05,
+	letterSpacing: '-0.02em',
 	fontFamily: 'var(--theme-font)',
 	fontVariantNumeric: 'tabular-nums',
 	margin: 0,
+	minWidth: 0,
 	whiteSpace: 'nowrap',
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
+	maxWidth: '100%',
 });
 
 /* ─────────── 进度条列表 ─────────── */

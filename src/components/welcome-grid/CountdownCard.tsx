@@ -208,8 +208,9 @@ export default function CountdownCard() {
 		const c = currentTheme.bigNumberColor;
 		if (c === 'primary') return { color: 'var(--theme-primary)' };
 		if (c === 'ink') return { color: 'var(--theme-ink)' };
+		// 必须用 longhand backgroundImage，React 会把 background 简写拆成多个 longhand 导致 linear-gradient 丢失
 		return {
-			background: 'linear-gradient(135deg, var(--theme-primary) 0%, var(--theme-accent) 100%)',
+			backgroundImage: 'linear-gradient(135deg, var(--theme-primary) 0%, var(--theme-accent) 100%)',
 			WebkitBackgroundClip: 'text' as const,
 			WebkitTextFillColor: 'transparent' as const,
 			backgroundClip: 'text' as const,
@@ -285,7 +286,7 @@ export default function CountdownCard() {
 			</header>
 			<hr className={styles.divider} />
 
-			<div className={styles.body} key={`${current.date}-${phase}`}>
+			<div className={`${styles.body} ${inline ? styles.bodyInline : ''}`} key={`${current.date}-${phase}`}>
 				{inline ? (
 					<div className={styles.heroInline}>
 						<p className={styles.heroInlineLabel}>距离下一个节日</p>

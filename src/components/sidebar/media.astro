@@ -2,21 +2,24 @@
 import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 import { getCollection } from 'astro:content';
+import { resolvePostCover, sortBlogPosts } from '../../utils/content';
 import type { WidgetProps } from './types';
 import * as styles from '../StellarRightSidebar.css';
 
 const { widget } = Astro.props as WidgetProps;
-const recentPosts = (await getCollection('posts'))
-	.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
-	.slice(0, 3);
-const featuredPost = recentPosts.find((post) => post.data.heroImage) ?? recentPosts[0];
-const featuredHeroImage = featuredPost?.data.heroImage as ImageMetadata | undefined;
+const recentPosts = sortBlogPosts(await getCollection('posts')).slice(0, 3);
+const featuredPost = recentPosts.find((post) => resolvePostCover(post)) ?? recentPosts[0];
+const featuredCover = featuredPost ? resolvePostCover(featuredPost) : null;
 ---
 
-{featuredPost && featuredHeroImage && (
+{featuredPost && featuredCover && (
 	<section class:list={[styles.widget, styles.mediaCard]}>
 		<div class={styles.widgetHeader}><span>{widget.title}</span></div>
-		<Image class={styles.mediaImage} src={featuredHeroImage} width={320} height={210} alt={featuredPost.data.title} />
+		{featuredCover.isLocal ? (
+			<Image class={styles.mediaImage} src={featuredCover.src as ImageMetadata} width={320} height={210} alt={featuredPost.data.title} />
+		) : (
+			<img class={styles.mediaImage} src={featuredCover.src as string} alt={featuredPost.data.title} loading="lazy" decoding="async" />
+		)}
 		<p class={styles.mediaCaption}>{featuredPost.data.title}</p>
 	</section>
 )}

@@ -106,6 +106,10 @@ export const timelineLink = style({
 	},
 });
 
+// 别名：与左栏 recentList/recentItem 对齐，供 gallery-albums 等跨栏 widget 复用
+export const recentList = timeline;
+export const recentItem = timelineLink;
+
 export const tocWidget = style({
 	zIndex: 3,
 	position: 'sticky',

@@ -13,7 +13,7 @@ const publicationFields = {
   featured: z.boolean().default(false),
 };
 
-const mediaFields = (image: () => z.ZodTypeAny) => ({
+const mediaFields = <T extends z.ZodType>(image: () => T) => ({
 	cover: z.union([image(), z.string()]).optional(),
 	banner: z.union([image(), z.string()]).optional(),
 });
@@ -42,6 +42,10 @@ const posts = defineCollection({
         ...publicationFields,
         ...mediaFields(image),
       })
+      .refine(
+        (data) => data.pubDate !== undefined || data.date !== undefined,
+        { message: '文章必须存在 pubDate 或 date 字段（避免悄悄回退到 1970 年）' },
+      )
       .transform((data) => ({
         ...data,
         pubDate: data.pubDate ?? data.date ?? new Date(0),

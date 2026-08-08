@@ -17,7 +17,7 @@ interface Props {
 	tocHeadings?: { depth: number; slug: string; text: string }[];
 }
 
-const { title, description, lang = 'en', mainClass, siteTree = 'page', menuId, leftbar } = Astro.props;
+const { title, description, lang = 'zh-CN', mainClass, siteTree = 'page', menuId, leftbar } = Astro.props;
 const hasLead = Astro.slots.has('lead');
 const shellConfig = resolveShellConfig(siteTree, { menuId, leftbar });
 ---

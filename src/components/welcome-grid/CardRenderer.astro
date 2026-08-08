@@ -35,10 +35,10 @@ const { item } = Astro.props as Props;
 		<ContactCard props={(item as any).props} span={item.span} title={item.title} />
 	)}
 	{item.type === 'poetry' && (
-		<PoetryCard props={(item as any).props} span={item.span} title={item.title} />
+		<PoetryCard props={(item as any).props} title={item.title} />
 	)}
 	{item.type === 'countdown' && <CountdownCardIsland />}
 	{item.type === 'sidebar' && (
-		<SidebarCard props={(item as any).props} span={item.span} title={item.title} />
+		<SidebarCard props={(item as any).props} title={item.title} />
 	)}
 </Fragment>

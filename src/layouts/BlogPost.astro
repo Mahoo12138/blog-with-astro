@@ -14,18 +14,20 @@ interface Props {
 	description: string;
 	pubDate: Date;
 	updatedDate?: Date;
-	heroImage?: ImageMetadata;
-	bannerImage?: ImageMetadata;
+	banner?: ImageMetadata | string;
+	image?: ImageMetadata | string;
 	siteTree?: SiteTreeKey;
 	headings?: { depth: number; slug: string; text: string }[];
 	mathjax?: boolean;
 }
 
-const { title, description, pubDate, updatedDate, heroImage, bannerImage, siteTree = 'post', headings = [], mathjax = false } = Astro.props;
-const banner = bannerImage;
+const { title, description, pubDate, updatedDate, banner, image, siteTree = 'post', headings = [], mathjax = false } = Astro.props;
 
-const articleImage = bannerImage ?? heroImage;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+// 文章 OG / JSON-LD 共用的图片 URL：优先 banner，回退 cover（由路由通过 resolvePostCover 解析后传入）
+const articleImageUrl = image
+	? new URL(typeof image === 'string' ? image : image.src, Astro.site).toString()
+	: undefined;
 const blogPostingJsonLd = {
 	'@context': 'https://schema.org',
 	'@type': 'BlogPosting',
@@ -35,17 +37,23 @@ const blogPostingJsonLd = {
 	...(updatedDate ? { dateModified: updatedDate.toISOString() } : {}),
 	author: { '@type': 'Person', name: SITE_AUTHOR },
 	mainEntityOfPage: { '@type': 'WebPage', '@id': canonicalURL.toString() },
-	...(articleImage ? { image: new URL(articleImage.src, Astro.site).toString() } : {}),
+	...(articleImageUrl ? { image: articleImageUrl } : {}),
 };
 const blogPostingJsonLdSafe = JSON.stringify(blogPostingJsonLd).replace(/</g, '\\u003c');
 ---
 
-<StellarShell title={title} description={description} mainClass={styles.main} siteTree={siteTree} tocHeadings={headings}>
+<StellarShell title={title} description={description} mainClass={styles.main} siteTree={siteTree} tocHeadings={headings} type="article" image={image} publishedTime={pubDate} modifiedTime={updatedDate}>
 	{mathjax && <KatexStyles />}
 	<script is:inline type="application/ld+json" set:html={blogPostingJsonLdSafe} />
 	<article class={styles.article}>
 		<header class:list={[styles.banner, 'article', 'banner', 'top']}>
-			{banner && <Image class:list={[styles.bannerImage, 'bg']} width={1020} height={408} src={banner} alt="" />}
+			{banner && (
+				typeof banner === 'string' ? (
+					<img class:list={[styles.bannerImage, 'bg']} src={banner} alt="" />
+				) : (
+					<Image class:list={[styles.bannerImage, 'bg']} width={1020} height={408} src={banner} alt="" />
+				)
+			)}
 			<div class:list={[styles.bannerContent, banner && styles.bannerContentWithImage, 'content']}>
 				<div class:list={[styles.bannerMeta, 'top', 'bread-nav', 'footnote']}>
 					<div class="left">

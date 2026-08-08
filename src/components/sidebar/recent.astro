@@ -1,14 +1,13 @@
 ---
 import { getCollection } from 'astro:content';
+import { sortBlogPosts } from '../../utils/content';
 import type { WidgetProps } from './types';
 import * as leftStyles from '../StellarLeftSidebar.css';
 import * as rightStyles from '../StellarRightSidebar.css';
 
 const { widget, side } = Astro.props as WidgetProps;
 const limit = widget.limit ?? (side === 'left' ? 8 : 3);
-const posts = (await getCollection('posts'))
-	.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
-	.slice(0, limit);
+const posts = sortBlogPosts(await getCollection('posts')).slice(0, limit);
 ---
 
 {

@@ -24,13 +24,30 @@ const { pageKey, pageTitle } = Astro.props;
 			data-page-title={pageTitle ?? ''}
 		></div>
 		<script>
-			import Artalk from 'artalk';
+			type ArtalkInstance = { destroy: () => void; setDarkMode: (d: boolean) => void };
+			let instance: ArtalkInstance | null = null;
+			let ArtalkMod: typeof import('artalk') | null = null;
+			let observer: IntersectionObserver | null = null;
+			let themeObserver: MutationObserver | null = null;
 
-			let instance: ReturnType<typeof Artalk.init> | null = null;
+			const teardown = () => {
+				themeObserver?.disconnect();
+				themeObserver = null;
+				observer?.disconnect();
+				observer = null;
+				try { instance?.destroy(); } catch {}
+				instance = null;
+				ArtalkMod = null;
+			};
 
-			const setup = () => {
+			// 评论区接近视口再 dynamic import Artalk：
+			// 一篇长文章如果用户只看前半部分，这次网络 / 解析 / 初始化开销就完全省掉了。
+			const initArtalk = async () => {
 				const mount = document.getElementById('artalk') as HTMLElement | null;
-				if (!mount) return;
+				if (!mount || instance) return;
+
+				if (!ArtalkMod) ArtalkMod = await import('artalk');
+				const Artalk = ArtalkMod.default;
 
 				const root = document.documentElement;
 				const darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
@@ -40,11 +57,6 @@ const { pageKey, pageTitle } = Astro.props;
 					if (theme === 'light') return false;
 					return darkQuery.matches;
 				};
-
-				if (instance) {
-					try { instance.destroy(); } catch {}
-					instance = null;
-				}
 
 				instance = Artalk.init({
 					el: '#artalk',
@@ -59,16 +71,32 @@ const { pageKey, pageTitle } = Astro.props;
 				const applyDark = () => {
 					try { instance?.setDarkMode(resolveDark()); } catch {}
 				};
-				const observer = new MutationObserver(applyDark);
-				observer.observe(root, { attributes: true, attributeFilter: ['data-theme'] });
+				themeObserver = new MutationObserver(applyDark);
+				themeObserver.observe(root, { attributes: true, attributeFilter: ['data-theme'] });
 				darkQuery.addEventListener('change', applyDark);
+			};
 
-				document.addEventListener('astro:before-swap', () => {
-					observer.disconnect();
-					darkQuery.removeEventListener('change', applyDark);
-					try { instance?.destroy(); } catch {}
-					instance = null;
-				}, { once: true });
+			const setup = () => {
+				const mount = document.getElementById('artalk') as HTMLElement | null;
+				if (!mount) return;
+
+				// 每次页面加载注册一次清理（下一次 swap 触发）
+				document.addEventListener('astro:before-swap', teardown, { once: true });
+
+				// 评论区距离视口 600px 内再触发懒加载
+				if (!observer) {
+					observer = new IntersectionObserver(
+						(entries) => {
+							if (entries[0]?.isIntersecting) {
+								observer?.disconnect();
+								observer = null;
+								void initArtalk();
+							}
+						},
+						{ rootMargin: '600px' },
+					);
+					observer.observe(mount);
+				}
 			};
 
 			document.addEventListener('astro:page-load', setup);

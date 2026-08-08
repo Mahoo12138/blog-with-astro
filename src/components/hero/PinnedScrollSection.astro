@@ -93,10 +93,11 @@ import * as styles from '../../styles/pinnedScroll.css';
 			// targetProgress 由 scroll 事件即时更新（跟手）
 			// currentProgress 由 RAF 循环通过 lerp 慢慢追上 targetProgress（平滑）
 			// 这样滚动的小抖动会被 currentProgress 的"阻尼"吸收掉，视觉上不再卡顿
+			const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 			let targetProgress = 0;
 			let currentProgress = 0;
 			const SMOOTHING = 0.18; // 越大越跟手、越小越平滑
-			let running = true;
 			let rafId = null;
 
 			const apply = () => {
@@ -133,18 +134,26 @@ import * as styles from '../../styles/pinnedScroll.css';
 				}
 			};
 
-			// RAF 循环：每帧把 currentProgress 朝 targetProgress 推进一小步
+			// 事件驱动 RAF：仅当 targetProgress 与 currentProgress 不一致时启动，
+			// 到达目标后停止；用户停止滚动时不再有永久 60fps 循环。
 			const tick = () => {
-				if (!running) return;
 				const diff = targetProgress - currentProgress;
 				if (Math.abs(diff) > 0.0005) {
 					currentProgress += diff * SMOOTHING;
 					apply();
+					rafId = requestAnimationFrame(tick);
 				} else if (currentProgress !== targetProgress) {
 					// 极接近时直接 snap 到目标，避免无限微小 RAF
 					currentProgress = targetProgress;
 					apply();
+					rafId = null;
+				} else {
+					rafId = null;
 				}
+			};
+
+			const startRaf = () => {
+				if (rafId !== null || prefersReducedMotion) return;
 				rafId = requestAnimationFrame(tick);
 			};
 
@@ -155,21 +164,27 @@ import * as styles from '../../styles/pinnedScroll.css';
 				const pinDistance = container.offsetHeight - viewport;
 				const scrolled = clamp(-rect.top, 0, pinDistance);
 				targetProgress = pinDistance > 0 ? scrolled / pinDistance : 0;
+				if (prefersReducedMotion) {
+					// reduced-motion：跳过缓动，直接 snap 到目标
+					currentProgress = targetProgress;
+					apply();
+				} else if (targetProgress !== currentProgress) {
+					startRaf();
+				}
 			};
 
 			window.addEventListener('scroll', onScroll, { passive: true });
 			window.addEventListener('resize', onScroll, { passive: true });
 
-			// 立即同步初始状态（顶部 / 任意 scrollY）
+			// 立即同步初始状态（顶部 / 任意 scrollY）：首屏直接 snap，不做入场动画
 			onScroll();
 			currentProgress = targetProgress;
 			apply();
-			rafId = requestAnimationFrame(tick);
 
 			// 暴露 cleanup，下一次 init 进来时调用
 			window.__pinnedScrollCleanup = () => {
-				running = false;
-				if (rafId) cancelAnimationFrame(rafId);
+				if (rafId !== null) cancelAnimationFrame(rafId);
+				rafId = null;
 				window.removeEventListener('scroll', onScroll);
 				window.removeEventListener('resize', onScroll);
 			};

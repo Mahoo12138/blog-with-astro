@@ -4,8 +4,9 @@ import StellarNavTabs from '../components/StellarNavTabs.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 import StellarShell from '../layouts/StellarShell.astro';
 import * as styles from '../styles/homeFeed.css';
+import { sortBlogPosts } from '../utils/content';
 
-const posts = (await getCollection('posts')).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+const posts = sortBlogPosts(await getCollection('posts'));
 
 const archives = posts.reduce<Map<number, typeof posts>>((map, post) => {
 	const year = post.data.pubDate.getFullYear();

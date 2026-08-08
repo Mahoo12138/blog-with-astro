@@ -1,0 +1,23 @@
+---
+import type { ExploreInternalItem } from '../../config/explore';
+import * as styles from '../../styles/exploreLayouts.css';
+
+interface Props {
+	item: ExploreInternalItem;
+}
+
+const { item } = Astro.props;
+---
+
+<section class={styles.galleryFrame}>
+	<header class={styles.galleryHeader}>
+		<div>
+			<p class={styles.kicker}>探索</p>
+			<h1 class={styles.galleryTitle}>{item.title}</h1>
+			<p class={styles.galleryDescription}>{item.description}</p>
+		</div>
+	</header>
+	<slot>
+		<p>内容待补充。</p>
+	</slot>
+</section>

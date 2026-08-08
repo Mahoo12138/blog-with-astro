@@ -16,7 +16,6 @@ interface Projected {
 	depth: number;
 }
 
-const PARTICLE_COUNT = 80;
 const FIELD_SIZE = 400;
 const CAMERA_DIST = 600;
 const FOCAL_LENGTH = 500;
@@ -39,6 +38,14 @@ export default function HeroParticles() {
 		const ctx = canvas.getContext('2d');
 		if (!ctx) return;
 
+		// reduced-motion：完全停掉粒子，不进入 RAF 循环
+		const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		if (prefersReducedMotion) return;
+
+		// 移动端降级：粒子数量减半，降低 CPU/GPU 压力
+		const isMobile = window.matchMedia('(max-width: 768px)').matches;
+		const particleCount = isMobile ? 36 : 80;
+
 		let raf = 0;
 		let angle = 0;
 		let mouseX = 0;
@@ -50,11 +57,14 @@ export default function HeroParticles() {
 		let cx = 0;
 		let cy = 0;
 		let dpr = 1;
+		let visible = true;
+		let pageVisible = !document.hidden;
 
 		function resize() {
 			if (!canvas) return;
 			const rect = canvas.getBoundingClientRect();
-			dpr = window.devicePixelRatio || 1;
+			// 限制 DPR，避免高 DPI 屏幕上 canvas 像素量翻倍带来的绘制开销
+			dpr = Math.min(window.devicePixelRatio || 1, 2);
 			W = rect.width;
 			H = rect.height;
 			canvas.width = W * dpr;
@@ -66,11 +76,8 @@ export default function HeroParticles() {
 			cy = H / 2;
 		}
 
-		resize();
-		window.addEventListener('resize', resize);
-
 		const particles: Particle3D[] = [];
-		for (let i = 0; i < PARTICLE_COUNT; i++) {
+		for (let i = 0; i < particleCount; i++) {
 			particles.push({
 				x: (Math.random() - 0.5) * FIELD_SIZE * 2,
 				y: (Math.random() - 0.5) * FIELD_SIZE * 2,
@@ -85,7 +92,6 @@ export default function HeroParticles() {
 			targetMouseX = (e.clientX / window.innerWidth - 0.5) * 40;
 			targetMouseY = (e.clientY / window.innerHeight - 0.5) * 40;
 		}
-		window.addEventListener('mousemove', onMouseMove);
 
 		function loop() {
 			if (!ctx) return;
@@ -175,12 +181,44 @@ export default function HeroParticles() {
 			raf = requestAnimationFrame(loop);
 		}
 
-		loop();
+		// 事件驱动：Hero 离开视口或标签页进入后台时暂停 RAF，回到视口再恢复
+		function start() {
+			if (raf || !visible || !pageVisible) return;
+			raf = requestAnimationFrame(loop);
+		}
+		function stop() {
+			if (raf) cancelAnimationFrame(raf);
+			raf = 0;
+		}
+
+		const io = new IntersectionObserver(
+			(entries) => {
+				visible = entries[0]?.isIntersecting ?? false;
+				if (visible && pageVisible) start();
+				else stop();
+			},
+			{ threshold: 0 },
+		);
+		io.observe(canvas);
+
+		const onVisibility = () => {
+			pageVisible = !document.hidden;
+			if (pageVisible && visible) start();
+			else stop();
+		};
+		document.addEventListener('visibilitychange', onVisibility);
+
+		resize();
+		window.addEventListener('resize', resize);
+		window.addEventListener('mousemove', onMouseMove);
+		start();
 
 		return () => {
+			stop();
+			io.disconnect();
 			window.removeEventListener('resize', resize);
 			window.removeEventListener('mousemove', onMouseMove);
-			cancelAnimationFrame(raf);
+			document.removeEventListener('visibilitychange', onVisibility);
 		};
 	}, []);
 

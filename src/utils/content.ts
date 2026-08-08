@@ -1,3 +1,4 @@
+import type { ImageMetadata } from 'astro';
 import type { CollectionEntry } from 'astro:content';
 
 type BlogPost = CollectionEntry<'posts'>;
@@ -22,7 +23,7 @@ export interface ColumnBucket {
 
 export interface ResolvedPostCover {
 	variant: 'cover' | 'photo' | 'default';
-	src: {}; // TODO: type this better
+	src: ImageMetadata | string;
 	isLocal: boolean;
 }
 

@@ -1,4 +1,5 @@
 ---
+import { Image } from 'astro:assets';
 import AvatarImage from '../../assets/avatar.png';
 import HeroParticles from './HeroParticles.tsx';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../../consts';
@@ -10,7 +11,7 @@ import * as styles from '../../styles/hero.css';
 		<HeroParticles client:load />
 	</div>
 	<div class={styles.heroContent}>
-		<img class={styles.heroAvatar} src={AvatarImage.src} alt={SITE_TITLE} width="120" height="120" />
+		<Image class={styles.heroAvatar} src={AvatarImage} width={120} height={120} densities={[1, 2]} alt={SITE_TITLE} />
 		<h1 class={styles.heroTitle}>{SITE_TITLE}</h1>
 		<p class={styles.heroTagline}>{SITE_DESCRIPTION}</p>
 	</div>

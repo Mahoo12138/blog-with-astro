@@ -16,6 +16,21 @@ const bounce = keyframes({
 	'50%': { transform: 'translateX(-50%) translateY(8px)' },
 });
 
+// 星云缓慢漂移 — 营造深空大气感（GPU 合成，零 canvas 开销）
+const nebulaDrift = keyframes({
+	'0%': { transform: 'translate(0, 0) scale(1)' },
+	'50%': { transform: 'translate(2%, -1%) scale(1.05)' },
+	'100%': { transform: 'translate(-1%, 2%) scale(1)' },
+});
+
+// 星云色彩：亮色模式（柔和蓝紫）与暗色模式（深空蓝紫）
+const lightNebula =
+	'radial-gradient(ellipse 60% 50% at 30% 40%, rgba(33, 150, 243, 0.05), transparent 70%),' +
+	'radial-gradient(ellipse 50% 40% at 70% 60%, rgba(139, 92, 246, 0.04), transparent 70%)';
+const darkNebula =
+	'radial-gradient(ellipse 60% 50% at 30% 40%, rgba(126, 203, 255, 0.07), transparent 70%),' +
+	'radial-gradient(ellipse 50% 40% at 70% 60%, rgba(167, 139, 250, 0.05), transparent 70%)';
+
 export const hero = style({
 	// 在 PinnedScrollSection 中以 absolute 填满父级（100vh 舞台）
 	position: 'absolute',
@@ -31,6 +46,30 @@ export const hero = style({
 	visibility: 'visible',
 	pointerEvents: 'auto',
 	willChange: 'opacity, transform',
+	selectors: {
+		// 星云背景层 — 在 canvas 之下，GPU 合成漂移
+		'&::before': {
+			content: '""',
+			position: 'absolute',
+			inset: '-10%',
+			zIndex: 0,
+			pointerEvents: 'none',
+			background: lightNebula,
+			animation: `${nebulaDrift} 24s ease-in-out infinite alternate`,
+			willChange: 'transform',
+			'@media': {
+				'(prefers-color-scheme: dark)': {
+					background: darkNebula,
+				},
+			},
+		},
+		':root[data-theme="light"] &::before': {
+			background: lightNebula,
+		},
+		':root[data-theme="dark"] &::before': {
+			background: darkNebula,
+		},
+	},
 });
 
 export const heroCanvas = style({

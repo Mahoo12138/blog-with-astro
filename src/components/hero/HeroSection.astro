@@ -1,17 +1,18 @@
 ---
 import { Image } from 'astro:assets';
 import AvatarImage from '../../assets/avatar.png';
-import HeroParticles from './HeroParticles.tsx';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../../consts';
 import * as styles from '../../styles/hero.css';
 ---
 
-<section class={styles.hero} data-hero-section>
+<section class={styles.hero} data-hero-section data-hero-state="travel">
 	<div class={styles.heroCanvas}>
-		<HeroParticles client:load />
+		<canvas class={styles.starfieldCanvas} data-starfield aria-hidden="true"></canvas>
 	</div>
 	<div class={styles.heroContent}>
-		<Image class={styles.heroAvatar} src={AvatarImage} width={120} height={120} densities={[1, 2]} alt={SITE_TITLE} />
+		<span class={styles.planet}>
+			<Image class={styles.heroAvatar} src={AvatarImage} width={120} height={120} densities={[1, 2]} alt={SITE_TITLE} />
+		</span>
 		<h1 class={styles.heroTitle}>{SITE_TITLE}</h1>
 		<p class={styles.heroTagline}>{SITE_DESCRIPTION}</p>
 	</div>
@@ -22,3 +23,167 @@ import * as styles from '../../styles/hero.css';
 		</svg>
 	</button>
 </section>
+
+<script is:inline>
+	// 首帧决策（同步执行，先于首次绘制，避免头像在曲速漂移期间闪现）：
+	//  - 本会话已看过首映 / prefers-reduced-motion → 直接进入「抵达」态
+	//  - 首次访问 → 保持「待航」态，由下方模块脚本执行完整首映时间线
+	(() => {
+		var el = document.querySelector('[data-hero-section]');
+		if (!el) return;
+		var KEY = 'mahoo:starfield-intro';
+		var seen = false;
+		var reduced = false;
+		try {
+			seen = sessionStorage.getItem(KEY) === 'done';
+			reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+		} catch (e) {
+			seen = true; // 存储不可用时按「已看过」处理，避免每次访问都强制等待
+		}
+		if (seen || reduced) {
+			el.setAttribute('data-hero-state', 'arrived');
+			el.setAttribute('data-hero-arrival', 'instant');
+		}
+		// 兜底：若模块脚本异常导致 8s 后仍在「待航」，强制抵达，防止首页空白
+		setTimeout(function () {
+			if (el.getAttribute('data-hero-state') === 'travel') {
+				el.setAttribute('data-hero-state', 'arrived');
+				try {
+					sessionStorage.setItem(KEY, 'done');
+				} catch (e) {
+					/* 忽略 */
+				}
+			}
+		}, 8000);
+	})();
+</script>
+
+<script>
+	// 星空首映编排：曲速漂移（头像隐藏）→ 减速进场 → 闪白抵达 → 头像星球浮现
+	import { createStarfield } from '../../scripts/starfield';
+
+	const INTRO_KEY = 'mahoo:starfield-intro';
+
+	function hasSeenIntro(): boolean {
+		try {
+			return sessionStorage.getItem(INTRO_KEY) === 'done';
+		} catch {
+			return true;
+		}
+	}
+
+	function markIntroDone(): void {
+		try {
+			sessionStorage.setItem(INTRO_KEY, 'done');
+		} catch {
+			/* 忽略 */
+		}
+	}
+
+	async function boot(): Promise<void> {
+		const w = window as unknown as {
+			__starfieldCleanup?: () => void;
+			__starfieldCanvas?: HTMLCanvasElement | null;
+		};
+		const canvas = document.querySelector<HTMLCanvasElement>('[data-starfield]');
+		const section = document.querySelector<HTMLElement>('[data-hero-section]');
+		if (!canvas || !section) return;
+		if (w.__starfieldCanvas === canvas) return; // 当前页面已初始化（astro:page-load 首次触发时会重复进入）
+
+		w.__starfieldCleanup?.();
+		w.__starfieldCanvas = canvas;
+
+		const timers: number[] = [];
+		const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		const instant = section.getAttribute('data-hero-arrival') === 'instant';
+
+		const starfield = await createStarfield(canvas, { reducedMotion: reduced });
+
+		const arrive = () => section.setAttribute('data-hero-state', 'arrived');
+
+		if (reduced || instant || hasSeenIntro()) {
+			// 回访 / 降级：环境巡航 + 头像直接在位
+			// （ClientRouter 站内返回首页时 is:inline 不会重跑，这里兜底设置 arrived 态）
+			starfield.settle();
+			section.setAttribute('data-hero-state', 'arrived');
+			section.setAttribute('data-hero-arrival', 'instant');
+			return;
+		}
+
+		// —— 完整首映（本会话首次访问）——
+		// t=0     曲速漂移开始，头像/标题隐藏（CSS: data-hero-state="travel"）
+		// t≈2.2s  减速进场，星流放缓
+		// t≈3.4s  跃迁闪白 +「抵达」：头像以星球形态浮现，标题错峰淡入
+		starfield.travel();
+		timers.push(window.setTimeout(() => starfield.settle(), 2200));
+		timers.push(
+			window.setTimeout(() => {
+				starfield.pulse(0.65);
+				arrive();
+			}, 3400),
+		);
+		timers.push(
+			window.setTimeout(() => {
+				markIntroDone();
+			}, 4400),
+		);
+
+		// ── 空格键曲速切换：仅首屏拦截，其余情况交还给页面滚动 ──
+		let manualWarp = false;
+		const cancelIntroTimers = () => {
+			timers.forEach((t) => clearTimeout(t));
+			timers.length = 0;
+		};
+
+		const onKeydown = (e: KeyboardEvent) => {
+			if (e.code !== 'Space' || e.repeat) return;
+			if (e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) return;
+			const target = e.target as HTMLElement | null;
+			if (
+				target &&
+				(target.tagName === 'INPUT' ||
+					target.tagName === 'TEXTAREA' ||
+					target.tagName === 'SELECT' ||
+					target.tagName === 'BUTTON' ||
+					target.tagName === 'A' ||
+					target.isContentEditable)
+			) {
+				return; // 焦点在交互元素上：保留原生行为（激活按钮 / 输入空格）
+			}
+			// 首屏判定：滚动超过视口高度 35% 后不再拦截
+			if (window.scrollY > window.innerHeight * 0.35) return;
+
+			e.preventDefault();
+			cancelIntroTimers();
+			manualWarp = !manualWarp;
+			if (manualWarp) {
+				starfield.travel();
+				section.setAttribute('data-hero-state', 'travel'); // 穿越出发，星球远去
+			} else {
+				starfield.settle();
+				starfield.pulse(0.5);
+				section.setAttribute('data-hero-state', 'arrived'); // 减速抵达，星球归位
+				markIntroDone();
+			}
+		};
+		window.addEventListener('keydown', onKeydown);
+
+		w.__starfieldCleanup = () => {
+			timers.forEach((t) => clearTimeout(t));
+			timers.length = 0;
+			window.removeEventListener('keydown', onKeydown);
+			starfield.destroy();
+			w.__starfieldCleanup = undefined;
+			w.__starfieldCanvas = undefined;
+		};
+	}
+
+	// 首次加载；ClientRouter 场景下模块只执行一次，靠 astro:page-load 重新接线
+	boot();
+	document.addEventListener('astro:page-load', () => {
+		boot();
+	});
+	document.addEventListener('astro:before-swap', () => {
+		(window as unknown as { __starfieldCleanup?: () => void }).__starfieldCleanup?.();
+	});
+</script>

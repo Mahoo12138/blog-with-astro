@@ -19,9 +19,10 @@ interface Props {
 	siteTree?: SiteTreeKey;
 	headings?: { depth: number; slug: string; text: string }[];
 	mathjax?: boolean;
+	noindex?: boolean;
 }
 
-const { title, description, pubDate, updatedDate, banner, image, siteTree = 'post', headings = [], mathjax = false } = Astro.props;
+const { title, description, pubDate, updatedDate, banner, image, siteTree = 'post', headings = [], mathjax = false, noindex = false } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 // 文章 OG / JSON-LD 共用的图片 URL：优先 banner，回退 cover（由路由通过 resolvePostCover 解析后传入）
@@ -42,10 +43,10 @@ const blogPostingJsonLd = {
 const blogPostingJsonLdSafe = JSON.stringify(blogPostingJsonLd).replace(/</g, '\\u003c');
 ---
 
-<StellarShell title={title} description={description} mainClass={styles.main} siteTree={siteTree} tocHeadings={headings} type="article" image={image} publishedTime={pubDate} modifiedTime={updatedDate}>
+<StellarShell title={title} description={description} mainClass={styles.main} siteTree={siteTree} tocHeadings={headings} type="article" image={image} publishedTime={pubDate} modifiedTime={updatedDate} noindex={noindex}>
 	{mathjax && <KatexStyles />}
 	<script is:inline type="application/ld+json" set:html={blogPostingJsonLdSafe} />
-	<article class={styles.article}>
+	<article class={styles.article} data-pagefind-body={noindex ? undefined : true}>
 		<header class:list={[styles.banner, 'article', 'banner', 'top']}>
 			{banner && (
 				typeof banner === 'string' ? (

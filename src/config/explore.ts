@@ -36,13 +36,6 @@ export const explorePageConfig: ExplorePageConfig = {
 	description: '一些独立的小页面、记录和生活入口。',
 	items: [
 		{
-			title: '阅读列表',
-			description: '收藏的一些有趣的文章',
-			href: '/reading-list/',
-			icon: 'bookmark',
-			layout: 'default',
-		},
-		{
 			title: '碎碎念',
 			description: '记录自己的奇思妙想',
 			href: 'https://memos.mahoo12138.cn/',
@@ -73,13 +66,6 @@ export const explorePageConfig: ExplorePageConfig = {
 			icon: 'phone',
 			layout: 'wide',
 			routeKind: 'file',
-		},
-		{
-			title: '我的穿搭',
-			description: '我的日常穿搭分享',
-			href: '/my-outfits/',
-			icon: 'clothes',
-			layout: 'default',
 		},
 		{
 			title: '我的相册',

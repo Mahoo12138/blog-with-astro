@@ -22,19 +22,42 @@ function whenMathjax(/** @type {any} */ plugin) {
 	};
 }
 
+// 不参与搜索引擎收录的功能页 / 私人页（与页面上的 robots noindex 保持一致）
+const SITEMAP_EXCLUDE = [
+	/\/search\/?$/,
+	/\/mdx-components\/?$/,
+	/\/love\/?$/,
+	/\/privacy\/?$/,
+	/\/terms\/?$/,
+];
+
 // https://astro.build/config
 export default defineConfig({
 	output: 'static',
 	site: 'https://mahoo12138.cn',
-	integrations: [mdx(), react(), sitemap(), pagefind()],
+	integrations: [
+		mdx(),
+		react(),
+		sitemap({
+			filter: (page) => !SITEMAP_EXCLUDE.some((pattern) => pattern.test(new URL(page).pathname)),
+		}),
+		pagefind(),
+	],
 	markdown: {
 		remarkPlugins: [whenMathjax(remarkMath)],
 		rehypePlugins: [whenMathjax(rehypeKatex)],
 		shikiConfig: {
+			// 双主题走 css-variables 模式：Shiki 只内联一份共享 CSS 变量表，
+			// 每个 token 输出 style="--shiki-light:...;--shiki-dark:..."，
+			// 而不是把 light/dark 两套完整配色的具体色值各内联一遍。
+			// 此前 themes:{light,dark} 模式会让代码块密集的页面 HTML 飙到 565KB。
+			// 具体切换由 src/styles/theme.css.ts 的 [data-theme] 选择器负责。
 			themes: {
 				light: 'github-light',
 				dark: 'github-dark',
 			},
+			defaultColor: false,
+			cssVariablePrefix: '--shiki-',
 			langAlias: {
 				C: 'c',
 				Kotlin: 'kotlin',

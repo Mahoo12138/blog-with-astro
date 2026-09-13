@@ -8,8 +8,8 @@ const pageTitle = `隐私政策 · ${SITE_TITLE}`;
 const description = `${SITE_TITLE} 的隐私政策：说明本站如何收集、使用与保护访问者的信息。`;
 ---
 
-<StellarShell title={pageTitle} description={description} mainClass={styles.main} siteTree="page">
-	<section class={styles.root}>
+<StellarShell title={pageTitle} description={description} mainClass={styles.main} siteTree="page" noindex>
+	<section class={styles.root} data-pagefind-ignore>
 		<header class={styles.header}>
 			<p class={styles.kicker}><span>Privacy</span> · 隐私政策</p>
 			<h1 class={styles.title}>隐私政策</h1>

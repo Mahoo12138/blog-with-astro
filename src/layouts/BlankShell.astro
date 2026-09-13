@@ -6,18 +6,19 @@ interface Props {
 	title: string;
 	description: string;
 	lang?: string;
+	noindex?: boolean;
 }
 
-const { title, description, lang = 'zh-CN' } = Astro.props;
+const { title, description, lang = 'zh-CN', noindex = false } = Astro.props;
 ---
 
 <!doctype html>
 <html lang={lang}>
 	<head>
-		<BaseHead title={title} description={description} />
+		<BaseHead title={title} description={description} noindex={noindex} />
 	</head>
 	<body class={styles.body}>
-		<main class={styles.main} data-pagefind-body>
+		<main class={styles.main} data-pagefind-ignore>
 			<slot />
 		</main>
 	</body>

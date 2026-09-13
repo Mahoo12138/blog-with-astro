@@ -70,6 +70,7 @@ const audioSample = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.m
 	description="以显式 Astro 组件形式展示博客可用的 MDX 内容组件。"
 	pubDate={new Date('2026-05-20')}
 	siteTree="page"
+	noindex
 >
 	<p>
 		这一页集中展示当前博客可在 MDX 中使用的组件。组件都可以从 <code>src/components/mdx-components.ts</code> 命名导入，写作时能看到 props 类型提示；文章渲染时也会通过全局组件映射自动可用。
@@ -144,7 +145,7 @@ const audioSample = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.m
 				行内组件包括 <Mark>高亮</Mark>、<Kbd>Ctrl</Kbd> + <Kbd>K</Kbd>、<Underline color="green">下划线</Underline>、<Emphasis color="red">强调</Emphasis>、<Wavy color="purple">波浪线</Wavy>、<Deleted>删除线</Deleted>、上标<Sup>1</Sup>、下标<Sub>n</Sub>、<Blur>点击显示的模糊文字</Blur> 和 <Password>点击显示的隐私文字</Password>。
 			</p>
 			<p>
-				<Hashtag color="cyan" href="/tags/mdx/">MDX</Hashtag> <Label tone="success">Typed</Label> <Emoji src="/avatars/inin.png" alt="custom emoji" />
+				<Hashtag color="cyan" href="/tags/markdown/">Markdown</Hashtag> <Label tone="success">Typed</Label> <Emoji source="twemoji" name="sparkles" alt="sparkles" />
 			</p>
 			<Quot as="h2">组件化以后，写作语法和类型提示终于站在同一边。</Quot>
 			<Blockquote cite="MDX Components" color="purple">

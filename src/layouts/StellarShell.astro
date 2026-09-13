@@ -24,9 +24,10 @@ interface Props {
 	rightbar?: SidebarValue;
 	tocHeadings?: { depth: number; slug: string; text: string }[];
 	column?: ColumnSidebarContext;
+	noindex?: boolean;
 }
 
-const { title, description, lang = 'zh-CN', image, type, publishedTime, modifiedTime, mainClass, siteTree = 'page', menuId, leftbar, rightbar, tocHeadings = [], column } = Astro.props;
+const { title, description, lang = 'zh-CN', image, type, publishedTime, modifiedTime, mainClass, siteTree = 'page', menuId, leftbar, rightbar, tocHeadings = [], column, noindex = false } = Astro.props;
 const hasHero = Astro.slots.has('hero');
 const hasLead = Astro.slots.has('lead');
 const hasLeftbar = Astro.slots.has('leftbar');
@@ -38,7 +39,7 @@ const hasRightbarContent = shellConfig.rightbar.length > 0 || hasRightbar;
 <!doctype html>
 <html lang={lang}>
 	<head>
-		<BaseHead title={title} description={description} image={image} type={type} publishedTime={publishedTime} modifiedTime={modifiedTime} />
+		<BaseHead title={title} description={description} image={image} type={type} publishedTime={publishedTime} modifiedTime={modifiedTime} noindex={noindex} />
 	</head>
 	<body class={styles.body}>
 		<div class={styles.background} aria-hidden="true">

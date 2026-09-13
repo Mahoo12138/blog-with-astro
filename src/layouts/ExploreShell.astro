@@ -14,9 +14,11 @@ interface Props {
   item: ExploreInternalItem;
   rightbar?: SidebarValue;
   siteTree?: SiteTreeKey;
+  /** 私人 / 内部页面：阻止搜索引擎收录 */
+  noindex?: boolean;
 }
 
-const { item, rightbar, siteTree } = Astro.props;
+const { item, rightbar, siteTree, noindex = false } = Astro.props;
 const shells = {
   default: StellarShell,
   wide: WideShell,
@@ -25,12 +27,13 @@ const shells = {
 const ShellLayout = shells[item.layout] ?? StellarShell;
 const shellProps =
   item.layout === "blank"
-    ? { title: `${item.title} · ${SITE_TITLE}`, description: item.description }
+    ? { title: `${item.title} · ${SITE_TITLE}`, description: item.description, noindex }
     : {
         title: `${item.title} · ${SITE_TITLE}`,
         description: item.description,
         siteTree: (siteTree ?? "explore") as SiteTreeKey,
         mainClass: styles.pageMain,
+        noindex,
         ...(rightbar !== undefined ? { rightbar } : {}),
       };
 ---

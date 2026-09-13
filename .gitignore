@@ -25,3 +25,8 @@ pnpm-debug.log*
 hexo-theme-stellar
 .agents
 skills-lock.json
+# WorkBuddy AI 本地数据
+.workbuddy/
+
+# 临时隔离区（确认无用后删除）
+.trash-from-public/

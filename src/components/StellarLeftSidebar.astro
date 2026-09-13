@@ -1,4 +1,5 @@
 ---
+import { Image } from 'astro:assets';
 import AvatarImage from '../assets/avatar.png';
 import { stellarConfig, type MenuId, type SidebarWidgetConfig } from '../config/stellar';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
@@ -41,7 +42,19 @@ const socialItems = stellarConfig.footer.social;
 
 		{/* 不滚动区域：logo（头像+标题）+ 菜单 + 搜索 */}
 		<header class={styles.profile}>
-			<img class={styles.avatar} src={AvatarImage.src} alt={SITE_TITLE} />
+			{/* 侧栏头像显示尺寸仅 48px，源文件为 738KB 的 avatar.png。
+				此前用原生 <img src={AvatarImage.src}> 绕过图片管线直出原图，且每个页面都会加载；
+				改为走 Astro 图片管线输出 96px webp（约 12KB），视觉不变。 */}
+			<Image
+				class={styles.avatar}
+				src={AvatarImage}
+				width={96}
+				height={96}
+				format="webp"
+				loading="eager"
+				decoding="async"
+				alt={SITE_TITLE}
+			/>
 			<div class={styles.titleWrap}>
 				<a class={styles.title} href="/">{SITE_TITLE}</a>
 				<p class={styles.subtitle}>{SITE_DESCRIPTION}</p>

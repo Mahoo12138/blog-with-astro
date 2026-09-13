@@ -8,8 +8,8 @@ const pageTitle = `服务条款 · ${SITE_TITLE}`;
 const description = `${SITE_TITLE} 的服务条款：访问与使用本站时所适用的约定。`;
 ---
 
-<StellarShell title={pageTitle} description={description} mainClass={styles.main} siteTree="page">
-	<section class={styles.root}>
+<StellarShell title={pageTitle} description={description} mainClass={styles.main} siteTree="page" noindex>
+	<section class={styles.root} data-pagefind-ignore>
 		<header class={styles.header}>
 			<p class={styles.kicker}><span>Terms</span> · 服务条款</p>
 			<h1 class={styles.title}>服务条款</h1>

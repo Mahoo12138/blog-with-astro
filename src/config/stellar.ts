@@ -2,7 +2,9 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 
 export type MenuId = 'post' | 'columns' | 'explore' | 'about' | 'rss' | 'wiki' | 'notebooks';
 export type SidebarWidgetId = 'welcome' | 'recent' | 'related' | 'timeline' | 'media' | 'toc' | 'ghrepo' | 'heatmap' | 'goods-stats' | 'gallery-info' | 'gallery-albums' | 'column-info' | 'column-posts' | 'travel-stats' | 'travel-recent' | 'archives-stats' | 'site-info';
-export type SiteTreeKey = 'home' | 'index_blog' | 'index_topic' | 'explore' | 'gallery' | 'post' | 'topic' | 'column' | 'wiki' | 'notebooks' | 'notes' | 'note' | 'author' | 'error_page' | 'page' | 'travel' | 'archives';
+// 只保留真实存在的内容树节点：此前 wiki / notebooks / notes / note / author / error_page
+// 六个键指向不存在的内容，属于失效配置，已删除。
+export type SiteTreeKey = 'home' | 'index_blog' | 'index_topic' | 'explore' | 'gallery' | 'post' | 'topic' | 'column' | 'page' | 'travel' | 'archives';
 
 export interface MenubarItem {
 	id: MenuId;
@@ -163,12 +165,6 @@ export const stellarConfig = {
 		column: { menuId: 'columns', leftbar: ['column-info', 'column-posts'], rightbar: ['toc'] },
 		travel: { menuId: 'explore', leftbar: ['travel-stats', 'travel-recent'], rightbar: null },
 		archives: { menuId: 'post', leftbar: ['welcome', 'recent'], rightbar: ['archives-stats'] },
-		wiki: { menuId: 'wiki', leftbar: ['related', 'recent'], rightbar: ['ghrepo', 'toc'] },
-		notebooks: { menuId: 'notebooks', leftbar: ['recent'], rightbar: null },
-		notes: { menuId: 'notebooks', leftbar: ['recent'], rightbar: null },
-		note: { menuId: 'notebooks', leftbar: ['recent'], rightbar: ['timeline'] },
-		author: { menuId: 'about', leftbar: ['recent'], rightbar: ['timeline'] },
-		error_page: { menuId: 'post', leftbar: ['recent'], rightbar: ['timeline'] },
 		page: { menuId: 'about', leftbar: ['recent'], rightbar: ['timeline'] },
 	} satisfies Record<SiteTreeKey, SiteTreeEntry>,
 };

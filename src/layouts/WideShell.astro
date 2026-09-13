@@ -15,9 +15,10 @@ interface Props {
 	menuId?: MenuId;
 	leftbar?: SidebarValue;
 	tocHeadings?: { depth: number; slug: string; text: string }[];
+	noindex?: boolean;
 }
 
-const { title, description, lang = 'zh-CN', mainClass, siteTree = 'page', menuId, leftbar } = Astro.props;
+const { title, description, lang = 'zh-CN', mainClass, siteTree = 'page', menuId, leftbar, noindex = false } = Astro.props;
 const hasLead = Astro.slots.has('lead');
 const shellConfig = resolveShellConfig(siteTree, { menuId, leftbar });
 ---
@@ -25,7 +26,7 @@ const shellConfig = resolveShellConfig(siteTree, { menuId, leftbar });
 <!doctype html>
 <html lang={lang}>
 	<head>
-		<BaseHead title={title} description={description} />
+		<BaseHead title={title} description={description} noindex={noindex} />
 	</head>
 	<body class={styles.body}>
 		<div class={styles.background} aria-hidden="true">

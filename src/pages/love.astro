@@ -3,6 +3,11 @@ import { getCollection } from "astro:content";
 import { getExploreInternalItemByHref } from "../config/explore";
 import ExploreShell from "../layouts/ExploreShell.astro";
 
+// 双人头像：源文件会经 Astro 图片管线压成 144px webp，
+// 不再从 public/ 直出原图（此前 inin.png 为 249KB）。
+import leftPartnerAvatar from "../assets/love/partners/inin-kon.jpg";
+import rightPartnerAvatar from "../assets/love/partners/inin.png";
+
 // Presentational Astro components
 import LoveHero from "../components/love/LoveHero.astro";
 import LoveTimeline from "../components/love/LoveTimeline.astro";
@@ -63,8 +68,8 @@ const meta = {
   anniversaryDate: "2026-12-06",
   anniversaryLabel: "一周年 · 2026.12.06",
   partners: {
-    left: { initial: "他", name: "隐隐控", avatar: "/avatars/inin-kon.jpg" },
-    right: { initial: "她", name: "隐隐", avatar: "/avatars/inin.png" },
+    left: { initial: "他", name: "隐隐控", avatar: leftPartnerAvatar },
+    right: { initial: "她", name: "隐隐", avatar: rightPartnerAvatar },
   },
   song: {
     title: "光年之外",
@@ -112,16 +117,20 @@ const wishesEntries = sortById(wishes).map((e) => ({ id: e.id, ...e.data }));
 const calendarEntries = sortById(calendar).map((e) => ({ id: e.id, ...e.data }));
 ---
 
-<ExploreShell item={item}>
-  <div class="love-root" data-season={currentSeason} id="love-root">
-    <!-- Critical: load immediately -->
-    <LoveParticles season={currentSeason} client:load />
-    <LoveInteractions client:load />
+<ExploreShell item={item} noindex>
+  <div class="love-root" data-season={currentSeason} id="love-root" data-pagefind-ignore>
+    {/* 粒子背景：fixed 全屏常驻，但内部已有 IO / visibilitychange / reduced-motion 降级，
+        仅在进入视口且标签页可见时才跑 RAF，故可以用 client:visible 延后 React 运行时。
+        父容器是首屏元素，所以它实际会在首帧后立刻激活。 */}
+    <LoveParticles season={currentSeason} client:visible />
+    {/* 滚动进度 / 视差 / 揭示效果：纯 DOM 副作用，无 SSR 必要性 */}
+    <LoveInteractions client:visible />
 
     <LoveHero left={meta.partners.left} right={meta.partners.right} />
 
+    {/* 倒计时位于 100vh 的 Hero 之后，属第二屏；首屏不必为此付出 186KB React 运行时 */}
     <LoveCountdown
-      client:load
+      client:visible
       startDate={meta.startDate}
       anniversaryDate={meta.anniversaryDate}
       anniversaryLabel={meta.anniversaryLabel}

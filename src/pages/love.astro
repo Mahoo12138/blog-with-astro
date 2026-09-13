@@ -1,12 +1,10 @@
 ---
 import { getCollection } from "astro:content";
 import { getExploreInternalItemByHref } from "../config/explore";
+// 页面级元数据（纪念日 / 情书 / 那首歌 / 双人头像）已抽到 config/love.ts，
+// 这里只负责拉 collection 与拼装。头像的图片管线压缩也由该模块负责。
+import { loveMeta } from "../config/love";
 import ExploreShell from "../layouts/ExploreShell.astro";
-
-// 双人头像：源文件会经 Astro 图片管线压成 144px webp，
-// 不再从 public/ 直出原图（此前 inin.png 为 249KB）。
-import leftPartnerAvatar from "../assets/love/partners/inin-kon.jpg";
-import rightPartnerAvatar from "../assets/love/partners/inin.png";
 
 // Presentational Astro components
 import LoveHero from "../components/love/LoveHero.astro";
@@ -38,6 +36,9 @@ if (!item) {
 const sortById = <T extends { id: string }>(entries: T[]) =>
   [...entries].sort((a, b) => a.id.localeCompare(b.id));
 
+// 逐个 getCollection 而非 map(loveCollections)：
+// map 会把返回类型合并成各 collection 的联合，参数传进子组件时全部失配。
+// 顺序与 config/love.ts 的 loveCollections 保持一致，便于对照。
 const [
   timeline,
   photos,
@@ -61,36 +62,6 @@ const [
   getCollection("loveCalendar"),
   getCollection("loveNotes"),
 ]);
-
-const meta = {
-  startDate: "2025-12-06",
-  anniversaryDate: "2026-12-06",
-  anniversaryLabel: "一周年 · 2026.12.06",
-  partners: {
-    left: { initial: "他", name: "隐隐控", avatar: leftPartnerAvatar },
-    right: { initial: "她", name: "隐隐", avatar: rightPartnerAvatar },
-  },
-  song: {
-    title: "光年之外",
-    artist: "G.E.M. 邓紫棋",
-    note: '"第一次牵手的那天，这首歌刚好在播。"',
-    initialTime: "1:23",
-    totalTime: "3:43",
-    initialPercent: 37,
-  },
-  letter: {
-    date: "2026 · 05 · 20",
-    greeting: "亲爱的你，",
-    paragraphs: [
-      "想对你说的话有很多，却总是不知道从哪里开始。",
-      "喜欢你不是因为某一件事，而是你所有细小的样子加在一起，刚好成了我最想靠近的人。",
-      '喜欢你认真讲话时的样子，喜欢你笑起来的样子，喜欢你说"我知道了"却还是会忘记的样子。',
-      "谢谢你愿意留在我身边，谢谢你让我相信，平凡的日子也可以这么闪光。",
-      "希望我们可以一直这样下去，把所有的四季都过一遍，再过一遍。",
-    ],
-    signature: "— 永远爱你的我 ♡",
-  },
-};
 
 const month = new Date().getMonth() + 1;
 const currentSeason =
@@ -125,14 +96,14 @@ const calendarEntries = sortById(calendar).map((e) => ({ id: e.id, ...e.data }))
     {/* 滚动进度 / 视差 / 揭示效果：纯 DOM 副作用，无 SSR 必要性 */}
     <LoveInteractions client:visible />
 
-    <LoveHero left={meta.partners.left} right={meta.partners.right} />
+    <LoveHero left={loveMeta.partners.left} right={loveMeta.partners.right} />
 
     {/* 倒计时位于 100vh 的 Hero 之后，属第二屏；首屏不必为此付出 186KB React 运行时 */}
     <LoveCountdown
       client:visible
-      startDate={meta.startDate}
-      anniversaryDate={meta.anniversaryDate}
-      anniversaryLabel={meta.anniversaryLabel}
+      startDate={loveMeta.startDate}
+      anniversaryDate={loveMeta.anniversaryDate}
+      anniversaryLabel={loveMeta.anniversaryLabel}
       daysText="在一起的时光"
     />
     <!-- <LoveDivider icon="✦" /> -->
@@ -148,7 +119,7 @@ const calendarEntries = sortById(calendar).map((e) => ({ id: e.id, ...e.data }))
 
     <LoveTraits entries={traitsEntries} />
 
-    <!-- <LoveSong song={meta.song} client:idle /> -->
+    <!-- <LoveSong song={loveMeta.song} client:idle /> -->
 
     <LoveDestinations entries={destinationsEntries} />
 
@@ -160,9 +131,9 @@ const calendarEntries = sortById(calendar).map((e) => ({ id: e.id, ...e.data }))
 
     <LoveNotes entries={notesEntries} />
 
-    <LoveLetter letter={meta.letter} />
+    <LoveLetter letter={loveMeta.letter} />
 
-    <LoveFooter startDate={meta.startDate} />
+    <LoveFooter startDate={loveMeta.startDate} />
   </div>
 
   <style is:global>

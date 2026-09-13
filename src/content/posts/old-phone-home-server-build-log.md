@@ -2,7 +2,7 @@
 title: 关于我用旧手机折腾服务器的过程全纪实
 date: 2022-01-20 22:18:14
 author: Mahoo12138
-img: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/phone.png
+cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/phone.png
 tags: 
 - 旧手机
 - Linux

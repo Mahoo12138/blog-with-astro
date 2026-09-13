@@ -1,7 +1,7 @@
 ---
 title: Git 版本控制使用填坑指北
 date: 2019-06-29 23:37:30
-img: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo_images/cover/git.png
+cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo_images/cover/git.png
 category:
  - 学习笔记
 tags:

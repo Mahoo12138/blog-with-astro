@@ -1,7 +1,7 @@
 ---
 title: TypeScript 学习-04-项目接口开发
 date: 2021-11-27 22:43:35
-img: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/typescript.jpg
+cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/typescript.jpg
 categories: 
 - 学习笔记
 tags:

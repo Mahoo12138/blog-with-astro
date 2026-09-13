@@ -1,7 +1,7 @@
 ---
 title: 码字语法三千，我只取一瓢
 date: 2019-12-04 21:02:43
-img: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/markdown.png
+cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/markdown.png
 categories: 
 - 学习笔记
 tags:

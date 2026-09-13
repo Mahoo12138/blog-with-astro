@@ -1,7 +1,7 @@
 ---
 title: Flutter 入门学习之底部导航栏
 date: 2020-11-20 15:34:24
-img: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/flutter.png
+cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/flutter.png
 tags: 
 - Flutter
 categories: 

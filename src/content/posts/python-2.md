@@ -1,7 +1,7 @@
 ---
 title: Python学习Demo
 date: 2019-12-02 21:45:43
-img: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/python.png
+cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/python.png
 tags: 
 - Python
 categories:

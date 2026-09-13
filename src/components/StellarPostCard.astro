@@ -5,7 +5,7 @@ import { getCollection, type CollectionEntry } from 'astro:content';
 import FormattedDate from './FormattedDate.astro';
 import StellarIcon from './StellarIcon.astro';
 import { postUrl } from '../consts';
-import { resolvePostCover, slugifySegment } from '../utils/content';
+import { resolvePostCover, resolvePostDescription, slugifySegment } from '../utils/content';
 import * as styles from './StellarPostCard.css';
 
 type CardVariant = 'default' | 'cover' | 'photo';
@@ -32,7 +32,8 @@ if (cover) {
 }
 
 const href = postUrl(post.id);
-const excerpt = post.data.description || '';
+// 摘要：手写 description 优先，缺省回退正文（多数文章未手写 description）
+const excerpt = resolvePostDescription(post, 100);
 const primaryCategory = post.data.categories?.[0];
 const tags = post.data.tags ?? [];
 

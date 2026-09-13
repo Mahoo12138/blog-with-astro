@@ -1,7 +1,7 @@
 ---
 title: 安卓开发学习之底部导航栏实战
 date: 2020-08-02 20:09:45
-img: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/android.png
+cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/android.png
 categories: 
 - 技术教程
 tags:

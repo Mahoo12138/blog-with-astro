@@ -1,7 +1,7 @@
 ---
 title: Dart 编程语言不详细学习指北
 date: 2020-10-30 16:34:24
-img: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/flutter.png
+cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/flutter.png
 tags: 
 - Dart
 categories: 

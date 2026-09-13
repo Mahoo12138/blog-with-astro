@@ -1,7 +1,7 @@
 ---
 title: 前端入门之Vuejs初试
 date: 2020-02-18 16:00:21
-img: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/vuejs.png
+cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/vuejs.png
 categories: 
 - 学习笔记
 tags:

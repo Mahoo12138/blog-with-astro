@@ -47,17 +47,21 @@ export default defineConfig({
 		remarkPlugins: [whenMathjax(remarkMath)],
 		rehypePlugins: [whenMathjax(rehypeKatex)],
 		shikiConfig: {
-			// 双主题走 css-variables 模式：Shiki 只内联一份共享 CSS 变量表，
-			// 每个 token 输出 style="--shiki-light:...;--shiki-dark:..."，
-			// 而不是把 light/dark 两套完整配色的具体色值各内联一遍。
-			// 此前 themes:{light,dark} 模式会让代码块密集的页面 HTML 飙到 565KB。
-			// 具体切换由 src/styles/theme.css.ts 的 [data-theme] 选择器负责。
+			// 双主题（light + dark）时 Shiki 会为每个 token 输出
+			//   style="color:#xxx;--shiki-dark:#yyy"
+			// 即每个 token 内联两份颜色。这是代码块密集页面 HTML 偏大的主因，
+			// 但它同时是「零 JS、无闪烁、跟随 data-theme」的最省事方案。
+			//
+			// 实测过 themes + defaultColor:false（纯 css-variables 模式）：token 变成
+			//   style="--shiki-light:#xxx;--shiki-dark:#yyy;--shiki-light-bg:...;--shiki-dark-bg:..."
+			// 每个 token 要带 4 个变量名，比双色值更长，页面上反而增大 ~10%（565KB → 619KB）。
+			//
+			// 真正能显著缩小体积的做法是「按需高亮 + 单主题」，代价是暗色模式代码配色不再独立。
+			// 这里选择保留双主题：体积换体验，且 HTML 已在 gzip 后大幅收敛。
 			themes: {
 				light: 'github-light',
 				dark: 'github-dark',
 			},
-			defaultColor: false,
-			cssVariablePrefix: '--shiki-',
 			langAlias: {
 				C: 'c',
 				Kotlin: 'kotlin',

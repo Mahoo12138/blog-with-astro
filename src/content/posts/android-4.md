@@ -1,7 +1,7 @@
 ---
 title: 安卓开发学习之掉坑记录集合
 date: 2019-07-25 12:48:43
-img: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/android.png
+cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/android.png
 categories: 
 - 学习笔记
 tags:

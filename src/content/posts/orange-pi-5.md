@@ -2,7 +2,7 @@
 title: 香橙派 5P 折腾踩坑记录一揽子
 date: 2023-10-07 22:18:14
 author: Mahoo12138
-img: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/phone.png
+cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/phone.png
 tags: 
 - Linux
 - Docker

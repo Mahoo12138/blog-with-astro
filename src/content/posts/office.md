@@ -1,7 +1,7 @@
 ---
 title: 关于office的一点点使用经验
 date: 2019-12-05 22:12:00
-img: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/office.png
+cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/office.png
 categories: 
 - 技术教程
 tags:

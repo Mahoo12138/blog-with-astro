@@ -1,7 +1,7 @@
 ---
 title: 前端学习之 React 原理解密
 date: 2020-09-30 21:32:44
-img: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/react.png
+cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/react.png
 categories: 
 - 学习笔记
 tags:

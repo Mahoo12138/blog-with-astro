@@ -2,7 +2,7 @@
 title: 香橙派 5P Ubuntu 22.04 安装 Home Assistant Supervised
 date: 2024-10-10 21:23:23
 author: Mahoo12138
-img: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/phone.png
+cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/phone.png
 tags: 
 - Ubuntu
 - Home Assistant

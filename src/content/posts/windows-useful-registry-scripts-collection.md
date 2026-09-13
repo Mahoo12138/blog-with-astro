@@ -1,7 +1,7 @@
 ---
 title: 整理一批实用 Windows 注册表脚本
 date: 2020-08-08 21:09:45
-img: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/win10.png
+cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/win10.png
 categories: 
 - 技术教程
 tags:

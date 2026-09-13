@@ -1,7 +1,7 @@
 ---
 title: Flutter 入门学习之动画
 date: 2021-02-08 12:13:24
-img: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/flutter.png
+cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/flutter.png
 tags: 
 - Flutter
 categories: 

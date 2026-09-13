@@ -15,7 +15,6 @@ const publicationFields = {
 
 const mediaFields = <T extends z.ZodType>(image: () => T) => ({
 	cover: z.union([image(), z.string()]).optional(),
-	banner: z.union([image(), z.string()]).optional(),
 });
 
 const posts = defineCollection({
@@ -26,17 +25,20 @@ const posts = defineCollection({
     z
       .object({
         title: z.string(),
-        description: z.string().default(""),
-        // Accept both Astro-style pubDate and Hexo-style date
-        pubDate: z.coerce.date().optional(),
-        date: z.coerce.date().optional(),
+        // description 允许缺省，但**不允许显式为空串**：
+        // 缺省时由 utils/content.ts 的 resolvePostDescription() 从正文抽取摘要，
+        // 显式写空串则视为错误（那说明作者本来想写却没写）。
+        // 历史上 121/124 篇完全没有 description，导致 RSS 输出空条目、卡片无摘要。
+        description: z.string().min(1, 'description 不能为空串：请填写，或直接省略由正文自动生成').optional(),
         author: z.string().default(""),
         layout: z.string().optional(),
         columnId: z.string().optional(),
-        // Hexo fields
-        img: z.union([image(), z.string()]).optional(), // cover image: local path or remote URL
         mathjax: z.boolean().default(false),
         topic: z.string().optional(),
+        // 日期：Hexo 遗留的 `date` 与 Astro 惯用的 `pubDate` 均接受，
+        // 但统一在 transform 里归一化到 pubDate（实测当前 124 篇全用 date）。
+        pubDate: z.coerce.date().optional(),
+        date: z.coerce.date().optional(),
         updated: z.coerce.date().optional(), // Hexo alias for updatedDate
         ...taxonomyFields,
         ...publicationFields,
@@ -51,31 +53,6 @@ const posts = defineCollection({
         pubDate: data.pubDate ?? data.date ?? new Date(0),
         updatedDate: data.updatedDate ?? data.updated,
       })),
-});
-
-const wiki = defineCollection({
-  loader: glob({ base: "./src/content/wiki", pattern: "**/*.{md,mdx}" }),
-  schema: ({ image }) =>
-    z.object({
-      title: z.string(),
-      description: z.string().default(""),
-      pubDate: z.coerce.date().optional(),
-      order: z.number().int().default(0),
-      wikiTab: z.string().optional(),
-      icon: z.string().optional(),
-      layout: z.string().default("wiki"),
-      toc: z.boolean().default(true),
-      sidebar: z
-        .object({
-          label: z.string().optional(),
-          hidden: z.boolean().default(false),
-          collapsed: z.boolean().default(false),
-        })
-        .optional(),
-      ...taxonomyFields,
-      ...publicationFields,
-      ...mediaFields(image),
-    }),
 });
 
 const columns = defineCollection({
@@ -93,24 +70,6 @@ const columns = defineCollection({
       ...taxonomyFields,
       ...publicationFields,
       ...mediaFields(image),
-    }),
-});
-
-const notes = defineCollection({
-  loader: glob({ base: "./src/content/notes", pattern: "**/*.{md,mdx}" }),
-  schema: ({ image }) =>
-    z.object({
-      title: z.string(),
-      description: z.string().default(""),
-      pubDate: z.coerce.date(),
-      layout: z.string().default("note"),
-      visibility: z.enum(["public", "unlisted"]).default("public"),
-      pinned: z.boolean().default(false),
-      mood: z.string().optional(),
-      location: z.string().optional(),
-      ...taxonomyFields,
-      ...publicationFields,
-      cover: image().optional(),
     }),
 });
 
@@ -290,11 +249,11 @@ const residences = defineCollection({
   }),
 });
 
+// 只声明 src/content/ 下真实存在数据的 collection：
+// 此前 19 个声明里有 2 个（wiki / notes）没有对应目录，属于失效配置，已删除。
 export const collections = {
   posts,
-  wiki,
   columns,
-  notes,
   goods,
   phones,
 	cities,

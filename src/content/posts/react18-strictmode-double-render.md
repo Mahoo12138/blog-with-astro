@@ -1,7 +1,7 @@
 ---
 title: React 18 中 StrictMode 下重复渲染组件
 date: 2022-07-30 12:58:05
-img: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/react.png
+cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/react.png
 categories: 
 - 技术教程
 tags:

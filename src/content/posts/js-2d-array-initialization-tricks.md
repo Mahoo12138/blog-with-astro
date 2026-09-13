@@ -2,7 +2,7 @@
 title: JavaScript 初始化二维数组的陷阱
 date: 2025-05-28 19:48:43
 author: Mahoo12138
-img: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/hexo.png
+cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/hexo.png
 tags:
   - JavaScript
 ---

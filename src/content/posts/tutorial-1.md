@@ -2,7 +2,7 @@
 title: 利用 spacedesk 连接多个副屏
 date: 2019-08-24 08:11:11
 author: Mahoo12138
-img: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/win10.png
+cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/win10.png
 categories: 
 - 技术教程
 tags:

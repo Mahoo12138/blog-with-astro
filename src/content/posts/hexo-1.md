@@ -2,7 +2,7 @@
 title: Hexo 使用的不完全填坑指南
 date: 2019-10-10 22:48:43
 author: Mahoo12138
-img: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/hexo.png
+cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/hexo.png
 tags: 
 - Hexo
 categories:

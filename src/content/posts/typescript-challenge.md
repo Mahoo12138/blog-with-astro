@@ -1,7 +1,7 @@
 ---
 title: TypeScript 学习-类型体操训练
 date: 2022-4-21 15:12:52
-img: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/typescript.jpg
+cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/typescript.jpg
 categories: 
 - 学习笔记
 tags:

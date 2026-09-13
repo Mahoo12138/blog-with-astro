@@ -1,7 +1,7 @@
 ---
 title: Flutter 入门学习之按钮
 date: 2021-01-07 10:13:24
-img: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/flutter.png
+cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/flutter.png
 tags: 
 - Flutter
 categories: 

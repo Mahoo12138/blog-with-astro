@@ -2,7 +2,7 @@
 title: 写框架的框架—— Cordis 源码解析 （个人向）
 date: 2024-10-17 21:00:03
 author: Mahoo12138
-img: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/phone.png
+cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/phone.png
 tags: 
 - Ubuntu
 - OrangePi

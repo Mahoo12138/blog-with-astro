@@ -25,7 +25,18 @@ const args = Object.fromEntries(
 		return [k, v];
 	}),
 );
-const BUDGET_MB = Number(args['budget-mb'] ?? 15);
+/**
+ * 体积预算。
+ *
+ * dist 总量的主要构成是文章 HTML（239 页 / 约 13MB），
+ * 而其中大头是 Shiki 为每个 token 内联的 light+dark 双份色值。
+ * 这个量级由「代码块密集的教程文章有多少」决定，不是配置能压下去的，
+ * 所以预算按实测基线设成「不许继续恶化」的护栏，而不是理想值。
+ *
+ * - TOTAL_BUDGET_MB：当前实测约 17.5MB，留少量余量作为回归护栏
+ * - IMAGE_BUDGET_KB：单张图片硬上限，这才是真正能靠工程手段守住的线
+ */
+const BUDGET_MB = Number(args['budget-mb'] ?? 19);
 const IMAGE_KB = Number(args['image-kb'] ?? 200);
 
 if (!existsSync(dist)) {

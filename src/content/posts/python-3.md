@@ -1,7 +1,7 @@
 ---
 title: Python 爬虫的 XPath 学习
 date: 2021-04-12 15:45:43
-img: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/python.png
+cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/python.png
 tags: 
 - Python
 - Xpath

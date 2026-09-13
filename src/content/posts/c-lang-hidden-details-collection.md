@@ -1,7 +1,7 @@
 ---
 title: 盘点 C 语言中你不知道的小细节
 date: 2019-11-12 20:48:43
-img: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/c.jpg
+cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/c.jpg
 tags:
   - C
 categories:

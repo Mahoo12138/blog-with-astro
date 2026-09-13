@@ -2,7 +2,7 @@
 title: Leetcode 刷题记录之链表
 date: 2019-10-16 21:27:24
 mathjax: true
-img: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn//hexo-images/leecode.png
+cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn//hexo-images/leecode.png
 tags: 
 - 数据结构与算法
 - 链表

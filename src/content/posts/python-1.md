@@ -2,7 +2,7 @@
 title: Python对文件进行批量重命名
 date: 2019-12-03 21:48:43
 author: Mahoo12138
-img: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/python.png
+cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/python.png
 tags: 
 - Python
 categories:

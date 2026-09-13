@@ -14,7 +14,6 @@ interface Props {
 	description: string;
 	pubDate: Date;
 	updatedDate?: Date;
-	banner?: ImageMetadata | string;
 	image?: ImageMetadata | string;
 	siteTree?: SiteTreeKey;
 	headings?: { depth: number; slug: string; text: string }[];
@@ -22,10 +21,10 @@ interface Props {
 	noindex?: boolean;
 }
 
-const { title, description, pubDate, updatedDate, banner, image, siteTree = 'post', headings = [], mathjax = false, noindex = false } = Astro.props;
+const { title, description, pubDate, updatedDate, image, siteTree = 'post', headings = [], mathjax = false, noindex = false } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
-// 文章 OG / JSON-LD 共用的图片 URL：优先 banner，回退 cover（由路由通过 resolvePostCover 解析后传入）
+// 文章 OG / JSON-LD 用的图片 URL：由路由通过 resolvePostCover 解析后传入
 const articleImageUrl = image
 	? new URL(typeof image === 'string' ? image : image.src, Astro.site).toString()
 	: undefined;
@@ -48,14 +47,7 @@ const blogPostingJsonLdSafe = JSON.stringify(blogPostingJsonLd).replace(/</g, '\
 	<script is:inline type="application/ld+json" set:html={blogPostingJsonLdSafe} />
 	<article class={styles.article} data-pagefind-body={noindex ? undefined : true}>
 		<header class:list={[styles.banner, 'article', 'banner', 'top']}>
-			{banner && (
-				typeof banner === 'string' ? (
-					<img class:list={[styles.bannerImage, 'bg']} src={banner} alt="" />
-				) : (
-					<Image class:list={[styles.bannerImage, 'bg']} width={1020} height={408} src={banner} alt="" />
-				)
-			)}
-			<div class:list={[styles.bannerContent, banner && styles.bannerContentWithImage, 'content']}>
+			<div class:list={[styles.bannerContent, 'content']}>
 				<div class:list={[styles.bannerMeta, 'top', 'bread-nav', 'footnote']}>
 					<div class="left">
 						<div class="flex-row" id="breadcrumb">

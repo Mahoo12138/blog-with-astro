@@ -36,6 +36,17 @@ const SD: Record<string, { p: string; c: string[] }> = {
   },
 };
 
+/** 移动端粒子数减半：低端设备上 38 个带渐变的粒子是明确的 GPU 负担。 */
+const isMobileViewport = () =>
+  typeof window !== "undefined" && window.matchMedia("(max-width: 768px)").matches;
+
+/** DPR 上限 2：超过 2x 的收益肉眼不可见，但像素填充量翻倍。 */
+const DPR_CAP = 2;
+
+const prefersReducedMotion = () =>
+  typeof window !== "undefined" &&
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
 class Particle {
   t: string;
   c: string[];
@@ -174,42 +185,123 @@ export default function LoveParticles({ season }: { season: string }) {
   useEffect(() => {
     const cv = cvRef.current;
     if (!cv) return;
-    const ctx = cv.getContext("2d")!;
+    const ctx = cv.getContext("2d");
+    if (!ctx) return;
+
+    // 与 starfield 对齐的降级策略：
+    //  - prefers-reduced-motion：不进入 RAF，只静态渲染一帧
+    //  - IntersectionObserver：容器离开视口即停画（画布是 fixed 全屏，页面回顶后仍需恢复）
+    //  - visibilitychange：标签页切到后台即停画
+    //  - 移动端减粒子 + DPR 上限 2
+    const reduced = prefersReducedMotion();
+    const mobile = isMobileViewport();
+
     let pts: Particle[] = [];
     let raf = 0;
+    let running = false;
+    let inView = true;
+    let pageVisible = !document.hidden;
+    let destroyed = false;
+
+    const particleCount = (s: string) => {
+      const base = s === "summer" ? 26 : 38;
+      return mobile ? Math.round(base / 2) : base;
+    };
 
     function rsz() {
-      cv!.width = innerWidth;
-      cv!.height = innerHeight;
+      if (destroyed) return;
+      const dpr = Math.min(window.devicePixelRatio || 1, DPR_CAP);
+      const w = Math.max(1, Math.floor(window.innerWidth * dpr));
+      const h = Math.max(1, Math.floor(window.innerHeight * dpr));
+      if (cv!.width !== w || cv!.height !== h) {
+        cv!.width = w;
+        cv!.height = h;
+      }
+      // 用 CSS 尺寸还原逻辑坐标系，后续粒子位移仍按逻辑像素计算
+      ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
-    rsz();
-    window.addEventListener("resize", rsz);
+
+    const logicalW = () => window.innerWidth;
+    const logicalH = () => window.innerHeight;
 
     function rebuild(s: string) {
       const d = SD[s] ?? SD.spring;
       pts = Array.from(
-        { length: s === "summer" ? 26 : 38 },
-        () => new Particle(d.p, d.c, true, cv!.width, cv!.height),
+        { length: particleCount(s) },
+        () => new Particle(d.p, d.c, true, logicalW(), logicalH()),
       );
     }
 
+    /** 只画一帧（reduced-motion 与 resize 后复用） */
+    function renderFrame() {
+      ctx!.clearRect(0, 0, logicalW(), logicalH());
+      pts.forEach((p) => p.drw(ctx!));
+    }
+
     function loop() {
-      ctx.clearRect(0, 0, cv!.width, cv!.height);
+      ctx!.clearRect(0, 0, logicalW(), logicalH());
       pts.forEach((p) => {
-        p.upd(cv!.width, cv!.height);
-        p.drw(ctx);
+        p.upd(logicalW(), logicalH());
+        p.drw(ctx!);
       });
       raf = requestAnimationFrame(loop);
     }
 
+    function start() {
+      if (running || destroyed || reduced) return;
+      running = true;
+      raf = requestAnimationFrame(loop);
+    }
+
+    function stop() {
+      if (!running) return;
+      running = false;
+      cancelAnimationFrame(raf);
+      raf = 0;
+    }
+
+    function onWinResize() {
+      rsz();
+      if (reduced) renderFrame();
+    }
+
+    function onVisibility() {
+      pageVisible = !document.hidden;
+      if (pageVisible && inView) start();
+      else stop();
+    }
+
+    rsz();
     rebuild(season);
-    loop();
+
+    if (reduced) {
+      // 静态降级：不进 RAF
+      renderFrame();
+    } else {
+      start();
+    }
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        inView = entries[0]?.isIntersecting ?? false;
+        if (inView && pageVisible) start();
+        else stop();
+      },
+      { threshold: 0 },
+    );
+    io.observe(cv);
+
+    window.addEventListener("resize", onWinResize);
+    document.addEventListener("visibilitychange", onVisibility);
 
     return () => {
-      window.removeEventListener("resize", rsz);
-      cancelAnimationFrame(raf);
+      destroyed = true;
+      stop();
+      io.disconnect();
+      window.removeEventListener("resize", onWinResize);
+      document.removeEventListener("visibilitychange", onVisibility);
     };
   }, [season]);
 
-  return <canvas ref={cvRef} id="bg" />;
+  return <canvas ref={cvRef} id="bg" aria-hidden="true" />;
 }

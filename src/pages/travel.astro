@@ -193,9 +193,28 @@ function durationLabel(since: Date, until?: Date) {
 	if (amapSecurityCode) {
 		window._AMapSecurityConfig = { securityJsCode: amapSecurityCode };
 	}
+
+	// 高德 SDK 的加载与就绪通知。
+	// 此前是无 defer 的同步 <script>，会阻塞 HTML 解析；且就绪判断靠 60ms setTimeout 轮询。
+	// 现在：defer 加载 → onload 回调 resolve；调用方用 await 等待，无需轮询。
+	window.__amapReady = new Promise((resolve) => {
+		window.__amapResolve = resolve;
+	});
+	window.__amapOnLoad = () => {
+		if (typeof window.__amapResolve === 'function') {
+			window.__amapResolve(window.AMap);
+		}
+	};
+
+	// 页面被 Astro ClientRouter 重新挂载时，旧 Promise 必须作废重建，否则会 resolve 到一个已卸载的地图。
+	document.addEventListener('astro:before-swap', () => {
+		window.__amapReady = new Promise((resolve) => {
+			window.__amapResolve = resolve;
+		});
+	});
 </script>
 {amapKey && (
-	<script is:inline src={`https://webapi.amap.com/maps?v=2.0&key=${amapKey}`}></script>
+	<script is:inline defer src={`https://webapi.amap.com/maps?v=2.0&key=${amapKey}`} onload="window.__amapOnLoad && window.__amapOnLoad()"></script>
 )}
 <script is:inline data-astro-rerun>
 	(() => {
@@ -218,15 +237,15 @@ function durationLabel(since: Date, until?: Date) {
 			}[ch]));
 		}
 
-		function init() {
+		async function init() {
 			const container = document.getElementById('travel-map');
 			if (!container) return;
 			if (container.dataset.mapReady === '1') return;
-			if (typeof window.AMap === 'undefined') {
-				setTimeout(init, 60);
-				return;
-			}
-			const AMap = window.AMap;
+
+			// SDK 已就绪则直接取；否则等待 onload 回调（defer 加载，不阻塞解析）。
+			const AMap = window.AMap ?? (await window.__amapReady);
+			if (!AMap) return;
+			container.dataset.mapReady = '1';
 			const cities = readJson(container, 'data-cities');
 			const residences = readJson(container, 'data-residences');
 
@@ -244,7 +263,6 @@ function durationLabel(since: Date, until?: Date) {
 				touchZoom: true,
 				jogEnable: true,
 			});
-			container.dataset.mapReady = '1';
 
 			const overlays = [];
 			const infoWindow = new AMap.InfoWindow({
@@ -355,6 +373,22 @@ function durationLabel(since: Date, until?: Date) {
 			});
 		}
 
-		init();
+		// 地图区域进入视口才开始初始化：地图卡在页面较下方，
+		// 首屏没必要为它付出 SDK 下载与地图实例化的成本。
+		const mapContainer = document.getElementById('travel-map');
+		if (mapContainer) {
+			const mapObserver = new IntersectionObserver(
+				(entries) => {
+					if (entries[0]?.isIntersecting) {
+						mapObserver.disconnect();
+						init();
+					}
+				},
+				{ rootMargin: '200px' },
+			);
+			mapObserver.observe(mapContainer);
+		} else {
+			init();
+		}
 	})();
 </script>

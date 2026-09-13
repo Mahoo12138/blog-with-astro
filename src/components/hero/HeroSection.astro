@@ -11,7 +11,20 @@ import * as styles from '../../styles/hero.css';
 	</div>
 	<div class={styles.heroContent}>
 		<span class={styles.planet}>
-			<Image class={styles.heroAvatar} src={AvatarImage} width={120} height={120} densities={[1, 2]} alt={SITE_TITLE} />
+			{/* 首屏 LCP 候选元素：必须 eager + 高优先级。
+			    此前默认 lazy 会让这张图被推迟到懒加载队列，直接拖慢首页 LCP。 */}
+			<Image
+				class={styles.heroAvatar}
+				src={AvatarImage}
+				width={120}
+				height={120}
+				densities={[1, 2]}
+				format="webp"
+				loading="eager"
+				fetchpriority="high"
+				decoding="async"
+				alt={SITE_TITLE}
+			/>
 		</span>
 		<h1 class={styles.heroTitle}>{SITE_TITLE}</h1>
 		<p class={styles.heroTagline}>{SITE_DESCRIPTION}</p>

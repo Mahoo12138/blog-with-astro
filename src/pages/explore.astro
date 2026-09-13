@@ -1,5 +1,6 @@
 ---
-import { exploreIconImages } from '../assets/explore-icons';
+import { Image } from 'astro:assets';
+import { exploreIconImages, isImageMetadata } from '../assets/explore-icons';
 import { explorePageConfig } from '../config/explore';
 import { SITE_TITLE } from '../consts';
 import StellarShell from '../layouts/StellarShell.astro';
@@ -15,12 +16,29 @@ const { title, description, items } = explorePageConfig;
 			items.map((item) => {
 				const target = item.openInNewTab ? '_blank' : undefined;
 				const rel = [item.external ? 'external nofollow' : '', item.openInNewTab ? 'noopener noreferrer' : ''].filter(Boolean).join(' ') || undefined;
+				const icon = exploreIconImages[item.icon];
 
 				return (
 					<a class={styles.card} href={item.href} target={target} rel={rel} aria-label={item.title}>
 						<article class={styles.article}>
 							<div class={styles.preview}>
-								<img class={styles.iconImage} src={exploreIconImages[item.icon]} alt="" loading="eager" decoding="async" />
+								{isImageMetadata(icon) ? (
+									/* 位图图标走管线：卡片里显示尺寸很小，出 192px 的 webp 足够覆盖 2x。
+									   之前直出 love.png(499KB) / memos.png(311KB)，且用 loading="eager"
+									   抢先加载，是 /explore 首屏的主要负担。 */
+									<Image
+										class={styles.iconImage}
+										src={icon}
+										width={192}
+										height={192}
+										format="webp"
+										loading="lazy"
+										decoding="async"
+										alt=""
+									/>
+								) : (
+									<img class={styles.iconImage} src={icon} alt="" loading="lazy" decoding="async" />
+								)}
 							</div>
 							<div class={styles.body}>
 								<h2 class={styles.title}>{item.title}</h2>

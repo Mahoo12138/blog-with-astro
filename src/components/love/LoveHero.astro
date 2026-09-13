@@ -1,8 +1,11 @@
 ---
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
 interface Partner {
   initial: string;
   name: string;
-  avatar: string;
+  avatar: ImageMetadata | string;
 }
 
 interface Props {
@@ -11,6 +14,10 @@ interface Props {
 }
 
 const { left, right } = Astro.props;
+
+/** 本地位图走 <Image> 管线（原图可能很大），远程/字符串则保持原生 <img>。 */
+const isLocal = (avatar: ImageMetadata | string): avatar is ImageMetadata =>
+  typeof avatar !== "string";
 ---
 
 <header class="hero">
@@ -26,7 +33,11 @@ const { left, right } = Astro.props;
     <div class="avs">
       <div class="av">
         <div class="av-ring">
-          <img class="av-img" src={left.avatar} alt={left.name} />
+          {isLocal(left.avatar) ? (
+            <Image class="av-img" src={left.avatar} width={144} height={144} format="webp" loading="eager" decoding="async" alt={left.name} />
+          ) : (
+            <img class="av-img" src={left.avatar} alt={left.name} />
+          )}
         </div>
         <div class="av-nm">{left.name}</div>
       </div>
@@ -36,7 +47,11 @@ const { left, right } = Astro.props;
       </div>
       <div class="av">
         <div class="av-ring">
-          <img class="av-img" src={right.avatar} alt={right.name} />
+          {isLocal(right.avatar) ? (
+            <Image class="av-img" src={right.avatar} width={144} height={144} format="webp" loading="eager" decoding="async" alt={right.name} />
+          ) : (
+            <img class="av-img" src={right.avatar} alt={right.name} />
+          )}
         </div>
         <div class="av-nm">{right.name}</div>
       </div>

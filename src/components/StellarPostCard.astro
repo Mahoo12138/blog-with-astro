@@ -4,6 +4,7 @@ import type { ImageMetadata } from 'astro';
 import { getCollection, type CollectionEntry } from 'astro:content';
 import FormattedDate from './FormattedDate.astro';
 import StellarIcon from './StellarIcon.astro';
+import { postUrl } from '../consts';
 import { resolvePostCover, slugifySegment } from '../utils/content';
 import * as styles from './StellarPostCard.css';
 
@@ -30,7 +31,7 @@ if (cover) {
 	}
 }
 
-const href = `/post/${post.id}/`;
+const href = postUrl(post.id);
 const excerpt = post.data.description || '';
 const primaryCategory = post.data.categories?.[0];
 const tags = post.data.tags ?? [];

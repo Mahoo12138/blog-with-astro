@@ -6,3 +6,11 @@ export const SITE_DESCRIPTION = 'Welcome to my planet!';
 export const SITE_AUTHOR = 'mahoo12138';
 
 export const POSTS_PER_PAGE = 10;
+
+// 文章固定链接。全站 URL 规则只在此处定义一次，
+// 避免散落在 archives / rss / StellarPostCard / 侧栏挂件等处各自拼字符串（历史上曾出现 /blog/ 死链）。
+export const POST_ROUTE_PREFIX = 'post';
+
+export function postUrl(id: string): string {
+	return `/${POST_ROUTE_PREFIX}/${id}/`;
+}

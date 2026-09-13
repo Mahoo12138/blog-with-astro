@@ -1,5 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
+import { postUrl } from '../../consts';
 import { sortBlogPosts } from '../../utils/content';
 import type { WidgetProps } from './types';
 import * as leftStyles from '../StellarLeftSidebar.css';
@@ -16,7 +17,7 @@ const posts = sortBlogPosts(await getCollection('posts')).slice(0, limit);
 			<div class={leftStyles.widgetTitle}><span>{widget.title}</span></div>
 			<div class={leftStyles.recentList}>
 				{posts.map((post) => (
-					<a class={leftStyles.recentItem} href={`/blog/${post.id}/`}>
+					<a class={leftStyles.recentItem} href={postUrl(post.id)}>
 						<span class={leftStyles.recentItemTitle}>{post.data.title}</span>
 					</a>
 				))}
@@ -27,7 +28,7 @@ const posts = sortBlogPosts(await getCollection('posts')).slice(0, limit);
 			<div class={rightStyles.widgetHeader}><span>{widget.title}</span></div>
 			<div class={rightStyles.timeline}>
 				{posts.map((post) => (
-					<a class={rightStyles.timelineLink} href={`/blog/${post.id}/`}>
+					<a class={rightStyles.timelineLink} href={postUrl(post.id)}>
 						<span>{post.data.title}</span>
 					</a>
 				))}

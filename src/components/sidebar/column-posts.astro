@@ -1,4 +1,5 @@
 ---
+import { postUrl } from '../../consts';
 import type { WidgetProps } from './types';
 import * as leftStyles from '../StellarLeftSidebar.css';
 import * as rightStyles from '../StellarRightSidebar.css';
@@ -17,7 +18,7 @@ const headerClass = side === 'left' ? leftStyles.widgetTitle : rightStyles.widge
 		<div class={headerClass}><span>{widget.title}</span></div>
 		<ol class={columnStyles.postList}>
 			{orderedPosts.map((post, index) => {
-				const href = `/post/${post.id}/`;
+				const href = postUrl(post.id);
 				const isActive = currentPath === href.replace(/\/+$/, '');
 				return (
 					<li class={columnStyles.postItem}>

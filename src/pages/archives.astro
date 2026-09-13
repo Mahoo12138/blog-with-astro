@@ -1,7 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import StellarNavTabs from '../components/StellarNavTabs.astro';
-import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import { postUrl, SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 import StellarShell from '../layouts/StellarShell.astro';
 import * as styles from '../styles/homeFeed.css';
 import { sortBlogPosts } from '../utils/content';
@@ -33,7 +33,7 @@ const formatArchiveDate = (date: Date) => `${String(date.getMonth() + 1).padStar
 						{
 							yearPosts.map((post) => (
 								<li class={styles.archiveItem}>
-									<a class={styles.archiveLink} href={`/blog/${post.id}/`}>
+									<a class={styles.archiveLink} href={postUrl(post.id)}>
 										<time class={styles.archiveDate} datetime={post.data.pubDate.toISOString()}>
 											{formatArchiveDate(post.data.pubDate)}
 										</time>

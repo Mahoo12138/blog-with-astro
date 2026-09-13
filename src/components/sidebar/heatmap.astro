@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import type { WidgetProps } from './types';
 import * as rightStyles from '../StellarRightSidebar.css';
+import { postUrl } from '../../consts';
 import { sortBlogPosts } from '../../utils/content';
 import * as styles from './heatmap.css';
 
@@ -82,7 +83,7 @@ for (const post of posts) {
 	const dateKey = toDateKey(post.data.pubDate.valueOf());
 	const entry: HeatmapPost = {
 		title: post.data.title,
-		href: `/post/${post.id}/`,
+		href: postUrl(post.id),
 		words: countWords('body' in post ? post.body : ''),
 	};
 

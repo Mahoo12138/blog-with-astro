@@ -1,0 +1,81 @@
+---
+import type { LabDemo } from '../../config/lab';
+import { LAB_RUNTIME_LABEL, getSortedLabDemos, labDemoUrl, labPageConfig } from '../../config/lab';
+import { SITE_TITLE } from '../../consts';
+import WideShell from '../../layouts/WideShell.astro';
+import * as styles from '../../styles/lab.css';
+
+export function getStaticPaths() {
+	return getSortedLabDemos().map((demo) => ({ params: { slug: demo.id }, props: { demo } }));
+}
+
+interface Props {
+	demo: LabDemo;
+}
+
+const { demo } = Astro.props;
+
+/**
+ * demo 入口组件按目录自动发现：src/lab/demos/<id>/index.astro。
+ *
+ * 这里刻意不写 client:* 指令 —— hydration 指令必须写在 demo 自己的
+ * index.astro 里，Astro 才静态分析得到（对 glob 出来的变量组件加指令不可靠）。
+ * 详情页只负责把组件 SSR 出来，剩下的交给 demo 自己。
+ */
+const demoModules = import.meta.glob<{ default: unknown }>('../../lab/demos/*/index.astro', { eager: true });
+const entryPath = `../../lab/demos/${demo.id}/index.astro`;
+const DemoComponent = demoModules[entryPath]?.default as ((props: Record<string, never>) => unknown) | undefined;
+
+if (!DemoComponent) {
+	// 注册表里登记了却没有实现文件：构建期直接失败，别让空页混进 dist
+	throw new Error(`[lab] demo「${demo.id}」缺少入口文件 src/lab/demos/${demo.id}/index.astro`);
+}
+
+const demos = getSortedLabDemos();
+const position = demos.findIndex((item) => item.id === demo.id);
+const previous = position > 0 ? demos[position - 1] : undefined;
+const next = position < demos.length - 1 ? demos[position + 1] : undefined;
+---
+
+<WideShell
+	title={`${demo.title} · ${labPageConfig.title} · ${SITE_TITLE}`}
+	description={demo.description}
+	siteTree="lab"
+	mainClass={styles.detailMain}
+>
+	<nav class={styles.crumbs} aria-label="面包屑">
+		<a href="/lab/">{labPageConfig.title}</a>
+		<span aria-hidden="true"> / </span>
+		<span>{demo.title}</span>
+	</nav>
+
+	<h1 class={styles.detailTitle}>{demo.title}</h1>
+	<p class={styles.detailDesc}>{demo.description}</p>
+	<div class={styles.detailMeta}>
+		<span>{LAB_RUNTIME_LABEL[demo.runtime]}</span>
+		<span>更新于 {demo.updatedAt}</span>
+		{demo.status === 'wip' && <span class={styles.wipBadge}>WIP</span>}
+	</div>
+
+	<DemoComponent />
+
+	{demo.notes && demo.notes.length > 0 && (
+		<section class={styles.notes}>
+			<h2>实验说明</h2>
+			<ul>
+				{demo.notes.map((note) => (
+					<li>{note}</li>
+				))}
+			</ul>
+		</section>
+	)}
+
+	<nav class={styles.neighborNav} aria-label="其他实验">
+		<span>
+			{previous && <a href={labDemoUrl(previous.id)}>← {previous.title}</a>}
+		</span>
+		<span>
+			{next && <a href={labDemoUrl(next.id)}>{next.title} →</a>}
+		</span>
+	</nav>
+</WideShell>

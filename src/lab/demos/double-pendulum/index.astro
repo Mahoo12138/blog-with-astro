@@ -1,0 +1,14 @@
+---
+/**
+ * 双摆混沌 —— React island 路线的样板。
+ *
+ * 与 game-of-life 的区别只有一行：这里是 `client:visible` 的 React 组件。
+ * 详情页不关心 demo 用什么写，只要 index.astro 存在就渲染。
+ */
+import LabStage from '../../components/LabStage.astro';
+import DoublePendulum from './DoublePendulum';
+---
+
+<LabStage demoId="double-pendulum" label="双摆 · RK4 积分（1/240s 子步）">
+	<DoublePendulum client:visible />
+</LabStage>

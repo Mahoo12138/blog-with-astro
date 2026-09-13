@@ -1,0 +1,96 @@
+---
+/**
+ * demo 的舞台外壳。
+ *
+ * 只做三件 demo 自己懒得做、但每个 demo 都需要的事：
+ *   1. 统一的深色视窗（「屏幕里的屏幕」，全站浅色主题下也不突兀）
+ *   2. 全屏切换（Fullscreen API；尺寸变化由 runtime 的 ResizeObserver 接住）
+ *   3. 重置按钮 —— 往 stage 上派发 `lab:reset`，demo 在 runtime 里
+ *      用 onReset() 接。这样 demo 不用自己管按钮长什么样。
+ *
+ * demo 内容通过默认 slot 塞进 .stageBody，想用什么框架都行。
+ */
+import * as styles from '../../styles/lab.css';
+
+interface Props {
+	/** 与注册表 id 一致，用于定位 stage（重置事件要用到） */
+	demoId: string;
+	/** 左上角说明文字 */
+	label?: string;
+	/** 舞台宽高比，默认 16 / 9 */
+	aspect?: string;
+	/** 是否显示重置按钮（纯展示型 demo 可以关掉） */
+	resettable?: boolean;
+}
+
+const { demoId, label = '交互演示', aspect = '16 / 9', resettable = true } = Astro.props;
+---
+
+<div class={styles.stage} data-lab-stage data-lab-demo={demoId}>
+	<div class={styles.stageBar} data-pagefind-ignore>
+		<span class={styles.stageLabel}>
+			<span class={styles.stageDot} aria-hidden="true"></span>
+			<span>{label}</span>
+		</span>
+		<span class={styles.stageActions}>
+			{resettable && (
+				<button class={styles.stageButton} type="button" data-lab-action="reset">重置</button>
+			)}
+			<button class={styles.stageButton} type="button" data-lab-action="fullscreen" data-label-full="退出全屏" data-label-exit="全屏">全屏</button>
+		</span>
+	</div>
+	<div class={styles.stageBody} style={`aspect-ratio: ${aspect};`}>
+		<slot />
+	</div>
+</div>
+
+<script>
+	/**
+	 * 事件委托挂在 document 上，所以 View Transition 换页后依然生效
+	 * （本模块脚本不会重跑，但 document 上的监听器活了下来）。
+	 * 守卫标志与 public/js/code-copy.js 同款：ClientRouter 下脚本可能被
+	 * 重复执行，重复绑定会让一次点击触发多次。
+	 */
+	(() => {
+		const w = window as unknown as { __labStageReady?: boolean };
+		if (w.__labStageReady) return;
+		w.__labStageReady = true;
+
+		const FULL = 'fullscreen';
+
+		function syncLabels() {
+			document.querySelectorAll<HTMLElement>('[data-lab-action="fullscreen"]').forEach((button) => {
+				const stage = button.closest<HTMLElement>('[data-lab-stage]');
+				const isFull = Boolean(stage && document.fullscreenElement === stage);
+				button.textContent = isFull ? button.dataset.labelFull ?? '退出全屏' : button.dataset.labelExit ?? '全屏';
+				button.setAttribute('aria-pressed', String(isFull));
+			});
+		}
+
+		document.addEventListener('click', (event) => {
+			const button = (event.target as HTMLElement | null)?.closest<HTMLElement>('[data-lab-action]');
+			if (!button) return;
+			const stage = button.closest<HTMLElement>('[data-lab-stage]');
+			if (!stage) return;
+
+			const action = button.dataset.labAction;
+			if (action === 'reset') {
+				// 派发在 stage 上：runtime 里监听的正是 closest('[data-lab-stage]')
+				stage.dispatchEvent(new CustomEvent('lab:reset'));
+				return;
+			}
+			if (action === FULL) {
+				if (document.fullscreenElement === stage) {
+					void document.exitFullscreen();
+				} else if (!document.fullscreenElement) {
+					void stage.requestFullscreen?.().catch(() => {
+						/* 用户拒绝 / 浏览器不支持：静默失败即可 */
+					});
+				}
+			}
+		});
+
+		document.addEventListener('fullscreenchange', syncLabels);
+		syncLabels();
+	})();
+</script>

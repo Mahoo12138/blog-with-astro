@@ -1,10 +1,10 @@
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 
-export type MenuId = 'post' | 'columns' | 'explore' | 'about' | 'rss' | 'wiki' | 'notebooks';
-export type SidebarWidgetId = 'welcome' | 'recent' | 'related' | 'timeline' | 'media' | 'toc' | 'ghrepo' | 'heatmap' | 'goods-stats' | 'gallery-info' | 'gallery-albums' | 'column-info' | 'column-posts' | 'travel-stats' | 'travel-recent' | 'archives-stats' | 'site-info';
+export type MenuId = 'post' | 'columns' | 'explore' | 'lab' | 'about' | 'rss' | 'wiki' | 'notebooks';
+export type SidebarWidgetId = 'welcome' | 'recent' | 'related' | 'timeline' | 'media' | 'toc' | 'ghrepo' | 'heatmap' | 'goods-stats' | 'gallery-info' | 'gallery-albums' | 'column-info' | 'column-posts' | 'travel-stats' | 'travel-recent' | 'archives-stats' | 'site-info' | 'lab-demos';
 // 只保留真实存在的内容树节点：此前 wiki / notebooks / notes / note / author / error_page
 // 六个键指向不存在的内容，属于失效配置，已删除。
-export type SiteTreeKey = 'home' | 'index_blog' | 'index_topic' | 'explore' | 'gallery' | 'post' | 'topic' | 'column' | 'page' | 'travel' | 'archives';
+export type SiteTreeKey = 'home' | 'index_blog' | 'index_topic' | 'explore' | 'gallery' | 'post' | 'topic' | 'column' | 'page' | 'travel' | 'archives' | 'lab';
 
 export interface MenubarItem {
 	id: MenuId;
@@ -73,6 +73,13 @@ export const stellarConfig = {
 				url: '/explore',
 			},
 			{
+				id: 'lab',
+				theme: '#9B51E0',
+				icon: 'stellar:menu-lab',
+				title: '实验室',
+				url: '/lab',
+			},
+			{
 				id: 'about',
 				theme: '#F44336',
 				icon: 'stellar:menu-about',
@@ -99,6 +106,7 @@ export const stellarConfig = {
 					{ label: '分类', url: '/categories' },
 					{ label: '标签', url: '/tags' },
 					{ label: '探索', url: '/explore' },
+					{ label: '实验室', url: '/lab' },
 				],
 			},
 			{
@@ -153,6 +161,7 @@ export const stellarConfig = {
 		'travel-recent': { id: 'travel-recent', layout: 'travel-recent', title: '最近点亮', limit: 6 },
 		'archives-stats': { id: 'archives-stats', layout: 'archives-stats', title: '归档统计' },
 		'site-info': { id: 'site-info', layout: 'site-info', title: '技术信息' },
+		'lab-demos': { id: 'lab-demos', layout: 'lab-demos', title: '实验目录' },
 	} satisfies Record<SidebarWidgetId, SidebarWidgetConfig>,
 	siteTree: {
 		home: { menuId: 'post', leftbar: ['welcome', 'recent'], rightbar: ['heatmap', 'site-info'] },
@@ -165,6 +174,8 @@ export const stellarConfig = {
 		column: { menuId: 'columns', leftbar: ['column-info', 'column-posts'], rightbar: ['toc'] },
 		travel: { menuId: 'explore', leftbar: ['travel-stats', 'travel-recent'], rightbar: null },
 		archives: { menuId: 'post', leftbar: ['welcome', 'recent'], rightbar: ['archives-stats'] },
+		// 实验室：左栏换成「实验室简介 + demo 目录」，沿用 welcome 挂件但覆写文案
+		lab: { menuId: 'lab', leftbar: [{ id: 'welcome', title: '实验室', body: '用代码做的小实验，点击即可进入。' }, 'lab-demos'], rightbar: null },
 		page: { menuId: 'about', leftbar: ['recent'], rightbar: ['timeline'] },
 	} satisfies Record<SiteTreeKey, SiteTreeEntry>,
 };

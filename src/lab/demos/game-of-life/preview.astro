@@ -1,0 +1,79 @@
+---
+/**
+ * 列表页卡片的静态预览。
+ *
+ * 刻意不用随机数：Math.random 会让每次构建产出不同的 HTML，
+ * 徒增 git diff。这里用一个固定种子的 LCG，图案永远长一样。
+ */
+const COLS = 32;
+const ROWS = 18;
+const CELL = 10;
+
+const grid = new Uint8Array(COLS * ROWS);
+
+function stamp(pattern: [number, number][], ox: number, oy: number): void {
+	for (const [dx, dy] of pattern) {
+		const x = (ox + dx) % COLS;
+		const y = (oy + dy) % ROWS;
+		grid[y * COLS + x] = 1;
+	}
+}
+
+const GLIDER: [number, number][] = [
+	[1, 0],
+	[2, 1],
+	[0, 2],
+	[1, 2],
+	[2, 2],
+];
+const BLOCK: [number, number][] = [
+	[0, 0],
+	[1, 0],
+	[0, 1],
+	[1, 1],
+];
+
+stamp(GLIDER, 3, 2);
+stamp(GLIDER, 17, 8);
+stamp(GLIDER, 25, 13);
+stamp(BLOCK, 12, 14);
+
+let seed = 20260913;
+const rand = () => {
+	seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+	return seed / 0x7fffffff;
+};
+for (let i = 0; i < 90; i += 1) {
+	const x = Math.floor(rand() * COLS);
+	const y = Math.floor(rand() * ROWS);
+	grid[y * COLS + x] = 1;
+}
+
+const cells: { x: number; y: number; opacity: number }[] = [];
+for (let y = 0; y < ROWS; y += 1) {
+	for (let x = 0; x < COLS; x += 1) {
+		if (!grid[y * COLS + x]) continue;
+		cells.push({ x, y, opacity: 0.35 + rand() * 0.6 });
+	}
+}
+---
+
+<svg
+	viewBox={`0 0 ${COLS * CELL} ${ROWS * CELL}`}
+	width="100%"
+	height="100%"
+	preserveAspectRatio="xMidYMid slice"
+	aria-hidden="true"
+>
+	{cells.map((cell) => (
+		<rect
+			x={cell.x * CELL}
+			y={cell.y * CELL}
+			width={CELL - 1.5}
+			height={CELL - 1.5}
+			rx={2}
+			fill={cell.opacity > 0.8 ? '#ffb86b' : '#7ecbff'}
+			fill-opacity={cell.opacity}
+		/>
+	))}
+</svg>

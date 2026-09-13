@@ -1,0 +1,66 @@
+---
+import { LAB_RUNTIME_LABEL, getSortedLabDemos, labDemoUrl, labPageConfig } from '../../config/lab';
+import { SITE_TITLE } from '../../consts';
+import WideShell from '../../layouts/WideShell.astro';
+import * as styles from '../../styles/lab.css';
+
+/**
+ * 列表页只认注册表，不认目录：
+ * 卡片顺序、文案、标签全部来自 src/config/lab.ts。
+ * 预览图是可选的 —— 有 preview.astro 就渲染，没有就走 CSS 占位，
+ * 这样「先登记一个想法、后补实现」也不会让列表页破版。
+ */
+const previewModules = import.meta.glob<{ default: unknown }>('../../lab/demos/*/preview.astro', { eager: true });
+
+const demos = getSortedLabDemos().map((demo) => ({
+	...demo,
+	Preview: previewModules[`../../lab/demos/${demo.id}/preview.astro`]?.default as
+		| ((props: Record<string, never>) => unknown)
+		| undefined,
+}));
+---
+
+<WideShell
+	title={`${labPageConfig.title} · ${SITE_TITLE}`}
+	description={labPageConfig.description}
+	siteTree="lab"
+	mainClass={styles.listMain}
+>
+	<h1 class={styles.detailTitle}>{labPageConfig.title}</h1>
+	<p class={styles.listIntro}>
+		{labPageConfig.description}
+		<br />
+		每个实验都是独立的页面，参数可以在页面上直接调；需要更大视野时点右上角「全屏」。
+	</p>
+
+	<div class={styles.grid}>
+		{
+			demos.map((demo) => {
+				const Preview = demo.Preview;
+				return (
+					<a class={styles.card} href={labDemoUrl(demo.id)}>
+						<div class={styles.preview}>
+							<div class={styles.previewInner}>
+								{Preview ? <Preview /> : <div class={styles.previewFallback}>NO PREVIEW</div>}
+							</div>
+							<span class={styles.previewBadge}>{LAB_RUNTIME_LABEL[demo.runtime]}</span>
+						</div>
+						<div class={styles.cardBody}>
+							<h2 class={styles.cardTitle}>{demo.title}</h2>
+							<p class={styles.cardDesc}>{demo.description}</p>
+							<ul class={styles.tagRow}>
+								{demo.tags.map((tag) => (
+									<li class={styles.tag}>{tag}</li>
+								))}
+							</ul>
+							<div class={styles.cardMeta}>
+								<span>{demo.updatedAt}</span>
+								{demo.status === 'wip' && <span class={styles.wipBadge}>WIP</span>}
+							</div>
+						</div>
+					</a>
+				);
+			})
+		}
+	</div>
+</WideShell>

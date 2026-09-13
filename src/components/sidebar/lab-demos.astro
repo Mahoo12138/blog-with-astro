@@ -1,0 +1,42 @@
+---
+/**
+ * 实验室目录挂件（左栏）。
+ * 数据直接读 src/config/lab.ts 的注册表，加新 demo 不用改这里。
+ */
+import { LAB_RUNTIME_LABEL, getSortedLabDemos, labDemoUrl } from '../../config/lab';
+import * as leftStyles from '../StellarLeftSidebar.css';
+import * as rightStyles from '../StellarRightSidebar.css';
+import * as labStyles from '../../styles/lab.css';
+import type { WidgetProps } from './types';
+
+const { widget, side } = Astro.props as WidgetProps;
+
+const pathname = Astro.url.pathname.replace(/\/+$/, '') || '/';
+const demos = getSortedLabDemos();
+const widgetClass = side === 'left' ? leftStyles.widget : rightStyles.widget;
+const headerClass = side === 'left' ? leftStyles.widgetTitle : rightStyles.widgetHeader;
+---
+
+<section class:list={[widgetClass]}>
+	<div class={headerClass}><span>{widget.title}</span></div>
+	<ul class={labStyles.sideList}>
+		{
+			demos.map((demo) => {
+				const href = labDemoUrl(demo.id);
+				const active = pathname === href.replace(/\/+$/, '');
+				return (
+					<li>
+						<a
+							class:list={[labStyles.sideItem, active && labStyles.sideItemActive]}
+							href={href}
+							aria-current={active ? 'page' : undefined}
+						>
+							<span>{demo.title}</span>
+							<span class={labStyles.sideItemMeta}>{LAB_RUNTIME_LABEL[demo.runtime]}</span>
+						</a>
+					</li>
+				);
+			})
+		}
+	</ul>
+</section>

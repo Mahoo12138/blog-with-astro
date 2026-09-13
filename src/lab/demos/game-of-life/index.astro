@@ -1,0 +1,51 @@
+---
+/**
+ * 生命游戏 —— 原生 TS + Canvas 2D 路线的样板。
+ *
+ * 这个 demo 没用任何框架：交互控件就是普通 button / input，
+ * 全部事件绑定在 game-of-life.ts 里；mountLabDemo 负责 DPR、
+ * 离屏暂停、reduced-motion 与 View Transition 后的清理。
+ */
+import LabStage from '../../components/LabStage.astro';
+import * as styles from './demo.css';
+---
+
+<LabStage demoId="game-of-life" label="生命游戏 · B3/S23">
+	<div class={styles.root} data-gol>
+		<canvas
+			class={styles.canvas}
+			data-lab-canvas
+			role="img"
+			aria-label="生命游戏演化网格，可以用鼠标或手指直接在上面画细胞"
+		></canvas>
+		<div class={styles.toolbar} data-pagefind-ignore>
+			<button class:list={[styles.button, styles.primary]} type="button" data-gol-toggle aria-pressed="true">暂停</button>
+			<button class={styles.button} type="button" data-gol-step>单步</button>
+			<button class={styles.button} type="button" data-gol-random>随机</button>
+			<button class={styles.button} type="button" data-gol-gliders>滑翔机枪</button>
+			<button class={styles.button} type="button" data-gol-clear>清空</button>
+			<label class={styles.speed}>
+				速度
+				<input class={styles.range} type="range" min="1" max="30" step="1" value="8" data-gol-speed aria-label="演化速度，单位代每秒" />
+				<span class={styles.speedValue} data-gol-speed-value>8 代/秒</span>
+			</label>
+			<span class={styles.readout} data-gol-readout></span>
+		</div>
+	</div>
+</LabStage>
+
+<script>
+	// 这里不能用 data-astro-rerun：带属性的 <script> 会被 Astro 当成 is:inline，
+	// 不再走打包，TS 里的 `import './game-of-life'` 会原样留在 HTML 里跑不起来。
+	// 站点里的既有做法（HeroSection / ArtalkComments）是：processed 模块脚本
+	// 自己执行一遍 + 再挂 astro:page-load，靠 mountLabDemo 的守卫保证只挂一次。
+	import { setupGameOfLife } from './game-of-life';
+
+	const boot = () => {
+		const root = document.querySelector('[data-gol]');
+		if (root instanceof HTMLElement) setupGameOfLife(root);
+	};
+
+	boot();
+	document.addEventListener('astro:page-load', boot);
+</script>

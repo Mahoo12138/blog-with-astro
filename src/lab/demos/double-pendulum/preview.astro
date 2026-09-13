@@ -1,0 +1,38 @@
+---
+/**
+ * 卡片预览：一条确定性的伪混沌轨迹 + 静止的双摆姿态。
+ * 不用真跑仿真（列表页没必要为了缩略图算物理），
+ * 用两组不同频率的正弦叠加出「画得很乱」的曲线即可。
+ */
+const W = 320;
+const H = 180;
+const ORIGIN_X = W / 2;
+const ORIGIN_Y = H * 0.32;
+const SCALE = 46;
+
+const points: { x: number; y: number }[] = [];
+for (let i = 0; i <= 900; i += 1) {
+	const t = (i / 900) * 26;
+	const x = Math.sin(0.83 * t) + 0.82 * Math.sin(1.71 * t + 0.6);
+	const y = Math.cos(0.83 * t) + 0.82 * Math.cos(2.13 * t + 1.1);
+	points.push({ x: ORIGIN_X + x * SCALE, y: ORIGIN_Y + y * SCALE });
+}
+
+const path = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
+
+// 静止姿态（随便挑一组角度，只为让画面里能看见摆臂和摆球）
+const midX = ORIGIN_X + Math.sin(2.2) * SCALE;
+const midY = ORIGIN_Y + Math.cos(2.2) * SCALE;
+const endX = midX + Math.sin(-0.7) * SCALE * 0.9;
+const endY = midY + Math.cos(-0.7) * SCALE * 0.9;
+---
+
+<svg viewBox={`0 0 ${W} ${H}`} width="100%" height="100%" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+	<path d={path} fill="none" stroke="#7ecbff" stroke-opacity="0.45" stroke-width="1.2" />
+	<path d={path} fill="none" stroke="#ffb86b" stroke-opacity="0.28" stroke-width="0.8" transform="translate(2, -2)" />
+	<line x1={ORIGIN_X} y1={ORIGIN_Y} x2={midX} y2={midY} stroke="#7ecbff" stroke-width="2.2" stroke-linecap="round" />
+	<line x1={midX} y1={midY} x2={endX} y2={endY} stroke="#7ecbff" stroke-width="2.2" stroke-linecap="round" />
+	<circle cx={ORIGIN_X} cy={ORIGIN_Y} r="3" fill="#e2e8f0" fill-opacity="0.75" />
+	<circle cx={midX} cy={midY} r="5.5" fill="#7ecbff" />
+	<circle cx={endX} cy={endY} r="6.5" fill="#7ecbff" />
+</svg>

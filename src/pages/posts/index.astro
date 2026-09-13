@@ -3,7 +3,7 @@ import { getCollection } from 'astro:content';
 import Pagination from '../../components/Pagination.astro';
 import StellarNavTabs from '../../components/StellarNavTabs.astro';
 import StellarPostCard from '../../components/StellarPostCard.astro';
-import { POSTS_PER_PAGE, SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
+import { POSTS_PER_PAGE, SITE_TITLE } from '../../consts';
 import StellarShell from '../../layouts/StellarShell.astro';
 import * as styles from '../../styles/homeFeed.css';
 import { sortBlogPosts } from '../../utils/content';
@@ -12,9 +12,14 @@ const allPosts = sortBlogPosts(await getCollection('posts'));
 const totalPages = Math.max(1, Math.ceil(allPosts.length / POSTS_PER_PAGE));
 const posts = allPosts.slice(0, POSTS_PER_PAGE);
 const nextUrl = totalPages > 1 ? '/posts/2' : undefined;
+
+// /posts/ 是「全部文章」的分页列表页（首页只承担最新的部分 + Hero），
+// 因此 title / description 必须与首页区分，避免被判为重复内容。
+const pageTitle = `全部文章 · ${SITE_TITLE}`;
+const pageDescription = `${SITE_TITLE} 的全部文章归档列表，共 ${allPosts.length} 篇，每页 ${POSTS_PER_PAGE} 篇。`;
 ---
 
-<StellarShell title={SITE_TITLE} description={SITE_DESCRIPTION} mainClass={styles.main} siteTree="home">
+<StellarShell title={pageTitle} description={pageDescription} mainClass={styles.main} siteTree="home">
 	<header class={styles.header}>
 		<StellarNavTabs active="home" />
 	</header>

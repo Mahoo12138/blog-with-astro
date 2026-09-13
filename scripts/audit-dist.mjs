@@ -7,6 +7,7 @@
  *   2. 图片体积预算（单文件不超过 200KB）
  *   3. dist 总量预算
  *   4. 关键隐私/收录断言（love 页不出现在索引与 sitemap）
+ *   5. 无障碍断言（每页都存在 skip-link 与 #main-content 落点）
  *
  * 用法: node scripts/audit-dist.mjs [--budget-mb=15] [--image-kb=200]
  * 退出码非 0 表示有断言失败，可直接用于 CI。
@@ -183,7 +184,34 @@ if (sitemapFiles.length) {
 	}
 }
 
-/* ---------- 4. 报告 ---------- */
+/* ---------- 4. 无障碍断言（optimization-plan P2-7） ---------- */
+/**
+ * skip-link 属于「加了但容易在后续改版里悄悄丢掉」的那类修复：
+ * 没有任何视觉反馈，一旦被删掉谁也不会发现。
+ * 这里对每个 HTML 页面断言两件事：
+ *   a) 存在指向 #main-content 的跳转链接
+ *   b) 文档里确实有 id="main-content" 的落点（否则锚点会静默失效）
+ * 404 等无 Shell 的页面不在此列，所以只检查同时出现 <main 的页面。
+ */
+const skipLinkPages = [];
+for (const file of htmlFiles) {
+	const rel = path.relative(dist, file);
+	if (skipDirs.some((d) => rel.startsWith(d))) continue;
+	const html = await readFile(file, 'utf8');
+	// 只对使用了 Shell（含 <main>）的页面生效
+	if (!/<main\b/i.test(html)) continue;
+	const hasLink = /href="#main-content"/.test(html);
+	const hasAnchor = /id="main-content"/.test(html);
+	if (!hasLink || !hasAnchor) {
+		skipLinkPages.push(`${rel}${!hasLink ? ' 缺 skip-link' : ''}${!hasAnchor ? ' 缺 #main-content' : ''}`);
+	}
+}
+if (skipLinkPages.length) {
+	failures.push(`skip-link 断言失败 ${skipLinkPages.length} 页:`);
+	for (const p of skipLinkPages.slice(0, 10)) failures.push(`    ${p}`);
+}
+
+/* ---------- 5. 报告 ---------- */
 const fmt = (b) => `${(b / 1024 / 1024).toFixed(2)} MB`;
 console.log('📦 构建产物体检');
 console.log(`   文件数: ${files.length}`);

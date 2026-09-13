@@ -1,26 +1,7 @@
 ---
-import { getCollection } from 'astro:content';
-import StellarNavTabs from '../../components/StellarNavTabs.astro';
-import StellarPostCard from '../../components/StellarPostCard.astro';
-import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
-import StellarShell from '../../layouts/StellarShell.astro';
-import * as styles from '../../styles/homeFeed.css';
-import { sortBlogPosts } from '../../utils/content';
-
-const posts = sortBlogPosts(await getCollection('posts'));
+// /post/ 与 /posts/ 是内容重复的列表页：历史上 /post/ 输出全量无分页列表，
+// 且 title/description 与 /posts/ 逐字相同 → 对搜索引擎是重复内容。
+// 站内没有任何入口指向 /post/，因此改为 301 重定向到 /posts/，只保留一个规范列表页。
+// 注：/post/<slug>/ 是文章详情路由，与本文件（/post/）不冲突。
+return Astro.redirect('/posts/', 301);
 ---
-
-<StellarShell title={SITE_TITLE} description={SITE_DESCRIPTION} mainClass={styles.main} siteTree="index_blog">
-	<header class={styles.header}>
-		<StellarNavTabs active="home" />
-	</header>
-	<ul class={styles.list}>
-		{
-			posts.map((post) => (
-				<li class={styles.item}>
-					<StellarPostCard post={post} />
-				</li>
-			))
-		}
-	</ul>
-</StellarShell>

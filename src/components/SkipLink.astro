@@ -1,0 +1,65 @@
+---
+/**
+ * 「跳到主内容」跳转链接。
+ *
+ * 键盘用户和屏幕阅读器用户在每个页面都要先 tab 过整条侧栏菜单才能到达正文，
+ * 这个链接让他们一步跳到 <main>。默认视觉隐藏，聚焦时出现在左上角。
+ *
+ * 各 Shell 的 <main> 都带 data-pagefind-body，但这里不依赖它，
+ * 而是用显式 id="main-content" 保证锚点稳定（pagefind 属性是搜索用途，语义会变）。
+ *
+ * 配色走 vanilla-extract 的 vars.color.accent，这样明暗主题都会跟着变
+ * （浅色 #2196f3 / 深色 #7ecbff）。注意不能写死 CSS 变量名：
+ * vanilla-extract 会把变量名混淆成哈希，手写 var(--accent) 不可能命中。
+ */
+import { vars } from '../styles/theme.css';
+
+interface Props {
+	/** 要跳转到的目标元素 id，默认 main-content */
+	target?: string;
+	label?: string;
+}
+
+const { target = 'main-content', label = '跳到主内容' } = Astro.props;
+---
+
+<a class="skip-link" href={`#${target}`}>{label}</a>
+
+<style is:global define:vars={{ accent: vars.color.accent, accentStrong: vars.color.accentStrong }}>
+	.skip-link {
+		position: fixed;
+		top: calc(-1 * (0.6rem * 2 + 1.8rem + 2px));
+		left: 0;
+		z-index: 9999;
+		padding: 0.6rem 1.1rem;
+		background: var(--accent-strong, #3367d6);
+		color: #fff;
+		font-size: 0.9rem;
+		font-weight: 600;
+		line-height: 1.8;
+		text-decoration: none;
+		border-radius: 0 0 8px 0;
+		box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+		transition: top 0.18s ease;
+	}
+
+	.skip-link:focus,
+	.skip-link:focus-visible {
+		top: 0;
+		outline: 2px solid #fff;
+		outline-offset: -4px;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.skip-link {
+			transition: none;
+		}
+	}
+
+	/* 打印时不需要跳转链接 */
+	@media print {
+		.skip-link {
+			display: none;
+		}
+	}
+</style>

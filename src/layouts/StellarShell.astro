@@ -5,6 +5,7 @@ import StellarLeftSidebar from '../components/StellarLeftSidebar.astro';
 import StellarIcon from '../components/StellarIcon.astro';
 import StellarPageFooter from '../components/StellarPageFooter.astro';
 import StellarRightSidebar from '../components/StellarRightSidebar.astro';
+import SkipLink from '../components/SkipLink.astro';
 import { resolveShellConfig, type MenuId, type SidebarValue, type SiteTreeKey } from '../config/stellar';
 import type { ColumnSidebarContext } from '../components/sidebar/types';
 import * as styles from './StellarShell.css';
@@ -42,6 +43,7 @@ const hasRightbarContent = shellConfig.rightbar.length > 0 || hasRightbar;
 		<BaseHead title={title} description={description} image={image} type={type} publishedTime={publishedTime} modifiedTime={modifiedTime} noindex={noindex} />
 	</head>
 	<body class={styles.body}>
+		<SkipLink />
 		<div class={styles.background} aria-hidden="true">
 			<div class={styles.glowLeft}></div>
 			<div class={styles.glowRight}></div>
@@ -52,7 +54,7 @@ const hasRightbarContent = shellConfig.rightbar.length > 0 || hasRightbar;
 				<StellarLeftSidebar menuId={shellConfig.menuId} widgets={shellConfig.leftbar} column={column} />
 				{hasLeftbar && <slot name="leftbar" />}
 			</aside>
-			<main class={styles.mainArea} data-pagefind-body>
+			<main id="main-content" class={styles.mainArea} data-pagefind-body tabindex="-1">
 				<div class:list={[styles.mainContent, mainClass]}>
 					{hasLead && <div class={styles.lead}><slot name="lead" /></div>}
 					<slot />

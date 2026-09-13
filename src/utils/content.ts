@@ -159,17 +159,22 @@ export function buildColumnBuckets(posts: BlogPost[], columns: ColumnEntry[]) {
 		postsByColumn.set(columnId, existing);
 	}
 
-	const buckets: ColumnBucket[] = columns.map((column) => {
-		const columnId = column.data.columnId ?? column.id;
-		return {
-			title: column.data.title,
-			slug: slugifySegment(columnId),
-			description: column.data.description,
-			accent: column.data.accent,
-			posts: postsByColumn.get(columnId) ?? [],
-			entry: column,
-		};
-	});
+	const buckets: ColumnBucket[] = columns
+		.map((column) => {
+			const columnId = column.data.columnId ?? column.id;
+			return {
+				title: column.data.title,
+				slug: slugifySegment(columnId),
+				description: column.data.description,
+				accent: column.data.accent,
+				posts: postsByColumn.get(columnId) ?? [],
+				entry: column,
+			};
+		})
+		// 空专栏不渲染：实测 6 个专栏里有 3 个（content-system / lab-notes / stellar-remake）
+		// 一篇文章都没有，此前仍会在列表页渲染出空卡片。
+		// 补上内容后会自动重新出现，无需改代码。
+		.filter((bucket) => bucket.posts.length > 0);
 
 	return buckets.sort((left, right) => {
 		const leftOrder = left.entry?.data.order ?? Number.MAX_SAFE_INTEGER;

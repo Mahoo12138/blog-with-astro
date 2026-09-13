@@ -3,6 +3,7 @@ import BaseHead from '../components/BaseHead.astro';
 import StellarIcon from '../components/StellarIcon.astro';
 import StellarLeftSidebar from '../components/StellarLeftSidebar.astro';
 import StellarPageFooter from '../components/StellarPageFooter.astro';
+import SkipLink from '../components/SkipLink.astro';
 import { resolveShellConfig, type MenuId, type SidebarValue, type SiteTreeKey } from '../config/stellar';
 import * as styles from './WideShell.css';
 
@@ -29,6 +30,7 @@ const shellConfig = resolveShellConfig(siteTree, { menuId, leftbar });
 		<BaseHead title={title} description={description} noindex={noindex} />
 	</head>
 	<body class={styles.body}>
+		<SkipLink />
 		<div class={styles.background} aria-hidden="true">
 			<div class={styles.glowLeft}></div>
 			<div class={styles.glowRight}></div>
@@ -38,7 +40,7 @@ const shellConfig = resolveShellConfig(siteTree, { menuId, leftbar });
 				<StellarLeftSidebar menuId={shellConfig.menuId} widgets={shellConfig.leftbar} />
 				<slot name="leftbar" />
 			</aside>
-			<main class={styles.mainArea} data-pagefind-body>
+			<main id="main-content" class={styles.mainArea} data-pagefind-body tabindex="-1">
 				<div class:list={[styles.mainContent, mainClass]}>
 					{hasLead && <div class={styles.lead}><slot name="lead" /></div>}
 					<slot />

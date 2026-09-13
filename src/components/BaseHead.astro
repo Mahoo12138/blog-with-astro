@@ -1,5 +1,9 @@
 ---
 import '../styles/theme.css.ts';
+// 代码块外壳（语言标签 + 复制按钮）样式。
+// 放在 BaseHead 是因为代码块可能出现在任何渲染 Markdown 的页面，
+// 这里是全站唯一的公共入口，能保证样式一定被引入。
+import '../styles/codeBlock.css.ts';
 import { getImage } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 import FallbackImage from '../assets/avatar.png';
@@ -89,7 +93,7 @@ const safeStringify = (value: unknown) => JSON.stringify(value).replace(/</g, '\
      fonts.googleapis.com 的连接 → 拿到 CSS → 才知道要下载哪些字体分包。
      这里的做法：
        1) 用 media="print" + onload 切换的方式让 CSS 异步化，不阻塞渲染；
-          同时用 <noscript> 兜底，保证无 JS 环境仍有字体。
+          同时用 noscript 标签兜底，保证无 JS 环境仍有字体。
        2) preconnect 保留，让异步请求尽早建连。
      字体本身仍是按需分包下载（浏览器只取当前页面字形所在的分包），
      配合 display=swap 先出系统字体，不会出现长时间空白文本。
@@ -106,6 +110,14 @@ const safeStringify = (value: unknown) => JSON.stringify(value).replace(/</g, '\
 <noscript>
 	<link rel="stylesheet" href={siteFontConfig.googleFontsUrl} />
 </noscript>
+
+{/* 代码块复制按钮的行为。
+    走外部静态文件而不是 is:inline：实测内联版 4.86KB × 236 页 = 1.09MB，
+    而其中 130 页根本没有代码块；外部文件全站只下载一次并可被缓存。
+    defer 保证在 DOM 就绪后执行，不阻塞解析。
+    无 JS 时按钮不可用，其隐藏逻辑放在 codeBlock.css.ts 里用
+    html.no-js 兜底（见该文件注释）。 */}
+<script src="/js/code-copy.js" defer></script>
 
 <!-- Canonical URL -->
 <link rel="canonical" href={canonicalURL} />

@@ -8,6 +8,7 @@ import rehypeKatex from 'rehype-katex';
 import remarkMath from 'remark-math';
 import { defineConfig } from 'astro/config';
 import { vanillaExtractPlugin } from '@vanilla-extract/vite-plugin';
+import { rehypeCodeBlock } from './src/plugins/rehype-code-block.mjs';
 
 // Only run math plugins on posts whose frontmatter sets mathjax: true,
 // so plain `$` in code/prose in other posts is left untouched.
@@ -45,7 +46,11 @@ export default defineConfig({
 	],
 	markdown: {
 		remarkPlugins: [whenMathjax(remarkMath)],
-		rehypePlugins: [whenMathjax(rehypeKatex)],
+		// rehypeCodeBlock 给代码块套外壳（语言标签 + 复制按钮）。
+		// 它无条件执行，且依赖 Shiki 已跑完 —— Astro 的管线里 rehypeShiki
+		// 本就在用户 rehypePlugins 之前，所以拿到的是带 data-language 的高亮结果。
+		// 详见 src/plugins/rehype-code-block.mjs 顶部注释。
+		rehypePlugins: [whenMathjax(rehypeKatex), rehypeCodeBlock],
 		shikiConfig: {
 			// 双主题（light + dark）时 Shiki 会为每个 token 输出
 			//   style="color:#xxx;--shiki-dark:#yyy"

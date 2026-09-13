@@ -8,6 +8,8 @@
  *   3. dist 总量预算
  *   4. 关键隐私/收录断言（love 页不出现在索引与 sitemap）
  *   5. 无障碍断言（每页都存在 skip-link 与 #main-content 落点、有且仅有一个 h1）
+ *   6. 代码块增强断言（每个代码块都套了外壳、页面引入了复制脚本）
+ *   7. 模板泄漏断言（`{expr}` 不得作为字面文本出现在 HTML 里）
  *
  * 用法: node scripts/audit-dist.mjs [--budget-mb=15] [--image-kb=200]
  * 退出码非 0 表示有断言失败，可直接用于 CI。
@@ -240,7 +242,67 @@ if (multiH1.length) {
 	for (const p of multiH1.slice(0, 10)) failures.push(`    ${p}`);
 }
 
-/* ---------- 6. 报告 ---------- */
+/* ---------- 6. 代码块增强断言 ---------- */
+/**
+ * rehype-code-block 插件给每个代码块套外壳（语言标签 + 复制按钮）。
+ * 它是靠 astro.config.mjs 的 markdown.rehypePlugins 接进来的，
+ * 一旦被误删，页面不会报错、只会「悄悄变回没有语言名的裸代码块」，
+ * 所以这里断言两条：
+ *   a) 每个 pre.astro-code 都被 .code-block 包住（插件确实跑了）
+ *   b) 每个有代码块的页面都引用了复制脚本（否则按钮点了没反应）
+ */
+const unwrapped = [];
+const missingScript = [];
+for (const file of htmlFiles) {
+	const rel = path.relative(dist, file);
+	if (skipDirs.some((d) => rel.startsWith(d))) continue;
+	const html = await readFile(file, 'utf8');
+	const preCount = (html.match(/<pre class="astro-code/g) ?? []).length;
+	if (preCount === 0) continue;
+
+	const wrapperCount = (html.match(/<div class="code-block">/g) ?? []).length;
+	if (wrapperCount !== preCount) {
+		unwrapped.push(`${rel}（pre ${preCount} 个 / 外壳 ${wrapperCount} 个）`);
+	}
+	if (!html.includes('/js/code-copy.js')) {
+		missingScript.push(rel);
+	}
+}
+if (unwrapped.length) {
+	failures.push(`代码块未套外壳（rehype-code-block 可能未被加载）${unwrapped.length} 页:`);
+	for (const p of unwrapped.slice(0, 10)) failures.push(`    ${p}`);
+}
+if (missingScript.length) {
+	failures.push(`有代码块但未引入 /js/code-copy.js ${missingScript.length} 页:`);
+	for (const p of missingScript.slice(0, 10)) failures.push(`    ${p}`);
+}
+
+/* ---------- 7. 模板泄漏断言 ---------- */
+/**
+ * Astro 模板里的 `{expr && <tag />}` 若被当成字面文本输出，说明
+ * 该文件的模板解析被破坏了。这类问题不报错、不警告，只是页面元数据
+ * 静默失效（noindex 丢失、og:type 丢失），必须靠断言兜住。
+ *
+ * 触发过一次真实事故：在 BaseHead.astro 的 <noscript> 里放了
+ * 带 is:inline 的 <style>，导致同一文件后续所有 `{...}` 表达式
+ * 全部漏成文本，236 个页面全中。
+ */
+const leaked = [];
+for (const file of htmlFiles) {
+	const rel = path.relative(dist, file);
+	if (skipDirs.some((d) => rel.startsWith(d))) continue;
+	const html = await readFile(file, 'utf8');
+	// 模板表达式原样出现在 HTML 里就是泄漏。这几个是 BaseHead 里实际用到的。
+	if (/\bnoindex && <meta/.test(html) || /type === 'article' && /.test(html)) {
+		leaked.push(rel);
+	}
+}
+if (leaked.length) {
+	failures.push(`模板表达式泄漏为字面文本（模板解析被破坏）${leaked.length} 页:`);
+	for (const p of leaked.slice(0, 10)) failures.push(`    ${p}`);
+}
+
+/* ---------- 8. 报告 ---------- */
 const fmt = (b) => `${(b / 1024 / 1024).toFixed(2)} MB`;
 console.log('📦 构建产物体检');
 console.log(`   文件数: ${files.length}`);

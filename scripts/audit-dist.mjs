@@ -7,7 +7,7 @@
  *   2. 图片体积预算（单文件不超过 200KB）
  *   3. dist 总量预算
  *   4. 关键隐私/收录断言（love 页不出现在索引与 sitemap）
- *   5. 无障碍断言（每页都存在 skip-link 与 #main-content 落点）
+ *   5. 无障碍断言（每页都存在 skip-link 与 #main-content 落点、有且仅有一个 h1）
  *
  * 用法: node scripts/audit-dist.mjs [--budget-mb=15] [--image-kb=200]
  * 退出码非 0 表示有断言失败，可直接用于 CI。
@@ -211,7 +211,36 @@ if (skipLinkPages.length) {
 	for (const p of skipLinkPages.slice(0, 10)) failures.push(`    ${p}`);
 }
 
-/* ---------- 5. 报告 ---------- */
+/* ---------- 5. 标题大纲断言（optimization-plan P2-7） ---------- */
+/**
+ * 每个渲染了 <main> 的页面都应有且仅有一个 <h1>。
+ * 无 h1 → 读屏无法定位页面主题（axe: page-has-heading-one）；
+ * 多个 h1 → 大纲出现多个根节点，同样破坏导航。
+ * 多个 h1 通常来自 Markdown 正文里手写的 `# 标题`。
+ *
+ * 例外：/post/ 是 301 跳转桩页，不含 <main>，天然不参与此断言。
+ */
+const noH1 = [];
+const multiH1 = [];
+for (const file of htmlFiles) {
+	const rel = path.relative(dist, file);
+	if (skipDirs.some((d) => rel.startsWith(d))) continue;
+	const html = stripCodeBlocks(await readFile(file, 'utf8'));
+	if (!/<main\b/i.test(html)) continue;
+	const count = (html.match(/<h1[\s>]/gi) ?? []).length;
+	if (count === 0) noH1.push(rel);
+	else if (count > 1) multiH1.push(`${rel} (${count} 个)`);
+}
+if (noH1.length) {
+	failures.push(`以下页面缺少 <h1>（共 ${noH1.length} 页）:`);
+	for (const p of noH1.slice(0, 10)) failures.push(`    ${p}`);
+}
+if (multiH1.length) {
+	failures.push(`以下页面有多个 <h1>（共 ${multiH1.length} 页，通常是正文手写了 \`# 标题\`）:`);
+	for (const p of multiH1.slice(0, 10)) failures.push(`    ${p}`);
+}
+
+/* ---------- 6. 报告 ---------- */
 const fmt = (b) => `${(b / 1024 / 1024).toFixed(2)} MB`;
 console.log('📦 构建产物体检');
 console.log(`   文件数: ${files.length}`);

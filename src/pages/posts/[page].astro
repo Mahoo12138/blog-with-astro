@@ -40,6 +40,8 @@ const nextUrl = page < totalPages ? `/posts/${page + 1}` : undefined;
 
 <StellarShell title={`第 ${page} 页 · ${SITE_TITLE}`} description={SITE_DESCRIPTION} mainClass={styles.main} siteTree="home">
 	<header class={styles.header}>
+		{/* 同 /posts/：分页页也需要 h1 作为大纲根节点（见 posts/index.astro 注释） */}
+		<h1 class="sr-only">全部文章 · 第 {page} 页</h1>
 		<StellarNavTabs active="home" />
 	</header>
 	<ul class={styles.list}>

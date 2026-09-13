@@ -21,6 +21,10 @@ const pageDescription = `${SITE_TITLE} 的全部文章归档列表，共 ${allPo
 
 <StellarShell title={pageTitle} description={pageDescription} mainClass={styles.main} siteTree="home">
 	<header class={styles.header}>
+		{/* 视觉上由 NavTabs 承担标题作用，但文档需要一个 h1 作为大纲根节点，
+		    否则读屏用户无法定位页面主题（Lighthouse / axe 的 page-has-heading-one）。
+		    用 sr-only 保留语义、不影响设计。 */}
+		<h1 class="sr-only">全部文章</h1>
 		<StellarNavTabs active="home" />
 	</header>
 	<ul class={styles.list}>

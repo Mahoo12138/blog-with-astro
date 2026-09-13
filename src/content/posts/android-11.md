@@ -10,7 +10,7 @@ tags:
 topic: android
 ---
 
-# 安卓开发学习之 Gradle 摸爬打滚记录
+## 安卓开发学习之 Gradle 摸爬打滚记录
 
 ## Connection refused: no further information
 

@@ -8,7 +8,7 @@ categories:
 - 学习笔记
 ---
 
-# Python学习Demo
+## Python学习Demo
 
 ## 1.1 输入输出
 
@@ -74,7 +74,7 @@ world world hello
 print('{a} {tom} {a}'.format(tom='hello',a='world'))  # 带关键字
 world hello world
 
-# 数字格式化
+## 数字格式化
 print("{:.2f}".format(3.1415926));
 # 3.14
 ```

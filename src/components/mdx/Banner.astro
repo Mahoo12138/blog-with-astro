@@ -1,4 +1,13 @@
 ---
+/**
+ * 文章头图 banner（可在 MDX 中直接使用）。
+ *
+ * 无障碍说明（optimization-plan P2-7）：
+ * bg 是纯装饰背景 —— 标题与副标题都会作为真实文本渲染在其上方，
+ * 因此 alt="" 是正确的（读屏会念出标题文本，重复念一遍图注只是噪音）。
+ * avatar 同理，是装饰性头像。
+ * 唯一有语义的是整块 banner 的链接，用 aria-label 指向可读文本。
+ */
 interface Props {
 	title?: string;
 	subtitle?: string;
@@ -8,6 +17,9 @@ interface Props {
 }
 
 const { title, subtitle, bg, avatar, href } = Astro.props;
+// 链接的可读名：优先标题，其次副标题，最后兜底。
+// 这里显式拼一个稳定的兜底串，避免出现空 aria-label（等于没有标签）。
+const linkLabel = title ?? subtitle ?? '文章头图';
 ---
 
 <div class="tag-plugin banner">
@@ -24,5 +36,5 @@ const { title, subtitle, bg, avatar, href } = Astro.props;
 			)}
 		</div>
 	</div>
-	{href && <a class="banner-link" href={href} aria-label={title ?? subtitle ?? 'Banner'}></a>}
+	{href && <a class="banner-link" href={href} aria-label={linkLabel}></a>}
 </div>

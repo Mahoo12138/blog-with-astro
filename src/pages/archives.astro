@@ -22,6 +22,9 @@ const formatArchiveDate = (date: Date) => `${String(date.getMonth() + 1).padStar
 
 <StellarShell title={`Archives · ${SITE_TITLE}`} description={SITE_DESCRIPTION} mainClass={styles.archiveMain} siteTree="archives">
 	<header class={styles.header}>
+		{/* 年份用 h2 作分节标题，但文档还需要一个 h1 作为大纲根节点，
+		    否则 h2 直接浮在顶层（axe: page-has-heading-one）。 */}
+		<h1 class="sr-only">归档</h1>
 		<StellarNavTabs active="archives" />
 	</header>
 	<div class={styles.archivePostList}>

@@ -1,3 +1,18 @@
 ---
-import 'katex/dist/katex.min.css';
+/**
+ * KaTeX 样式注入（仅数学文章需要）。
+ *
+ * ⚠️ 不要改回 `import 'katex/dist/katex.min.css'` 这种静态导入。
+ *
+ * Astro 会把组件里的静态 CSS import 提升（hoist）到该组件所在 layout 的公共
+ * chunk 中，于是 `{mathjax && <KatexStyles />}` 这种条件渲染形同虚设：
+ * 实测 236 个页面里有 126 个都加载了 66.8KB 的 KaTeX CSS，
+ * 而真正用数学的只有 22 篇 —— 约 5.5MB 的无谓流量。
+ *
+ * 改用 <link rel="stylesheet"> 输出后，链接只在 mathjax 为真时进入 HTML，
+ * 非数学页面完全不引用这份 CSS。
+ */
+const katexHref = '/katex/katex.min.css';
 ---
+
+<link rel="stylesheet" href={katexHref} />

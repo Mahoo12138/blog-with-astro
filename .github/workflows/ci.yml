@@ -26,3 +26,6 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm check
       - run: pnpm build
+      # 构建产物体检：站内死链、图片体积预算、隐私收录断言、skip-link 无障碍断言
+      # 任一断言失败即非 0 退出，阻断合并。见 scripts/audit-dist.mjs
+      - run: pnpm audit:dist

@@ -82,9 +82,30 @@ const safeStringify = (value: unknown) => JSON.stringify(value).replace(/</g, '\
 	});
 </script>
 
+<!-- 字体加载策略（optimization-plan P1-1）
+     Google Fonts 对中文字体（Noto Sans/Serif SC）返回的是 642 条 @font-face
+     的 unicode-range 分包 CSS，实测 690KB。若用普通 <link rel="stylesheet">
+     引入，这份 CSS 会在每个页面阻塞首次渲染，且必须先串行完成
+     fonts.googleapis.com 的连接 → 拿到 CSS → 才知道要下载哪些字体分包。
+     这里的做法：
+       1) 用 media="print" + onload 切换的方式让 CSS 异步化，不阻塞渲染；
+          同时用 <noscript> 兜底，保证无 JS 环境仍有字体。
+       2) preconnect 保留，让异步请求尽早建连。
+     字体本身仍是按需分包下载（浏览器只取当前页面字形所在的分包），
+     配合 display=swap 先出系统字体，不会出现长时间空白文本。
+     注：中文子集自托管需要 cn-font-split 级别的工具链与 ~60MB 产物，
+     收益不抵复杂度，故仍用 Google 的按需分包，只消除其阻塞性。 -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link rel="stylesheet" href={siteFontConfig.googleFontsUrl} />
+<link
+	rel="stylesheet"
+	href={siteFontConfig.googleFontsUrl}
+	media="print"
+	onload="this.media='all'"
+/>
+<noscript>
+	<link rel="stylesheet" href={siteFontConfig.googleFontsUrl} />
+</noscript>
 
 <!-- Canonical URL -->
 <link rel="canonical" href={canonicalURL} />

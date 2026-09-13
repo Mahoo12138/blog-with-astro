@@ -166,7 +166,11 @@ const calendarEntries = sortById(calendar).map((e) => ({ id: e.id, ...e.data }))
   </div>
 
   <style is:global>
-    @import url("https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;600&family=Noto+Sans+SC:wght@300;400;500&display=swap");
+    /* 只补 love 页独有的毛笔标题字体。
+       此前这里连 Noto Serif SC / Noto Sans SC 一起重复请求，而 BaseHead 已经
+       全站加载过这两族 —— 等于让访客为同一份 690KB 的分包 CSS 付两次费。
+       这里收敛为仅 Ma Shan Zheng，且用 print→all 异步化，不阻塞渲染。 */
+    @import url("https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap");
 
     main:has(> .love-root) {
       animation: none !important;

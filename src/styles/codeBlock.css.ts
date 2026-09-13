@@ -39,8 +39,37 @@ globalStyle('.code-block', {
 	border: `1px solid ${vars.color.border}`,
 	// 顶部栏要盖住 pre 的圆角，否则会露出一条缝
 	overflow: 'hidden',
-	backgroundColor: vars.color.surfaceStrong,
+	// 底色**跟随 Shiki 主题**，而不是自己挑一个 surface 色。
+	// Shiki 把主题底色放在 pre 的行内 style 里，同时暴露成
+	// --shiki-dark-bg 变量；这里直接复用，明暗切换时外壳与代码区
+	// 永远是同一个色，不会出现「上下两块颜色对不上」。
+	// 浅色回退值 #fff 对应 github-light；深色分支见下方 [data-theme] 规则。
+	background: 'var(--shiki-dark-bg, #fff)',
 	boxShadow: vars.shadow.card,
+});
+
+/**
+ * 浅色模式下外壳底色。
+ * Shiki 输出的行内 style 是「浅色为 background-color、深色为 --shiki-dark-bg」，
+ * 而 --shiki-dark-bg 在浅色下并不存在，所以上面的 var() 会回退到 #fff。
+ * 但用户显式切到 light 主题时，系统可能是 dark，需要把 Shiki 的浅色值取回来 ——
+ * 它同时也以 css 变量形式出现在 pre 的 style 里不可靠，因此这里
+ * 统一用 github-light 的 #fff 兜底；若某篇文章用了别的主题，回退到 surface。
+ */
+globalStyle(':root[data-theme="light"] .code-block', {
+	background: '#fff',
+});
+
+globalStyle(':root[data-theme="dark"] .code-block', {
+	background: 'var(--shiki-dark-bg, #24292e)',
+});
+
+globalStyle(':root:not([data-theme]) .code-block', {
+	'@media': {
+		'(prefers-color-scheme: light)': {
+			background: '#fff',
+		},
+	},
 });
 
 /* 复制按钮默认隐藏，等 JS 给 <html> 打上 .has-js 才显示。
@@ -49,38 +78,87 @@ globalStyle('.code-block__copy', {
 	display: 'none',
 });
 
-/* 外壳接手边框与圆角后，里面的 pre 不再各画一份，否则会出现双边框 */
+/**
+ * 让 pre 彻底「融进」外壳：去掉自己那份边框、圆角、外边距和底色。
+ *
+ * ⚠️ 三个属性都要 `!important`，因为 Shiki 把主题底色写成了行内 style
+ * （`style="background-color:#fff;--shiki-dark-bg:#24292e"`），
+ * 行内样式的优先级高于任何外部选择器 —— 不加 !important 就会在
+ * 外壳内部再出现一块自己的底色和圆角，正是「块里套块」的成因。
+ * 底色统一由外壳的 background-color 承担。
+ *
+ * padding 保留在 pre 上（而非移到外壳）：代码要贴着顶部栏往下留白，
+ * 而顶部栏自己已有 padding，两者分开处理更直观。
+ */
 globalStyle('.code-block > pre', {
-	margin: 0,
-	border: 'none',
-	borderRadius: 0,
-	boxShadow: 'none',
+	margin: '0 !important',
+	border: 'none !important',
+	borderRadius: '0 !important',
+	// 用 transparent 而不是 inherit 之类：外壳的底色已经画好了，
+	// 这里只要「什么都不画」，深浅两套主题都不用额外处理。
+	backgroundColor: 'transparent !important',
 });
 
 /* ── 顶部栏 ── */
+/**
+ * 顶部栏不用页面色板里的 backgroundElevated，而是给代码区底色叠一层
+ * 半透明黑/白。原因：代码区底色来自 Shiki 主题（github-light/dark），
+ * 和站点自己的 surface/background 是两套色系；用站点色会显得「贴上去的
+ * 一块」，转换主题时尤其突兀。用 rgba 叠加则任何主题下都能自然分出层次。
+ */
 globalStyle('.code-block__bar', {
 	display: 'flex',
 	alignItems: 'center',
 	justifyContent: 'space-between',
 	gap: vars.space.md,
 	padding: `0.35rem 0.5rem 0.35rem ${vars.space.lg}`,
-	backgroundColor: vars.color.backgroundElevated,
-	borderBottom: `1px solid ${vars.color.border}`,
+	// 浅色代码底(#fff)上叠 4% 黑 → 极淡的灰；深色底上叠 22% 白 → 提亮一档
+	backgroundColor: 'rgba(0, 0, 0, 0.04)',
+	borderBottom: '1px solid rgba(127, 127, 127, 0.18)',
 	// 代码块本身是可选中的，但工具栏不该被一起选走（否则复制文本会混入语言名）
 	userSelect: 'none',
 });
 
+globalStyle(':root[data-theme="dark"] .code-block__bar', {
+	backgroundColor: 'rgba(255, 255, 255, 0.06)',
+});
+
+globalStyle(':root:not([data-theme]) .code-block__bar', {
+	'@media': {
+		'(prefers-color-scheme: dark)': {
+			backgroundColor: 'rgba(255, 255, 255, 0.06)',
+		},
+	},
+});
+
+/**
+ * 顶部栏里的文字同理：不用站点的 textMuted（深色下偏蓝灰，压在 GitHub
+ * 深色底上发闷），改用跟随 Shiki 前景色的半透明版本。
+ */
 globalStyle('.code-block__lang', {
 	fontFamily: vars.font.mono,
 	fontSize: '0.72rem',
 	fontWeight: 600,
 	letterSpacing: '0.08em',
 	textTransform: 'uppercase',
-	color: vars.color.textMuted,
+	color: 'rgba(60, 70, 85, 0.62)',
+});
+
+globalStyle(':root[data-theme="dark"] .code-block__lang', {
+	color: 'rgba(225, 228, 232, 0.58)',
+});
+
+globalStyle(':root:not([data-theme]) .code-block__lang', {
+	'@media': {
+		'(prefers-color-scheme: dark)': {
+			color: 'rgba(225, 228, 232, 0.58)',
+		},
+	},
 });
 
 /* ── 复制按钮 ── */
-/* display 由下方「默认隐藏 / .has-js 显示」两条规则管理，这里不写 */
+/* 文字色跟随顶部栏（与语言名同一档），所以和 lang 一样按主题分别给值。
+ * display 由文件末尾「默认隐藏 / .has-js 显示」两条规则管理，这里不写。 */
 globalStyle('.code-block__copy', {
 	alignItems: 'center',
 	gap: '0.35rem',
@@ -88,7 +166,7 @@ globalStyle('.code-block__copy', {
 	border: 'none',
 	borderRadius: vars.radius.sm,
 	background: 'transparent',
-	color: vars.color.textMuted,
+	color: 'rgba(60, 70, 85, 0.62)',
 	fontFamily: vars.font.body,
 	fontSize: '0.78rem',
 	lineHeight: 1.4,
@@ -104,15 +182,28 @@ globalStyle('.code-block__copy', {
 	},
 });
 
+globalStyle(':root[data-theme="dark"] .code-block__copy', {
+	color: 'rgba(225, 228, 232, 0.58)',
+});
+
+globalStyle(':root:not([data-theme]) .code-block__copy', {
+	'@media': {
+		'(prefers-color-scheme: dark)': {
+			color: 'rgba(225, 228, 232, 0.58)',
+		},
+	},
+});
+
+/* hover/focus 用中性灰白叠加，不用站点的 accent 蓝 —— 压在两套 Shiki
+ * 主题色上都更稳，且不会在深色代码底上显得刺眼。 */
 globalStyle('.code-block__copy:hover', {
-	backgroundColor: vars.color.accentSoft,
-	color: vars.color.accentStrong,
+	backgroundColor: 'rgba(127, 127, 127, 0.16)',
+	color: 'inherit',
 });
 
 globalStyle('.code-block__copy:focus-visible', {
 	outline: 'none',
 	boxShadow: vars.shadow.focus,
-	color: vars.color.accentStrong,
 });
 
 /* 图标用 mask 上色：currentColor 让它跟随按钮文字色，明暗主题都不用改 */
@@ -132,9 +223,27 @@ globalStyle('.code-block__copy::before', {
 	},
 });
 
-/* 复制成功：换对勾 + 弹一下 + 变强调色 */
+/**
+ * 复制成功：换对勾 + 弹一下。
+ *
+ * 这里**不用**站点的 accent 蓝：顶部栏整体已经改成跟随 Shiki 主题的中性色，
+ * 单独一个蓝字压在与站点色系无关的 GitHub 底上会显得突兀（尤其深色下）。
+ * 改成把当前主题的前景色提到接近不透明 —— 对比度够，也不破坏色系一致性。
+ */
 globalStyle('.code-block.is-copied .code-block__copy', {
-	color: vars.color.accent,
+	color: 'rgba(36, 41, 46, 0.92)',
+});
+
+globalStyle(':root[data-theme="dark"] .code-block.is-copied .code-block__copy', {
+	color: 'rgba(225, 228, 232, 0.92)',
+});
+
+globalStyle(':root:not([data-theme]) .code-block.is-copied .code-block__copy', {
+	'@media': {
+		'(prefers-color-scheme: dark)': {
+			color: 'rgba(225, 228, 232, 0.92)',
+		},
+	},
 });
 
 globalStyle('.code-block.is-copied .code-block__copy::before', {

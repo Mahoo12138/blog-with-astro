@@ -3,6 +3,8 @@ title: 'Content System'
 description: '围绕 Markdown、MDX 和内容建模的迁移记录。'
 columnId: 'content-system'
 order: 4
+# 本专栏暂无章节。给它补内容时，记得同时加上 categories / tags ——
+# 章节按约定不再自带标签，专栏的 categories / tags 是它出现在分类页 / 标签页上的唯一入口。
 accent: '#5da8ff'
 icon: 'https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/10433048.png'
 ---

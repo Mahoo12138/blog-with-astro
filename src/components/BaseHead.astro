@@ -86,7 +86,7 @@ const safeStringify = (value: unknown) => JSON.stringify(value).replace(/</g, '\
 	});
 </script>
 
-<!-- 字体加载策略（optimization-plan P1-1）
+<!-- 字体加载策略
      Google Fonts 对中文字体（Noto Sans/Serif SC）返回的是 642 条 @font-face
      的 unicode-range 分包 CSS，实测 690KB。若用普通 <link rel="stylesheet">
      引入，这份 CSS 会在每个页面阻塞首次渲染，且必须先串行完成

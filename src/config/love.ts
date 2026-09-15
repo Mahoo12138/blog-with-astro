@@ -8,7 +8,7 @@
  *   - 单例型内容（我们是谁、纪念日、情书、那首歌）留在本文件
  *
  * 头像用 ImageMetadata 而非字符串路径：让 Astro 图片管线负责压缩，
- * 避免 249KB 的源图直出（见 optimization-plan P1-4 / P2-8）。
+ * 避免 249KB 的源图直出。
  */
 import type { ImageMetadata } from 'astro';
 import leftPartnerAvatar from '../assets/love/partners/inin-kon.jpg';

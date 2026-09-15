@@ -200,13 +200,16 @@ export function resolvePostDescription(post: BlogPost, maxLength = 160) {
 /**
  * 汇总标签 / 分类桶。
  *
- * `columns` 是**必传**的（虽然给了默认值）：章节的 tags / categories 已移到专栏上，
- * 只传 posts 会漏掉整类内容 —— 例如 `STM32` 标签下 8 篇全是专栏章节，
- * 不传 columns 这个标签页会直接消失。
+ * `columns` 刻意**不给默认值** —— 它必须是必传参数。
  *
- * 排序按「条目总数」（文章数 + 专栏数）降序，让内容多的标签排在前面。
+ * 原因：章节的 tags / categories 已移到专栏上，只传 posts 会漏掉整类内容
+ * （`STM32` 标签下 8 篇全是专栏章节，不传 columns 这个标签页会直接消失）。
+ * 最初写成了 `= []`，结果侧栏挂件漏传也没人发现，直到人工对照两个页面才看出来。
+ * 现在漏传是**编译错误**，不会再静默退化。
+ *
+ * 排序按「条目总数 = 文章数 + 专栏数」降序，让内容多的标签排在前面。
  */
-export function buildTaxonomyBuckets(posts: BlogPost[], key: TaxonomyKey, columns: ColumnBucket[] = []) {
+export function buildTaxonomyBuckets(posts: BlogPost[], key: TaxonomyKey, columns: ColumnBucket[]) {
 	const buckets = new Map<string, TaxonomyBucket>();
 
 	const ensure = (value: string) => {

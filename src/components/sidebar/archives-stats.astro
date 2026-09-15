@@ -1,17 +1,23 @@
 ---
 import { getCollection } from 'astro:content';
 import type { WidgetProps } from './types';
-import { sortBlogPosts, buildTaxonomyBuckets } from '../../utils/content';
+import { buildTaxonomyBuckets, columnPosts, sortBlogPosts, standalonePosts } from '../../utils/content';
 import * as leftStyles from '../StellarLeftSidebar.css';
 import * as rightStyles from '../StellarRightSidebar.css';
 import * as styles from './archives-stats.css';
 
 const { widget, side } = Astro.props as WidgetProps;
 
-const allPosts = sortBlogPosts(await getCollection('posts'));
+// 统计拆成「文章」与「专栏章节」两组，与归档页的两段式保持一致。
+// 此前用全量算总数，分流后会出现「归档页列出的文章数 + 专栏章节数 ≠ 统计总数」
+// 的错位，读者会以为有内容漏掉了。
+const published = sortBlogPosts(await getCollection('posts'));
+const allPosts = standalonePosts(published);
+const chapters = columnPosts(published);
 const totalPosts = allPosts.length;
+const totalChapters = chapters.length;
 
-const years = allPosts.map((p) => p.data.pubDate.getFullYear());
+const years = published.map((p) => p.data.pubDate.getFullYear());
 const yearSpan = years.length > 0 ? Math.max(...years) - Math.min(...years) + 1 : 0;
 
 function countWords(value: unknown) {
@@ -25,12 +31,14 @@ function countWords(value: unknown) {
 	return cjkCount + latinWordCount;
 }
 
-const totalWords = allPosts.reduce((sum, post) => sum + countWords('body' in post ? post.body : ''), 0);
+const totalWords = published.reduce((sum, post) => sum + countWords('body' in post ? post.body : ''), 0);
 const wordDisplay = totalWords >= 10000 ? `${(totalWords / 10000).toFixed(1)}万` : totalWords.toLocaleString();
 
-const allCategories = buildTaxonomyBuckets(allPosts, 'categories');
+// 分类 / 标签是**主题检索**入口，保留全量：读者点进「学习笔记」就是主动想看这个主题，
+// 与博客流被连载刷屏是两回事，因此不在这里分流。
+const allCategories = buildTaxonomyBuckets(published, 'categories');
 const categories = allCategories.slice(0, 5);
-const tags = buildTaxonomyBuckets(allPosts, 'tags').slice(0, 5);
+const tags = buildTaxonomyBuckets(published, 'tags').slice(0, 5);
 
 const widgetClass = side === 'left' ? leftStyles.widget : rightStyles.widget;
 const headerClass = side === 'left' ? leftStyles.widgetTitle : rightStyles.widgetHeader;
@@ -41,7 +49,11 @@ const headerClass = side === 'left' ? leftStyles.widgetTitle : rightStyles.widge
 	<div class={styles.statsGrid}>
 		<div class={styles.statCard}>
 			<span class={styles.statValue}>{totalPosts}</span>
-			<span class={styles.statLabel}>文章总数</span>
+			<span class={styles.statLabel}>博客文章</span>
+		</div>
+		<div class={styles.statCard}>
+			<span class={styles.statValue}>{totalChapters}</span>
+			<span class={styles.statLabel}>专栏章节</span>
 		</div>
 		<div class={styles.statCard}>
 			<span class={styles.statValue}>{wordDisplay}</span>
@@ -50,10 +62,6 @@ const headerClass = side === 'left' ? leftStyles.widgetTitle : rightStyles.widge
 		<div class={styles.statCard}>
 			<span class={styles.statValue}>{yearSpan}</span>
 			<span class={styles.statLabel}>跨度年份</span>
-		</div>
-		<div class={styles.statCard}>
-			<span class={styles.statValue}>{allCategories.length}</span>
-			<span class={styles.statLabel}>分类数</span>
 		</div>
 	</div>
 	{categories.length > 0 && (

@@ -5,7 +5,8 @@ import StellarShell from '../../layouts/StellarShell.astro';
 import { mdxComponents } from '../../components/mdx-components';
 import * as styles from '../../layouts/BlogPost.css';
 import * as columnStyles from '../../styles/columnPage.css';
-import { buildColumnBuckets, sortBlogPosts, type ColumnBucket } from '../../utils/content';
+import * as chapterStyles from '../../styles/columnChapters.css';
+import { buildColumnBuckets, postHref, sortBlogPosts, type ColumnBucket } from '../../utils/content';
 
 export async function getStaticPaths() {
 	const posts = sortBlogPosts(await getCollection('posts'));
@@ -27,6 +28,8 @@ interface Props {
 const { bucket, column } = Astro.props as Props;
 const { Content, headings } = await render(column);
 const initial = bucket.title.slice(0, 1);
+const formatDate = (date: Date) =>
+	`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 ---
 
 <StellarShell
@@ -70,6 +73,28 @@ const initial = bucket.title.slice(0, 1);
 		</header>
 		<div class:list={[styles.prose, 'md-text', 'content']}>
 			<Content components={mdxComponents} />
+
+			{/* 章节目录放在正文里，而不是只藏在侧栏：
+			    手机端侧栏是折叠的，只有正文里的目录才能保证「按顺序读」这条主线始终可达。 */}
+			<section class={chapterStyles.chapterSection} aria-labelledby="column-chapters">
+				<h2 class={chapterStyles.chapterSectionTitle} id="column-chapters">
+					章节目录
+					<span class={chapterStyles.chapterSectionCount}>共 {bucket.posts.length} 章</span>
+				</h2>
+				<ol class={chapterStyles.chapterList}>
+					{
+						bucket.posts.map((post, index) => (
+							<li class={chapterStyles.chapterItem}>
+								<a class={chapterStyles.chapterLink} href={postHref(post)}>
+									<span class={chapterStyles.chapterIndex}>{String(index + 1).padStart(2, '0')}</span>
+									<span class={chapterStyles.chapterTitle}>{post.data.title}</span>
+									<span class={chapterStyles.chapterDate}>{formatDate(post.data.pubDate)}</span>
+								</a>
+							</li>
+						))
+					}
+				</ol>
+			</section>
 		</div>
 	</article>
 </StellarShell>

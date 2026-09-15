@@ -2,6 +2,7 @@
 title: 数据结构与算法学习之队列
 date: 2019-10-24 21:27:24
 columnId: data-structure-and-algorithm
+order: 5
 mathjax: true
 cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/study/algorithm/20210418160102.png
 tags: 

@@ -2,10 +2,17 @@
 import { type CollectionEntry, getCollection, render } from 'astro:content';
 import { mdxComponents } from '../../components/mdx-components';
 import BlogPost from '../../layouts/BlogPost.astro';
-import { resolvePostCover, resolvePostDescription } from '../../utils/content';
+import { slugifySegment, resolvePostCover, resolvePostDescription } from '../../utils/content';
 
-// 过滤 draft：草稿不生成静态页面，避免通过直链访问 / 被 sitemap 收录
+// 本路由只渲染**独立文章**（不属于任何专栏）。
+//
+// 专栏章节已迁移到 /columns/<专栏>/<章节>/，由 columns/[column]/[slug].astro 负责。
+// 两者输出的路径集合互不重叠，因此不会冲突。
+//
+// 专栏章节的旧地址 /post/<id>/ 在本文件里输出跳转桩页，
+// 保证外部链接与 RSS 历史条目不会 404。
 export async function getStaticPaths() {
+	// 过滤 draft：草稿不生成静态页面，避免通过直链访问 / 被 sitemap 收录
 	const posts = await getCollection('posts', ({ data }) => !data.draft);
 	return posts.map((post) => ({
 		params: { slug: post.id },
@@ -15,6 +22,15 @@ export async function getStaticPaths() {
 type Props = CollectionEntry<'posts'>;
 
 const post = Astro.props;
+const columnId = post.data.columnId?.trim();
+
+// 专栏章节：不再在此渲染正文，改为跳到专栏层级地址。
+// 静态输出下 Astro.redirect 产出 meta-refresh 桩页（与 /post/index.astro 同款）。
+// 桩页带 noindex，否则新旧两个地址会同时被收录，形成重复内容。
+if (columnId) {
+	return Astro.redirect(`/columns/${slugifySegment(columnId)}/${post.id}/`, 301);
+}
+
 const { Content, headings } = await render(post);
 // 字段已收敛为单一 `cover`：既作文档头图，也作 OG / JSON-LD 分享图。
 // 此前的 banner 分支是死代码（实测 0 篇使用），已随 Schema 收敛一并删除。
@@ -23,6 +39,15 @@ const cover = resolvePostCover(post);
 const description = resolvePostDescription(post);
 ---
 
-<BlogPost title={post.data.title} description={description} pubDate={post.data.pubDate} updatedDate={post.data.updatedDate} image={cover?.src} headings={headings} mathjax={post.data.mathjax}>
+<BlogPost
+	title={post.data.title}
+	description={description}
+	pubDate={post.data.pubDate}
+	updatedDate={post.data.updatedDate}
+	image={cover?.src}
+	headings={headings}
+	mathjax={post.data.mathjax}
+	postId={post.id}
+>
 	<Content components={mdxComponents} />
 </BlogPost>

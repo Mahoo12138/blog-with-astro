@@ -1,0 +1,79 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import { mdxComponents } from '../../../components/mdx-components';
+import BlogPost from '../../../layouts/BlogPost.astro';
+import {
+	buildColumnIndex,
+	resolvePostCover,
+	resolvePostDescription,
+	sortBlogPosts,
+} from '../../../utils/content';
+
+/**
+ * 专栏章节页：/columns/<专栏>/<章节>/
+ *
+ * 与 /post/<id>/ 的区别不只是 URL —— 它把「这是一本书里的一章」
+ * 这件事显式地表达出来：面包屑走 专栏 / <专栏名>，
+ * 顶部标出第几章，底部给出上一章 / 下一章，侧栏渲染专栏目录并高亮当前章。
+ */
+export async function getStaticPaths() {
+	const posts = await getCollection('posts', ({ data }) => !data.draft);
+	const columns = await getCollection('columns');
+	const knownColumnIds = new Set(columns.map((column) => column.data.columnId ?? column.id));
+
+	return posts.flatMap((post) => {
+		const columnId = post.data.columnId?.trim();
+		// 只给「专栏真实存在」的章节生成页面：columnId 拼错时宁可不出页面，
+		// 也不要生成一个指向不存在专栏的孤儿章节。
+		if (!columnId || !knownColumnIds.has(columnId)) {
+			return [];
+		}
+
+		return [{ params: { column: columnId, slug: post.id }, props: { post, columnId } }];
+	});
+}
+
+interface Props {
+	post: CollectionEntry<'posts'>;
+	columnId: string;
+}
+
+const { post, columnId } = Astro.props as Props;
+
+// 用与侧栏目录、专栏页完全相同的一份数据构建上下文，
+// 避免「目录里排第 3 章、导航却说第 4 章」这类错位。
+const columns = await getCollection('columns');
+const index = buildColumnIndex(sortBlogPosts(await getCollection('posts')), columns);
+const bucket = index.bySlug.get(columnId);
+const chapterIndex = bucket ? bucket.posts.findIndex((item) => item.id === post.id) : -1;
+
+const { Content, headings } = await render(post);
+const cover = resolvePostCover(post);
+const description = resolvePostDescription(post);
+
+const columnContext =
+	bucket && chapterIndex >= 0
+		? {
+				title: bucket.title,
+				slug: bucket.slug,
+				description: bucket.description,
+				icon: bucket.icon,
+				posts: bucket.posts,
+				index: chapterIndex,
+			}
+		: undefined;
+---
+
+<BlogPost
+	title={post.data.title}
+	description={description}
+	pubDate={post.data.pubDate}
+	updatedDate={post.data.updatedDate}
+	image={cover?.src}
+	headings={headings}
+	mathjax={post.data.mathjax}
+	postId={post.id}
+	columnContext={columnContext}
+>
+	<Content components={mdxComponents} />
+</BlogPost>

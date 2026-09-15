@@ -6,6 +6,7 @@ import sitemap from '@astrojs/sitemap';
 import pagefind from 'astro-pagefind';
 import rehypeKatex from 'rehype-katex';
 import remarkMath from 'remark-math';
+import { readdirSync, readFileSync } from 'node:fs';
 import { defineConfig } from 'astro/config';
 import { vanillaExtractPlugin } from '@vanilla-extract/vite-plugin';
 import { rehypeCodeBlock } from './src/plugins/rehype-code-block.mjs';
@@ -23,6 +24,42 @@ function whenMathjax(/** @type {any} */ plugin) {
 	};
 }
 
+/**
+ * 找出属于专栏的文章 id。
+ *
+ * 这些文章的旧地址 /post/<id>/ 现在只是跳转桩页（见 src/pages/post/[...slug].astro），
+ * 不能让它们进 sitemap —— 否则搜索引擎会把跳转页当成正式内容收录，
+ * 与页面上已有的 noindex 自相矛盾。
+ *
+ * 之所以在 config 阶段直接读 frontmatter：sitemap 的 filter 只拿得到 URL，
+ * 而 Astro 的内容集合此时还没加载，拿不到 columnId。
+ */
+function readColumnChapterIds() {
+	const dir = new URL('./src/content/posts/', import.meta.url);
+	const ids = [];
+
+	for (const name of readdirSync(dir)) {
+		if (!/\.mdx?$/.test(name)) {
+			continue;
+		}
+		const source = readFileSync(new URL(name, dir), 'utf8');
+		const frontmatter = /^---\r?\n([\s\S]*?)\r?\n---/.exec(source);
+		// 只认 frontmatter 里的 columnId：正文代码块里也可能出现这个字段名
+		if (frontmatter && /^columnId:\s*\S/m.test(frontmatter[1])) {
+			ids.push(name.replace(/\.mdx?$/, ''));
+		}
+	}
+
+	return ids;
+}
+
+/** @param {string} value */
+const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const columnChapterIds = readColumnChapterIds();
+const columnChapterStubPattern = columnChapterIds.length
+	? new RegExp(`^/post/(?:${columnChapterIds.map(escapeRegExp).join('|')})/?$`)
+	: null;
+
 // 不参与搜索引擎收录的功能页 / 私人页（与页面上的 robots noindex 保持一致）
 const SITEMAP_EXCLUDE = [
 	/\/search\/?$/,
@@ -30,6 +67,7 @@ const SITEMAP_EXCLUDE = [
 	/\/love\/?$/,
 	/\/privacy\/?$/,
 	/\/terms\/?$/,
+	...(columnChapterStubPattern ? [columnChapterStubPattern] : []),
 ];
 
 // https://astro.build/config

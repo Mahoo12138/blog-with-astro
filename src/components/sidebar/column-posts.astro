@@ -1,5 +1,5 @@
 ---
-import { postUrl } from '../../consts';
+import { postHref } from '../../utils/content';
 import type { WidgetProps } from './types';
 import * as leftStyles from '../StellarLeftSidebar.css';
 import * as rightStyles from '../StellarRightSidebar.css';
@@ -7,7 +7,10 @@ import * as columnStyles from './column.css';
 
 const { widget, side, context } = Astro.props as WidgetProps;
 const column = context.column;
-const orderedPosts = column ? [...column.posts].sort((a, b) => a.data.pubDate.valueOf() - b.data.pubDate.valueOf()) : [];
+// 顺序**不再在这里排序**：章节顺序由 buildColumnBuckets 一次性算好
+// （order → pubDate → id）。目录、上一章/下一章都消费同一份结果，
+// 否则三处顺序不一致会让「下一篇」跳到读者已经读过的章节。
+const orderedPosts = column?.posts ?? [];
 const currentPath = (context.pathname ?? '').replace(/\/+$/, '');
 const s = side === 'left' ? leftStyles : rightStyles;
 const headerClass = side === 'left' ? leftStyles.widgetTitle : rightStyles.widgetHeader;
@@ -18,7 +21,7 @@ const headerClass = side === 'left' ? leftStyles.widgetTitle : rightStyles.widge
 		<div class={headerClass}><span>{widget.title}</span></div>
 		<ol class={columnStyles.postList}>
 			{orderedPosts.map((post, index) => {
-				const href = postUrl(post.id);
+				const href = postHref(post);
 				const isActive = currentPath === href.replace(/\/+$/, '');
 				return (
 					<li class={columnStyles.postItem}>

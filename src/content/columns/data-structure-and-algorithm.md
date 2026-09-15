@@ -4,6 +4,7 @@ description: 覆盖基础数据结构与算法概念、实现与分析的系列�
 pubDate: 2019-10-15
 columnId: data-structure-and-algorithm
 layout: column
+order: 1
 ---
 
 本专栏整理了作者关于数据结构与算法的学习笔记，包括复杂度、数组、链表、栈、队列、二叉树、AVL、红黑树等主题，适合作为复习参考与教学素材。

@@ -33,6 +33,10 @@ const posts = defineCollection({
         author: z.string().default(""),
         layout: z.string().optional(),
         columnId: z.string().optional(),
+        // 专栏章节的阅读顺序（从 1 开始）。仅对属于专栏的文章有意义。
+        // 必须显式声明而不能只靠日期：实测 stm32-8 的日期早于 stm32-5，
+        // 且 dsa-2/3、dsa-4/5 共享同一时间戳，纯按 pubDate 排序会打乱章节顺序。
+        order: z.number().int().positive().optional(),
         mathjax: z.boolean().default(false),
         topic: z.string().optional(),
         // 日期：Hexo 遗留的 `date` 与 Astro 惯用的 `pubDate` 均接受，

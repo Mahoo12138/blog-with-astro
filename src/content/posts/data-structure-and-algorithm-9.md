@@ -2,6 +2,7 @@
 title: 数据结构与算法学习之红黑树
 date: 2022-07-06 23:16:09
 columnId: data-structure-and-algorithm
+order: 9
 cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/study/algorithm/20210418160102.png
 tags: 
 - 数据结构与算法

@@ -3,6 +3,7 @@ title: Hexo 主题开发系列教程（四）：高级功能与优化
 date: 2025-11-25 21:22:37
 author: Mahoo12138
 columnId: hexo-theme-tutorial
+order: 5
 cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/hexo.png
 tags: 
 - Hexo

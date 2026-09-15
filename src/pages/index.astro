@@ -1,23 +1,26 @@
 ---
-import { getCollection } from 'astro:content';
+import BlogFeedList from '../components/BlogFeedList.astro';
 import Pagination from '../components/Pagination.astro';
 import StellarNavTabs from '../components/StellarNavTabs.astro';
-import StellarPostCard from '../components/StellarPostCard.astro';
 import PinnedScrollSection from '../components/hero/PinnedScrollSection.astro';
 import { POSTS_PER_PAGE, SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 import StellarShell from '../layouts/StellarShell.astro';
 import * as styles from '../styles/homeFeed.css';
-import { sortBlogPosts } from '../utils/content';
+import { buildBlogFeed, loadBlogFeedSource } from '../utils/content';
 
-const allPosts = sortBlogPosts(await getCollection('posts'));
-const totalPages = Math.max(1, Math.ceil(allPosts.length / POSTS_PER_PAGE));
-const posts = allPosts.slice(0, POSTS_PER_PAGE);
+// 博客流只承载独立文章 + 至多一条「专栏最新更新」。
+// 专栏章节不逐篇进入这里：学习某个主题动辄十几篇连续笔记，
+// 逐篇混排会让读者一滚动就满屏都是同一个系列。
+const { posts, columns } = await loadBlogFeedSource();
+const feed = buildBlogFeed(posts, columns);
+const totalPages = Math.max(1, Math.ceil(feed.length / POSTS_PER_PAGE));
+const pageItems = feed.slice(0, POSTS_PER_PAGE);
 const nextUrl = totalPages > 1 ? '/posts/2' : undefined;
 
 // 首页与 /posts/ 内容重叠，必须给出可区分的 title / description，
 // 否则两者会被搜索引擎判定为重复内容（canonical 也不同）。
 const pageTitle = `${SITE_TITLE} · 首页`;
-const pageDescription = `${SITE_DESCRIPTION} 这里是最新发布的文章，共 ${allPosts.length} 篇。`;
+const pageDescription = `${SITE_DESCRIPTION} 这里是最新发布的文章，共 ${posts.length} 篇。`;
 ---
 
 <StellarShell title={pageTitle} description={pageDescription} mainClass={styles.main} siteTree="home">
@@ -25,14 +28,6 @@ const pageDescription = `${SITE_DESCRIPTION} 这里是最新发布的文章，�
 	<header class={styles.header}>
 		<StellarNavTabs active="home" />
 	</header>
-	<ul class={styles.list}>
-		{
-			posts.map((post) => (
-				<li class={styles.item}>
-					<StellarPostCard post={post} />
-				</li>
-			))
-		}
-	</ul>
+	<BlogFeedList items={pageItems} />
 	<Pagination currentPage={1} totalPages={totalPages} nextUrl={nextUrl} />
 </StellarShell>

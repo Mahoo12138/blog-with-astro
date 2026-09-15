@@ -2,6 +2,7 @@
 title: 数据结构与算法学习之二叉树
 date: 2022-06-14 10:46:51
 columnId: data-structure-and-algorithm
+order: 6
 mathjax: true
 cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/study/algorithm/20210418160102.png
 tags: 

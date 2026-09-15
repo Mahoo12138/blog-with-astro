@@ -2,7 +2,7 @@
 title: 'Lab Notes'
 description: '零散实验、流程打磨与写作草稿。'
 columnId: 'lab-notes'
-order: 2
+order: 5
 accent: '#ffb85c'
 icon: 'https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2779789.png'
 ---

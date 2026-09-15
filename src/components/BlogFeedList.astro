@@ -1,0 +1,29 @@
+---
+import StellarPostCard from './StellarPostCard.astro';
+import * as styles from '../styles/homeFeed.css';
+import type { BlogFeedItem } from '../utils/content';
+
+interface Props {
+	items: BlogFeedItem[];
+}
+
+const { items } = Astro.props;
+---
+
+<ul class={styles.list}>
+	{
+		/*
+		 * 「专栏最新更新」展示位刻意与普通文章卡片**完全同构**：
+		 * 不套外层容器、不加左侧色条、不加额外说明行，读者看到的就是一张普通卡片。
+		 * 它属于专栏这件事由卡片内自带的「专栏 · X」角标表达（showColumnBadge 默认开启）。
+		 *
+		 * 曾经尝试过包一层带竖线和高亮的容器来强调「这是系列更新」，
+		 * 结果在博客流里格格不入 —— 强调手段应当由卡片自身承担，而不是让一条特殊卡片破坏列表节奏。
+		 */
+		items.map((item) => (
+			<li class={styles.item}>
+				<StellarPostCard post={item.post} />
+			</li>
+		))
+	}
+</ul>

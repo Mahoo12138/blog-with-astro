@@ -1,5 +1,6 @@
 import type { ImageMetadata } from 'astro';
-import type { CollectionEntry } from 'astro:content';
+import { getCollection, type CollectionEntry } from 'astro:content';
+import { postUrl } from '../consts';
 
 type BlogPost = CollectionEntry<'posts'>;
 type ColumnEntry = CollectionEntry<'columns'>;
@@ -17,8 +18,18 @@ export interface ColumnBucket {
 	slug: string;
 	description: string;
 	accent?: string;
+	icon?: string;
+	/** 专栏排序权重（取自专栏条目的 order） */
+	order: number;
+	/** 章节，已按阅读顺序排好（order → pubDate → id） */
 	posts: BlogPost[];
 	entry?: ColumnEntry;
+	/** 章节数，等价于 posts.length，供侧栏上下文使用 */
+	count: number;
+	/** 首章发布时间 */
+	startedAt?: Date;
+	/** 末章发布时间，用于在归档页表达系列的时间跨度 */
+	updatedAt?: Date;
 }
 
 export interface ResolvedPostCover {
@@ -33,6 +44,63 @@ export function sortBlogPosts(posts: BlogPost[]) {
 	return [...posts]
 		.filter((post) => !post.data.draft)
 		.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+}
+
+/**
+ * 判断一篇文章是否属于某个专栏。
+ *
+ * 专栏章节与独立文章存在**同一个 posts 集合**里，靠可选字段 columnId 关联。
+ * 全站所有「要不要分流」的判断都必须走这两个函数，避免各处各写一遍
+ * `post.data.columnId` 判断而出现一半分、一半不分的情况。
+ */
+export function columnIdOf(post: BlogPost): string | undefined {
+	const columnId = post.data.columnId?.trim();
+	return columnId ? columnId : undefined;
+}
+
+/** 独立文章：不属于任何专栏，单篇即可完整阅读。 */
+export function standalonePosts(posts: BlogPost[]) {
+	return posts.filter((post) => !columnIdOf(post));
+}
+
+/** 专栏章节。 */
+export function columnPosts(posts: BlogPost[]) {
+	return posts.filter((post) => columnIdOf(post));
+}
+
+/**
+ * 文章的最终 URL：专栏章节自动带上专栏层级，独立文章维持 /post/<id>/。
+ *
+ * 这里不需要查 columns 集合 —— 专栏 slug 由专栏的 columnId 经 slugifySegment 得到，
+ * 而文章的 columnId 与专栏的 columnId 本来就是同一个值（见 buildColumnBuckets）。
+ * 因此全站所有「给文章生成链接」的地方都应当调用本函数，
+ * 否则专栏章节会漏回 /post/<id>/，而那个地址已经改成跳转桩页了。
+ */
+export function postHref(post: BlogPost): string {
+	const columnId = columnIdOf(post);
+	return postUrl(post.id, columnId ? slugifySegment(columnId) : undefined);
+}
+
+/**
+ * 专栏章节的阅读顺序。
+ *
+ * 优先用显式 order（作者手写的章节号），缺失时回退 pubDate，最后用 id 兜底。
+ * **必须保证唯一排序来源**：目录、侧栏「专栏目录」、上一章/下一章导航都调用它，
+ * 否则三处顺序不一致会让「下一篇」跳到读者已经读过的章节。
+ *
+ * 为什么不能只按 pubDate：实测 stm32-8 的日期(2019-07-13)早于 stm32-5(2019-07-25)，
+ * dsa-2/3、dsa-4/5 更是共享同一时间戳 —— 纯日期排序会把章节顺序打乱。
+ */
+export function sortColumnPosts(posts: BlogPost[]) {
+	return [...posts].sort((a, b) => {
+		const leftOrder = a.data.order ?? Number.MAX_SAFE_INTEGER;
+		const rightOrder = b.data.order ?? Number.MAX_SAFE_INTEGER;
+		if (leftOrder !== rightOrder) {
+			return leftOrder - rightOrder;
+		}
+		const byDate = a.data.pubDate.valueOf() - b.data.pubDate.valueOf();
+		return byDate !== 0 ? byDate : collator.compare(a.id, b.id);
+	});
 }
 
 /**
@@ -149,7 +217,7 @@ export function buildColumnBuckets(posts: BlogPost[], columns: ColumnEntry[]) {
 	const postsByColumn = new Map<string, BlogPost[]>();
 
 	for (const post of posts) {
-		const columnId = post.data.columnId?.trim();
+		const columnId = columnIdOf(post);
 		if (!columnId) {
 			continue;
 		}
@@ -162,13 +230,23 @@ export function buildColumnBuckets(posts: BlogPost[], columns: ColumnEntry[]) {
 	const buckets: ColumnBucket[] = columns
 		.map((column) => {
 			const columnId = column.data.columnId ?? column.id;
+			// 章节顺序在此处一次性定好，下游（目录 / 侧栏 / 前后章导航）直接消费，
+			// 不允许再各自排序。
+			const chapters = sortColumnPosts(postsByColumn.get(columnId) ?? []);
+			const dates = chapters.map((post) => post.data.pubDate.valueOf()).sort((a, b) => a - b);
+
 			return {
 				title: column.data.title,
 				slug: slugifySegment(columnId),
 				description: column.data.description,
 				accent: column.data.accent,
-				posts: postsByColumn.get(columnId) ?? [],
+				icon: column.data.icon,
+				order: column.data.order,
+				posts: chapters,
+				count: chapters.length,
 				entry: column,
+				startedAt: dates.length ? new Date(dates[0]) : undefined,
+				updatedAt: dates.length ? new Date(dates[dates.length - 1]) : undefined,
 			};
 		})
 		// 空专栏不渲染：实测 6 个专栏里有 3 个（content-system / lab-notes / stellar-remake）
@@ -176,9 +254,122 @@ export function buildColumnBuckets(posts: BlogPost[], columns: ColumnEntry[]) {
 		// 补上内容后会自动重新出现，无需改代码。
 		.filter((bucket) => bucket.posts.length > 0);
 
-	return buckets.sort((left, right) => {
-		const leftOrder = left.entry?.data.order ?? Number.MAX_SAFE_INTEGER;
-		const rightOrder = right.entry?.data.order ?? Number.MAX_SAFE_INTEGER;
-		return leftOrder - rightOrder || collator.compare(left.title, right.title);
-	});
+	return buckets.sort((left, right) => left.order - right.order || collator.compare(left.title, right.title));
 }
+
+/**
+ * 全站专栏索引。
+ *
+ * 解决的问题：URL 生成、卡片角标、章节导航都需要知道「这篇文章属于哪个专栏」，
+ * 而 getCollection 是异步的 —— 此前 StellarPostCard 的做法是在**每张卡片**里
+ * 各调一次 getCollection('columns')，一页 10 张卡片就查 10 次。
+ * 这里构建一次、传下去复用。
+ */
+export interface ColumnIndex {
+	/** postId → 所属专栏 */
+	byPostId: Map<string, ColumnBucket>;
+	/** 专栏 slug → 专栏 */
+	bySlug: Map<string, ColumnBucket>;
+}
+
+export function buildColumnIndex(posts: BlogPost[], columns: ColumnEntry[]): ColumnIndex {
+	const buckets = buildColumnBuckets(posts, columns);
+	const byPostId = new Map<string, ColumnBucket>();
+	const bySlug = new Map<string, ColumnBucket>();
+
+	for (const bucket of buckets) {
+		bySlug.set(bucket.slug, bucket);
+		for (const post of bucket.posts) {
+			byPostId.set(post.id, bucket);
+		}
+	}
+
+	return { byPostId, bySlug };
+}
+
+/** 博客流里的「专栏最新更新」展示位。 */
+export interface ColumnUpdate {
+	column: ColumnBucket;
+	/** 代表章节：该专栏最新发布的一章 */
+	post: BlogPost;
+}
+
+/**
+ * 选出博客流中唯一的「专栏最新更新」。
+ *
+ * 规则是刻意收紧的，目的是让专栏可以持续大量更新而不刷屏博客：
+ * - **全站专栏合计只占一个位置**。若改成每个专栏各占一位，将来同时更新六个专栏，
+ *   博客首页又会退回成学习笔记的堆叠。
+ * - **替换而非累积**：专栏再发十篇，展示位依然只有一条。
+ * - 代表章节取该专栏**最新发布**的一章，读者点进去就能读到新内容。
+ */
+export function latestColumnUpdate(columns: ColumnBucket[]): ColumnUpdate | null {
+	const candidates = columns.filter((column) => column.posts.length > 0 && column.updatedAt);
+	if (candidates.length === 0) {
+		return null;
+	}
+
+	const column = candidates.reduce((newest, current) =>
+		current.updatedAt!.valueOf() > newest.updatedAt!.valueOf() ? current : newest,
+	);
+
+	const post = column.posts.reduce((latest, current) =>
+		current.data.pubDate.valueOf() > latest.data.pubDate.valueOf() ? current : latest,
+	);
+
+	return { column, post };
+}
+
+export type BlogFeedItem =
+	| { kind: 'post'; post: BlogPost; date: Date }
+	| { kind: 'column-update'; post: BlogPost; date: Date };
+
+/**
+ * 博客流条目：独立文章 + 至多一条专栏最新更新，按时间倒序合并。
+ *
+ * 首页与 /posts/ 分页必须都走这个函数，否则两边的分页边界会错位，
+ * 「下一页」会跳到读者已经看过的内容。
+ *
+ * 注意：`column-update` 这一条在渲染上与普通文章**完全一样**（同一张卡片、
+ * 同样的「专栏 · X」角标），`kind` 只是保留「它是全站唯一的专栏展示位」这一语义，
+ * 供审计与后续调整识别。不要因为看不出差别就去掉它。
+ */
+export function buildBlogFeed(posts: BlogPost[], columns: ColumnBucket[]): BlogFeedItem[] {
+	const items: BlogFeedItem[] = posts.map((post) => ({ kind: 'post', post, date: post.data.pubDate }));
+	const update = latestColumnUpdate(columns);
+
+	if (update) {
+		items.push({
+			kind: 'column-update',
+			post: update.post,
+			date: update.post.data.pubDate,
+		});
+	}
+
+	return items.sort((left, right) => right.date.valueOf() - left.date.valueOf());
+}
+
+export interface BlogFeedSource {
+	/** 独立文章，已按发布时间倒序、已剔除草稿 */
+	posts: BlogPost[];
+	/** 全部专栏（含按阅读顺序排好的章节），已剔除空专栏 */
+	columns: ColumnBucket[];
+}
+
+/**
+ * 博客流的统一数据源。
+ *
+ * 存在的意义是**消除一个很容易犯的错误**：专栏章节要从「全部文章」里筛出来，
+ * 所以 buildColumnBuckets 必须接收**全量文章**；而博客流只展示独立文章。
+ * 两件事用同一个 `posts` 变量会写错（先过滤再建专栏 → 所有专栏都变成空的），
+ * 因此这里把「全量 → 分别派生」这一步收敛到一个地方。
+ */
+export async function loadBlogFeedSource(): Promise<BlogFeedSource> {
+	const published = sortBlogPosts(await getCollection('posts'));
+
+	return {
+		posts: standalonePosts(published),
+		columns: buildColumnBuckets(published, await getCollection('columns')),
+	};
+}
+

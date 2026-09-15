@@ -118,3 +118,79 @@ export const archiveTitle = style({
 	fontSize: '1rem',
 	color: 'inherit',
 });
+
+/* ---------- 归档页下半段：专栏按系列聚合 ---------- */
+
+export const archiveColumnSection = style({
+	padding: vars.space.lg,
+	marginTop: vars.space.xl,
+	borderTop: `1px solid ${vars.color.border}`,
+});
+
+export const archiveColumnHeading = style({
+	display: 'flex',
+	alignItems: 'baseline',
+	flexWrap: 'wrap',
+	gap: vars.space.sm,
+	margin: `0 0 ${vars.space.lg}`,
+});
+
+export const archiveColumnNote = style({
+	fontSize: '0.82rem',
+	color: vars.color.textMeta,
+});
+
+export const archiveColumnList = style({
+	listStyle: 'none',
+	margin: 0,
+	padding: 0,
+	display: 'grid',
+	gap: vars.space.sm,
+});
+
+export const archiveColumnItem = style({
+	margin: 0,
+});
+
+export const archiveColumnLink = style({
+	display: 'flex',
+	flexWrap: 'wrap',
+	alignItems: 'baseline',
+	gap: vars.space.sm,
+	padding: `${vars.space.md} ${vars.space.lg}`,
+	borderRadius: vars.radius.lg,
+	background: vars.color.surfaceStrong,
+	border: `1px solid ${vars.color.border}`,
+	textDecoration: 'none',
+	color: vars.color.textStrong,
+	selectors: {
+		'&:hover': {
+			borderColor: vars.color.accent,
+			boxShadow: vars.shadow.card,
+		},
+		'&:focus-visible': {
+			outline: 'none',
+			boxShadow: vars.shadow.focus,
+		},
+	},
+});
+
+export const archiveColumnTitle = style({
+	minWidth: 0,
+	fontSize: '1rem',
+	fontWeight: 500,
+});
+
+export const archiveColumnMeta = style({
+	fontFamily: vars.font.mono,
+	fontSize: '0.78rem',
+	color: vars.color.textMeta,
+});
+
+export const archiveColumnDesc = style({
+	flexBasis: '100%',
+	margin: 0,
+	fontSize: '0.82rem',
+	lineHeight: 1.6,
+	color: vars.color.textMuted,
+});

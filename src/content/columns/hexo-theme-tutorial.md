@@ -4,6 +4,7 @@ description: 以实战为导向的 Hexo 主题开发系列，包含主题核心�
 pubDate: 2025-11-20
 columnId: hexo-theme-tutorial
 layout: column
+order: 2
 ---
 
 本专栏汇集了关于 Hexo 主题开发的系列教程，从基础概念到高级优化以及插件开发，适合希望打造或定制 Hexo 主题的开发者。

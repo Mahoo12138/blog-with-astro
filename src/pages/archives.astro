@@ -1,12 +1,22 @@
 ---
 import { getCollection } from 'astro:content';
 import StellarNavTabs from '../components/StellarNavTabs.astro';
-import { postUrl, SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import { SITE_DESCRIPTION, SITE_TITLE, columnUrl } from '../consts';
 import StellarShell from '../layouts/StellarShell.astro';
 import * as styles from '../styles/homeFeed.css';
-import { sortBlogPosts } from '../utils/content';
+import { buildColumnBuckets, postHref, sortBlogPosts, standalonePosts } from '../utils/content';
 
-const posts = sortBlogPosts(await getCollection('posts'));
+/**
+ * 归档页采用两段式：
+ *   上半段 —— 博客文章按年逐篇（用于「我记得某年写过一篇讲 X 的」这种定位）
+ *   下半段 —— 专栏按系列聚合，每个系列只占一条
+ *
+ * 专栏章节刻意不逐篇进年表：章节的价值在顺序而不在日期，
+ * 混进来只会让某一年被同一个学习系列占满（数据结构与算法 9 篇 + STM32 8 篇都在 2019）。
+ */
+const published = sortBlogPosts(await getCollection('posts'));
+const posts = standalonePosts(published);
+const columns = buildColumnBuckets(published, await getCollection('columns'));
 
 const archives = posts.reduce<Map<number, typeof posts>>((map, post) => {
 	const year = post.data.pubDate.getFullYear();
@@ -18,6 +28,17 @@ const archives = posts.reduce<Map<number, typeof posts>>((map, post) => {
 
 const groups = Array.from(archives.entries()).sort((a, b) => b[0] - a[0]);
 const formatArchiveDate = (date: Date) => `${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+const formatMonth = (date: Date) => `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}`;
+
+/** 时间跨度：单月只显示一次，跨月显示区间 —— 让读者一眼看出系列是「还在更新」还是「已完结」 */
+function formatSpan(startedAt?: Date, updatedAt?: Date) {
+	if (!startedAt || !updatedAt) {
+		return '';
+	}
+	const start = formatMonth(startedAt);
+	const end = formatMonth(updatedAt);
+	return start === end ? start : `${start} – ${end}`;
+}
 ---
 
 <StellarShell title={`Archives · ${SITE_TITLE}`} description={SITE_DESCRIPTION} mainClass={styles.archiveMain} siteTree="archives">
@@ -36,7 +57,7 @@ const formatArchiveDate = (date: Date) => `${String(date.getMonth() + 1).padStar
 						{
 							yearPosts.map((post) => (
 								<li class={styles.archiveItem}>
-									<a class={styles.archiveLink} href={postUrl(post.id)}>
+									<a class={styles.archiveLink} href={postHref(post)}>
 										<time class={styles.archiveDate} datetime={post.data.pubDate.toISOString()}>
 											{formatArchiveDate(post.data.pubDate)}
 										</time>
@@ -50,4 +71,30 @@ const formatArchiveDate = (date: Date) => `${String(date.getMonth() + 1).padStar
 			))
 		}
 	</div>
+
+	{
+		columns.length > 0 && (
+			<section class={styles.archiveColumnSection} aria-labelledby="archive-columns">
+				<h2 class={styles.archiveColumnHeading} id="archive-columns">
+					<span class={styles.archiveYear}>专栏</span>
+					<span class={styles.archiveColumnNote}>
+						按系列聚合，共 {columns.length} 个系列、{columns.reduce((sum, column) => sum + column.count, 0)} 章
+					</span>
+				</h2>
+				<ul class={styles.archiveColumnList}>
+					{columns.map((column) => (
+						<li class={styles.archiveColumnItem}>
+							<a class={styles.archiveColumnLink} href={columnUrl(column.slug)}>
+								<span class={styles.archiveColumnTitle}>{column.title}</span>
+								<span class={styles.archiveColumnMeta}>
+									{column.count} 章 · {formatSpan(column.startedAt, column.updatedAt)}
+								</span>
+								{column.description && <p class={styles.archiveColumnDesc}>{column.description}</p>}
+							</a>
+						</li>
+					))}
+				</ul>
+			</section>
+		)
+	}
 </StellarShell>

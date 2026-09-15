@@ -1,13 +1,34 @@
 ---
 import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
+import type { CollectionEntry } from 'astro:content';
 import ArtalkComments from '../components/ArtalkComments.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import KatexStyles from '../components/KatexStyles.astro';
 import type { SiteTreeKey } from '../config/stellar';
-import { SITE_AUTHOR } from '../consts';
+import { SITE_AUTHOR, columnUrl, postCommentKey } from '../consts';
+import { postHref } from '../utils/content';
 import StellarShell from './StellarShell.astro';
+import * as chapterStyles from '../styles/columnChapters.css';
 import * as styles from './BlogPost.css';
+
+/**
+ * 章节所在的专栏上下文。
+ *
+ * 有了它，章节页就不再是一篇「孤立文章」：顶部显示所属专栏与位置，
+ * 底部给出上一章 / 下一章，侧栏渲染专栏目录并高亮当前章 ——
+ * 这正是专栏与博客在阅读方式上的根本区别。
+ */
+export interface ColumnChapterContext {
+	title: string;
+	slug: string;
+	description?: string;
+	icon?: string;
+	/** 按阅读顺序排好的全部章节 */
+	posts: CollectionEntry<'posts'>[];
+	/** 当前章节在 posts 中的下标 */
+	index: number;
+}
 
 interface Props {
 	title: string;
@@ -19,9 +40,39 @@ interface Props {
 	headings?: { depth: number; slug: string; text: string }[];
 	mathjax?: boolean;
 	noindex?: boolean;
+	/** 文章稳定标识，用于评论关联（不含专栏层级，见 postCommentKey 注释）。
+	 *  可选：about / mdx-components 这类非文章页也复用本布局，它们没有文章身份。 */
+	postId?: string;
+	columnContext?: ColumnChapterContext;
 }
 
-const { title, description, pubDate, updatedDate, image, siteTree = 'post', headings = [], mathjax = false, noindex = false } = Astro.props;
+const {
+	title,
+	description,
+	pubDate,
+	updatedDate,
+	image,
+	siteTree,
+	headings = [],
+	mathjax = false,
+	noindex = false,
+	postId,
+	columnContext,
+} = Astro.props;
+
+const resolvedSiteTree: SiteTreeKey = siteTree ?? (columnContext ? 'column' : 'post');
+
+// 评论 key 用文章的稳定标识而不是当前 URL：专栏章节的地址从 /post/<id>/
+// 迁到 /columns/<专栏>/<id>/ 之后，历史评论仍然落在同一个 key 上。
+// 非文章页（没有 postId）回退到路径，与改动前的行为一致。
+const commentKey = postId ? postCommentKey(postId) : Astro.url.pathname;
+
+const chapterPosts = columnContext?.posts ?? [];
+const prevChapter = columnContext && columnContext.index > 0 ? chapterPosts[columnContext.index - 1] : undefined;
+const nextChapter =
+	columnContext && columnContext.index >= 0 && columnContext.index < chapterPosts.length - 1
+		? chapterPosts[columnContext.index + 1]
+		: undefined;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 // 文章 OG / JSON-LD 用的图片 URL：由路由通过 resolvePostCover 解析后传入
@@ -42,7 +93,27 @@ const blogPostingJsonLd = {
 const blogPostingJsonLdSafe = JSON.stringify(blogPostingJsonLd).replace(/</g, '\\u003c');
 ---
 
-<StellarShell title={title} description={description} mainClass={styles.main} siteTree={siteTree} tocHeadings={headings} type="article" image={image} publishedTime={pubDate} modifiedTime={updatedDate} noindex={noindex}>
+<StellarShell
+	title={title}
+	description={description}
+	mainClass={styles.main}
+	siteTree={resolvedSiteTree}
+	tocHeadings={headings}
+	type="article"
+	image={image}
+	publishedTime={pubDate}
+	modifiedTime={updatedDate}
+	noindex={noindex}
+	column={columnContext
+		? {
+				title: columnContext.title,
+				description: columnContext.description,
+				icon: columnContext.icon,
+				count: chapterPosts.length,
+				posts: chapterPosts,
+			}
+		: undefined}
+>
 	{mathjax && <KatexStyles />}
 	<script is:inline type="application/ld+json" set:html={blogPostingJsonLdSafe} />
 	<article class={styles.article} data-pagefind-body={noindex ? undefined : true}>
@@ -53,7 +124,23 @@ const blogPostingJsonLdSafe = JSON.stringify(blogPostingJsonLd).replace(/</g, '\
 						<div class="flex-row" id="breadcrumb">
 							<a class:list={[styles.breadcrumb, 'cap', 'breadcrumb']} href="/">Home</a>
 							<span class="sep">/</span>
-							<a class:list={[styles.breadcrumb, 'cap', 'breadcrumb']} href="/posts">Blog</a>
+							{
+								columnContext ? (
+									<>
+										<a class:list={[styles.breadcrumb, 'cap', 'breadcrumb']} href="/columns">
+											专栏
+										</a>
+										<span class="sep">/</span>
+										<a class:list={[styles.breadcrumb, 'cap', 'breadcrumb']} href={columnUrl(columnContext.slug)}>
+											{columnContext.title}
+										</a>
+									</>
+								) : (
+									<a class:list={[styles.breadcrumb, 'cap', 'breadcrumb']} href="/posts">
+										Blog
+									</a>
+								)
+							}
 						</div>
 						<div id="post-meta">
 							<span>发布于：<FormattedDate date={pubDate} /></span>
@@ -69,8 +156,57 @@ const blogPostingJsonLdSafe = JSON.stringify(blogPostingJsonLd).replace(/</g, '\
 			</div>
 		</header>
 		<div class:list={[styles.prose, 'md-text', 'content']}>
+			{
+				columnContext && (
+					<div class={chapterStyles.columnBar}>
+						<a class={chapterStyles.columnBarLink} href={columnUrl(columnContext.slug)}>
+							专栏 · {columnContext.title}
+						</a>
+						<span class={chapterStyles.columnBarPosition}>
+							第 {columnContext.index + 1} / {chapterPosts.length} 章
+						</span>
+					</div>
+				)
+			}
 			<slot />
 		</div>
-		<ArtalkComments pageKey={canonicalURL.pathname} pageTitle={title} />
+		{
+			columnContext && (
+				<>
+					<nav class={chapterStyles.nav} aria-label="专栏章节导航">
+						{prevChapter ? (
+							<a class={chapterStyles.navLink} href={postHref(prevChapter)} rel="prev">
+								<span class={chapterStyles.navLabel}>← 上一章</span>
+								<span class={chapterStyles.navTitle}>{prevChapter.data.title}</span>
+							</a>
+						) : (
+							<span class:list={[chapterStyles.navLink, chapterStyles.navLinkEmpty]}>
+								<span class={chapterStyles.navLabel}>已是第一章</span>
+							</span>
+						)}
+						{nextChapter ? (
+							<a
+								class:list={[chapterStyles.navLink, chapterStyles.navLinkNext]}
+								href={postHref(nextChapter)}
+								rel="next"
+							>
+								<span class={chapterStyles.navLabel}>下一章 →</span>
+								<span class={chapterStyles.navTitle}>{nextChapter.data.title}</span>
+							</a>
+						) : (
+							<span class:list={[chapterStyles.navLink, chapterStyles.navLinkNext, chapterStyles.navLinkEmpty]}>
+								<span class={chapterStyles.navLabel}>已是最后一章</span>
+							</span>
+						)}
+					</nav>
+					<div class={chapterStyles.backToColumn}>
+						<a class={chapterStyles.columnBarLink} href={columnUrl(columnContext.slug)}>
+							返回专栏目录 →
+						</a>
+					</div>
+				</>
+			)
+		}
+		<ArtalkComments pageKey={commentKey} pageTitle={title} />
 	</article>
 </StellarShell>

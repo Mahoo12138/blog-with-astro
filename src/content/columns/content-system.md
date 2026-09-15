@@ -2,7 +2,7 @@
 title: 'Content System'
 description: '围绕 Markdown、MDX 和内容建模的迁移记录。'
 columnId: 'content-system'
-order: 1
+order: 4
 accent: '#5da8ff'
 icon: 'https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/10433048.png'
 ---

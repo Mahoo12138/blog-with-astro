@@ -1,16 +1,20 @@
 ---
 import { getCollection } from 'astro:content';
+import ColumnCard from '../../components/ColumnCard.astro';
 import Pagination from '../../components/Pagination.astro';
 import StellarNavTabs from '../../components/StellarNavTabs.astro';
 import StellarPostCard from '../../components/StellarPostCard.astro';
 import { POSTS_PER_PAGE, SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
 import StellarShell from '../../layouts/StellarShell.astro';
 import * as styles from '../../styles/taxonomy.css';
-import { buildTaxonomyBuckets, sortBlogPosts, type TaxonomyBucket } from '../../utils/content';
+import { buildColumnBuckets, buildTaxonomyBuckets, sortBlogPosts, type TaxonomyBucket } from '../../utils/content';
 
 export async function getStaticPaths() {
 	const posts = sortBlogPosts(await getCollection('posts'));
-	return buildTaxonomyBuckets(posts, 'tags').map((bucket) => ({
+	// 章节的 tags 已移到专栏上，所以标签桶必须同时看专栏 ——
+	// 否则「STM32」这类只登记在专栏上的标签会整页消失。
+	const columns = buildColumnBuckets(posts, await getCollection('columns'));
+	return buildTaxonomyBuckets(posts, 'tags', columns).map((bucket) => ({
 		params: { slug: bucket.slug },
 		props: { bucket },
 	}));
@@ -32,6 +36,19 @@ const nextUrl = totalPages > 1 ? `/tags/${bucket.slug}/2` : undefined;
 	</header>
 	<h1 class={styles.srOnly}>{bucket.label}</h1>
 	<div class={styles.postList}>
+		{
+			/*
+			 * 专栏排在文章之前，且**只出现在第 1 页**。
+			 * 一个标签下的专栏最多一两个，不必参与分页；让它们始终在第 1 页更容易被看到。
+			 */
+			bucket.columns.length > 0 && (
+				<div class={styles.topicList}>
+					{bucket.columns.map((column) => (
+						<ColumnCard column={column} />
+					))}
+				</div>
+			)
+		}
 		<ul class={styles.list}>
 			{
 				posts.map((post) => (

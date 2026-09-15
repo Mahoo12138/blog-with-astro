@@ -1,7 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import type { WidgetProps } from './types';
-import { buildTaxonomyBuckets, columnPosts, sortBlogPosts, standalonePosts } from '../../utils/content';
+import { buildColumnBuckets, buildTaxonomyBuckets, columnPosts, sortBlogPosts, standalonePosts } from '../../utils/content';
 import * as leftStyles from '../StellarLeftSidebar.css';
 import * as rightStyles from '../StellarRightSidebar.css';
 import * as styles from './archives-stats.css';
@@ -36,9 +36,14 @@ const wordDisplay = totalWords >= 10000 ? `${(totalWords / 10000).toFixed(1)}万
 
 // 分类 / 标签是**主题检索**入口，保留全量：读者点进「学习笔记」就是主动想看这个主题，
 // 与博客流被连载刷屏是两回事，因此不在这里分流。
-const allCategories = buildTaxonomyBuckets(published, 'categories');
+//
+// 注意：章节的 tags / categories 已移到**专栏**上（体裁与主题由专栏统一表达，
+// 章节上重复标一遍是冗余的），所以这里必须把 columns 一起传进去 ——
+// 否则「STM32」这类只登记在专栏上的标签会整个消失。
+const columns = buildColumnBuckets(published, await getCollection('columns'));
+const allCategories = buildTaxonomyBuckets(published, 'categories', columns);
 const categories = allCategories.slice(0, 5);
-const tags = buildTaxonomyBuckets(published, 'tags').slice(0, 5);
+const tags = buildTaxonomyBuckets(published, 'tags', columns).slice(0, 5);
 
 const widgetClass = side === 'left' ? leftStyles.widget : rightStyles.widget;
 const headerClass = side === 'left' ? leftStyles.widgetTitle : rightStyles.widgetHeader;

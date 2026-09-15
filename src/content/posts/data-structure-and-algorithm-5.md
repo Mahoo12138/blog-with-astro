@@ -5,10 +5,6 @@ columnId: data-structure-and-algorithm
 order: 5
 mathjax: true
 cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/study/algorithm/20210418160102.png
-tags: 
-- 数据结构与算法
-categories: 
-- 学习笔记
 ---
 
 队列，和栈一样，也是一种对数据的"存"和"取"有严格要求的线性存储结构。

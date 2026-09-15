@@ -1,0 +1,40 @@
+---
+import type { ColumnBucket } from '../utils/content';
+import * as styles from '../styles/taxonomy.css';
+
+interface Props {
+	column: ColumnBucket;
+	/**
+	 * 卡片上「N 篇」角标的内容。
+	 * 默认按章节数显示；分类页 / 标签页上专栏是「一条」条目，
+	 * 用章节数正好能说明这个专栏有多长。
+	 */
+	countLabel?: string;
+}
+
+const { column, countLabel } = Astro.props;
+const count = countLabel ?? `${column.posts.length} 篇`;
+---
+
+<div class={styles.topicCardWrap}>
+	<a class={styles.topicCard} href={`/columns/${column.slug}/`}>
+		<article class={styles.topicArticle}>
+			<div class={styles.topicPreview}>
+				{
+					column.icon ? (
+						<img class={styles.topicImage} src={column.icon} alt="" />
+					) : (
+						<span class={styles.topicFallback}>{column.title.slice(0, 1)}</span>
+					)
+				}
+			</div>
+			<div class={styles.topicExcerpt}>
+				<div class={styles.topicCaps}>
+					<span class={styles.topicCap}>{count}</span>
+				</div>
+				<h2 class={styles.topicTitle}>{column.title}</h2>
+				{column.description && <p class={styles.topicDescription}>{column.description}</p>}
+			</div>
+		</article>
+	</a>
+</div>

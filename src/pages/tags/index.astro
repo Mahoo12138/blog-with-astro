@@ -4,10 +4,18 @@ import StellarNavTabs from '../../components/StellarNavTabs.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
 import StellarShell from '../../layouts/StellarShell.astro';
 import * as styles from '../../styles/taxonomy.css';
-import { buildTaxonomyBuckets, sortBlogPosts } from '../../utils/content';
+import { buildColumnBuckets, buildTaxonomyBuckets, sortBlogPosts } from '../../utils/content';
 
 const posts = sortBlogPosts(await getCollection('posts'));
-const tags = buildTaxonomyBuckets(posts, 'tags');
+// 章节的 tags 已移到专栏上，必须同时看专栏，否则只登记在专栏上的标签会整个消失
+const columns = buildColumnBuckets(posts, await getCollection('columns'));
+const tags = buildTaxonomyBuckets(posts, 'tags', columns);
+
+/** 供 aria-label 用：把「N 篇文章 / M 个专栏」说清楚，读屏用户才知道点进去有什么 */
+const describe = (bucket: (typeof tags)[number]) =>
+	[bucket.posts.length ? `${bucket.posts.length} 篇文章` : '', bucket.columns.length ? `${bucket.columns.length} 个专栏` : '']
+		.filter(Boolean)
+		.join('、') || '暂无内容';
 ---
 
 <StellarShell title={`Tags · ${SITE_TITLE}`} description={SITE_DESCRIPTION} mainClass={styles.pageMain} siteTree="index_blog">
@@ -21,7 +29,7 @@ const tags = buildTaxonomyBuckets(posts, 'tags');
 				<article class={styles.tags} id="tags">
 				{
 					tags.map((tag) => (
-						<a class={styles.tagLink} href={`/tags/${tag.slug}/`} aria-label={`${tag.label}，${tag.posts.length} 篇文章`}>
+						<a class={styles.tagLink} href={`/tags/${tag.slug}/`} aria-label={`${tag.label}，${describe(tag)}`}>
 							<span>{tag.label}</span>
 						</a>
 					))

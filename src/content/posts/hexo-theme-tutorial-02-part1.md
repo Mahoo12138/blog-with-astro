@@ -5,10 +5,6 @@ author: Mahoo12138
 columnId: hexo-theme-tutorial
 order: 2
 cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/hexo.png
-tags: 
-- Hexo
-categories:
-- 技术教程
 ---
 
 

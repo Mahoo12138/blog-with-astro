@@ -5,10 +5,6 @@ columnId: data-structure-and-algorithm
 order: 4
 mathjax: true
 cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/study/algorithm/20210418160102.png
-tags: 
-- 数据结构与算法
-categories: 
-- 学习笔记
 ---
 
 栈是一种线性表，栈与线性表的最大区别是数据的存取的操作，其插入和删除操作只允许在线性表的一端进行。

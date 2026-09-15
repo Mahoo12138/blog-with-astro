@@ -11,6 +11,14 @@ export interface TaxonomyBucket {
 	label: string;
 	slug: string;
 	posts: BlogPost[];
+	/**
+	 * 以该标签/分类登记在**专栏**上的专栏。
+	 *
+	 * 分流之后章节不再自带 tags / categories —— 体裁与主题由专栏统一表达，
+	 * 章节上重复标一遍是冗余的。所以标签页 / 分类页必须**同时看专栏**，
+	 * 否则「STM32」这类只登记在专栏上的标签会整页消失（实测该标签下 8 篇全是章节）。
+	 */
+	columns: ColumnBucket[];
 }
 
 export interface ColumnBucket {
@@ -189,28 +197,46 @@ export function resolvePostDescription(post: BlogPost, maxLength = 160) {
 	return excerptFromBody(post.body, maxLength) || post.data.title;
 }
 
-export function buildTaxonomyBuckets(posts: BlogPost[], key: TaxonomyKey) {
+/**
+ * 汇总标签 / 分类桶。
+ *
+ * `columns` 是**必传**的（虽然给了默认值）：章节的 tags / categories 已移到专栏上，
+ * 只传 posts 会漏掉整类内容 —— 例如 `STM32` 标签下 8 篇全是专栏章节，
+ * 不传 columns 这个标签页会直接消失。
+ *
+ * 排序按「条目总数」（文章数 + 专栏数）降序，让内容多的标签排在前面。
+ */
+export function buildTaxonomyBuckets(posts: BlogPost[], key: TaxonomyKey, columns: ColumnBucket[] = []) {
 	const buckets = new Map<string, TaxonomyBucket>();
+
+	const ensure = (value: string) => {
+		const slug = slugifySegment(value);
+		const existing = buckets.get(slug);
+		if (existing) {
+			return existing;
+		}
+		const created: TaxonomyBucket = { label: value, slug, posts: [], columns: [] };
+		buckets.set(slug, created);
+		return created;
+	};
 
 	for (const post of posts) {
 		for (const value of normalizeValues(post.data[key] ?? [])) {
-			const slug = slugifySegment(value);
-			const existing = buckets.get(slug);
-
-			if (existing) {
-				existing.posts.push(post);
-				continue;
-			}
-
-			buckets.set(slug, {
-				label: value,
-				slug,
-				posts: [post],
-			});
+			ensure(value).posts.push(post);
 		}
 	}
 
-	return [...buckets.values()].sort((left, right) => right.posts.length - left.posts.length || collator.compare(left.label, right.label));
+	for (const column of columns) {
+		for (const value of normalizeValues(column.entry?.data[key] ?? [])) {
+			ensure(value).columns.push(column);
+		}
+	}
+
+	return [...buckets.values()].sort(
+		(left, right) =>
+			right.posts.length + right.columns.length - (left.posts.length + left.columns.length) ||
+			collator.compare(left.label, right.label),
+	);
 }
 
 export function buildColumnBuckets(posts: BlogPost[], columns: ColumnEntry[]) {

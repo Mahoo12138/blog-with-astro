@@ -1,5 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
+import ColumnCard from '../../components/ColumnCard.astro';
 import StellarNavTabs from '../../components/StellarNavTabs.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
 import StellarShell from '../../layouts/StellarShell.astro';
@@ -19,26 +20,9 @@ const buckets = buildColumnBuckets(posts, columns);
 	{
 		buckets.length ? (
 			<div class={styles.topicList}>
-				{
-					buckets.map((column) => (
-						<div class={styles.topicCardWrap}>
-							<a class={styles.topicCard} href={`/columns/${column.slug}/`}>
-								<article class={styles.topicArticle}>
-									<div class={styles.topicPreview}>
-										{column.entry?.data.icon ? <img class={styles.topicImage} src={column.entry.data.icon} alt="" /> : <span class={styles.topicFallback}>{column.title.slice(0, 1)}</span>}
-									</div>
-									<div class={styles.topicExcerpt}>
-										<div class={styles.topicCaps}>
-											<span class={styles.topicCap}>{column.posts.length} 篇</span>
-										</div>
-										<h2 class={styles.topicTitle}>{column.title}</h2>
-										{column.description && <p class={styles.topicDescription}>{column.description}</p>}
-									</div>
-								</article>
-							</a>
-						</div>
-					))
-				}
+				{buckets.map((column) => (
+					<ColumnCard column={column} />
+				))}
 			</div>
 		) : (
 			<section class={styles.empty}>暂无专栏</section>

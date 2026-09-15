@@ -369,12 +369,12 @@ if (existsSync(blogFeedFirstPage)) {
 
 /* ---------- 8. 内容卫生断言 ---------- */
 /**
- * 三条「改坏了不报错、只会悄悄退化」的内容约定，都是实际踩过的坑：
+ * 四条「改坏了不报错、只会悄悄退化」的内容约定，都是实际踩过的坑：
  *
  *   a) 分类词表只能有约定的三种，且必须按**文章体裁**划分。
  *      历史上有 7 种，其中 5 种只有 1–3 篇，还有「前端」这种按主题划分的误用
  *      （主题应该走 tags —— `前端` 作为标签本来就有近 20 篇）。
- *      分类一乱，分类页就退化成一堆零星条目。
+ *      分类一乱，分类页就退化成一堆零星条目。专栏的分类同样受此约束。
  *
  *   b) 文章文件名不得含不可见字符。曾出现结尾带零宽空格 (U+200B) 的文件：
  *      Astro 的 glob loader 会把 id 里的零宽空格剥掉，所以线上 URL 完全正常，
@@ -382,6 +382,11 @@ if (existsSync(blogFeedFirstPage)) {
  *
  *   c) 已发布的文章正文不能为空。曾有两篇只有 frontmatter 的空白页长期挂在线上。
  *      正文为空的占位文章应标 `draft: true`，而不是发布出去。
+ *
+ *   d) **专栏章节不得自带 tags / categories** —— 体裁与主题由专栏统一表达，
+ *      章节上重复标一遍是冗余的，也会让标签页被同一个系列的十几张卡铺满。
+ *      这条约束很容易在「新写一章时顺手把标签抄上去」时被破坏，而且不会报错，
+ *      只会让标签页悄悄退化回刷屏状态。
  */
 const CANONICAL_CATEGORIES = new Set(['学习笔记', '技术教程', '随笔杂谈']);
 const INVISIBLE_CHARS = /[\u00ad\u200b-\u200f\u2028-\u202e\u2060-\u2064\ufeff]/;
@@ -389,6 +394,7 @@ const INVISIBLE_CHARS = /[\u00ad\u200b-\u200f\u2028-\u202e\u2060-\u2064\ufeff]/;
 const offVocabCategories = [];
 const invisibleFilenames = [];
 const emptyPublishedPosts = [];
+const chaptersWithTaxonomy = [];
 
 /**
  * 解析 frontmatter 里的列表字段，兼容三种实际存在的写法：
@@ -442,6 +448,26 @@ if (existsSync(postsDir)) {
 		if (!/^draft:\s*true\b/m.test(frontmatter) && body.trim() === '') {
 			emptyPublishedPosts.push(name);
 		}
+
+		// d) 章节不得自带 tags / categories
+		if (/^columnId:\s*\S/m.test(frontmatter)) {
+			const own = [...parseFrontmatterList(frontmatter, 'tags'), ...parseFrontmatterList(frontmatter, 'categories')];
+			if (own.length) chaptersWithTaxonomy.push(`${name} → ${own.join(' / ')}`);
+		}
+	}
+}
+
+// 专栏自身的分类同样受词表约束（章节的分类已收上来，这里才是唯一来源）
+const columnsDir = path.join(root, 'src', 'content', 'columns');
+if (existsSync(columnsDir)) {
+	for (const name of await readdir(columnsDir)) {
+		if (!/\.mdx?$/.test(name)) continue;
+		const source = await readFile(path.join(columnsDir, name), 'utf8');
+		const match = /^---\r?\n([\s\S]*?)\r?\n---/.exec(source);
+		if (!match) continue;
+		for (const category of parseFrontmatterList(match[1], 'categories')) {
+			if (!CANONICAL_CATEGORIES.has(category)) offVocabCategories.push(`columns/${name} → ${category}`);
+		}
 	}
 }
 
@@ -460,6 +486,12 @@ if (emptyPublishedPosts.length) {
 		`已发布但正文为空的文章 ${emptyPublishedPosts.length} 篇（应标 draft: true 或补上正文）:`,
 	);
 	for (const name of emptyPublishedPosts.slice(0, 10)) failures.push(`    ${name}`);
+}
+if (chaptersWithTaxonomy.length) {
+	failures.push(
+		`专栏章节自带 tags / categories ${chaptersWithTaxonomy.length} 处（应登记在专栏上，章节只留 columnId）:`,
+	);
+	for (const item of chaptersWithTaxonomy.slice(0, 10)) failures.push(`    ${item}`);
 }
 
 /* ---------- 9. 模板泄漏断言 ---------- */

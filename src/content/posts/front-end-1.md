@@ -1,11 +1,8 @@
 ---
 title: 前端入门之ES5基本语法
 date: 2019-12-12 21:40:16
-categories: 
-- 学习笔记
-tags:
-- 前端
-- ES5
+columnId: 'frontend-basics'
+order: 1
 ---
 
 ## 基本语法

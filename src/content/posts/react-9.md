@@ -2,11 +2,8 @@
 title: 前端学习之 React 报错指北
 date: 2020-09-13 16:52:33
 cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/react.png
-categories: 
-- 学习笔记
-tags:
-- React
-- 前端
+columnId: 'react'
+order: 4
 ---
 
 > Maximum update depth exceeded. This can happen when a component repeatedly calls setState inside componentWillUpdate or componentDidUpdate. React limits the number of nested updates to prevent infinite loops.

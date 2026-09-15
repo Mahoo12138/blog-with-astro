@@ -3,10 +3,8 @@ title: Flutter 入门学习之本地存储
 date: 2021-01-15 10:43:24
 cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/flutter.png
 excerpt: 本文是折腾 Flutter 的第八篇文章，介绍 Flutter 中本地存储的使用。
-tags: 
-- Flutter
-categories: 
-- 学习笔记
+columnId: 'flutter'
+order: 8
 ---
 
 ## 什么是 shared_preferences

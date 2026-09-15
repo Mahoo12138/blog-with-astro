@@ -2,10 +2,8 @@
 title: Flutter 学习实践之Banner轮播图
 date: 2021-02-02 11:43:24
 cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/flutter.png
-tags: 
-- Flutter
-categories: 
-- 学习笔记
+columnId: 'flutter'
+order: 9
 ---
 
 ## PageView

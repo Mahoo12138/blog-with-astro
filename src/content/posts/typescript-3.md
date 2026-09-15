@@ -2,10 +2,8 @@
 title: TypeScript 学习-03-语法进阶
 date: 2021-11-26 16:52:45
 cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/typescript.jpg
-categories: 
-- 学习笔记
-tags:
-- TypeScript
+columnId: 'typescript'
+order: 3
 ---
 
 ## 枚举

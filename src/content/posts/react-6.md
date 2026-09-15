@@ -2,11 +2,8 @@
 title: 前端学习之 React 中的路由
 date: 2020-09-27 15:32:16
 cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/react.png
-categories: 
-- 学习笔记
-tags:
-- React
-- 前端
+columnId: 'react'
+order: 10
 ---
 
 ## React 路由介绍

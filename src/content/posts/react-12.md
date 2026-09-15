@@ -2,11 +2,8 @@
 title: 前端学习之 React 中的 Hooks 学习
 date: 2020-10-18 23:32:45
 cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/react.png
-categories: 
-- 学习笔记
-tags:
-- React
-- 前端
+columnId: 'react'
+order: 12
 ---
 
 ## 什么是 Hooks

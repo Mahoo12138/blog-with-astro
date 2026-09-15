@@ -2,11 +2,8 @@
 title: 前端学习之 React 项目实战Ⅲ
 date: 2022-03-18 22:54:43
 cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/react.png
-categories: 
-- 学习笔记
-tags:
-- React
-- 前端
+columnId: 'react'
+order: 15
 ---
 
 ## 添加项目页面

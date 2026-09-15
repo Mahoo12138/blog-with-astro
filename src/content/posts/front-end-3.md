@@ -1,11 +1,8 @@
 ---
 title: 前端入门之双飞翼布局与圣杯布局
 date: 2019-12-23 22:10:21
-categories: 
-- 学习笔记
-tags:
-- 前端
-- CSS布局
+columnId: 'frontend-basics'
+order: 2
 ---
 
 ## 双飞翼布局 & 圣杯布局

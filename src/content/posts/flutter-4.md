@@ -2,11 +2,9 @@
 title: Flutter 入门学习之Text文本相关组件
 date: 2021-01-04 15:13:24
 cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/flutter.png
-tags:
-  - Flutter
-categories:
-  - 学习笔记
 topic: flutter
+columnId: 'flutter'
+order: 4
 ---
 
 上代码即可：

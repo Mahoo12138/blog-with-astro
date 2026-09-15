@@ -2,11 +2,8 @@
 title: 前端学习之 React 中的事件处理
 date: 2020-09-15 23:09:45
 cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/react.png
-categories: 
-- 学习笔记
-tags:
-- React
-- 前端
+columnId: 'react'
+order: 5
 ---
 
 ## 事件处理简介

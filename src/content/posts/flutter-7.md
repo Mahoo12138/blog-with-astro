@@ -2,10 +2,8 @@
 title: Flutter 入门学习之布局组件
 date: 2021-01-05 15:43:24
 cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/flutter.png
-tags: 
-- Flutter
-categories: 
-- 学习笔记
+columnId: 'flutter'
+order: 5
 ---
 
 ## 基本布局

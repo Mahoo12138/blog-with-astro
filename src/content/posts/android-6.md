@@ -2,11 +2,8 @@
 title: 利用 ADB 将安卓投屏到电脑进行调试开发
 cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/android.png
 date: 2020-04-27 10:01:25
-categories: 
-- 技术教程
-tags:
-- adb
-- Android
+columnId: 'android'
+order: 6
 ---
 
 保证手机与电脑在同一个局域网下，然后查看手机的IP地址：

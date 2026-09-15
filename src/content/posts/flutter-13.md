@@ -2,10 +2,8 @@
 title: Flutter 开发之动态更新Dialog中的状态
 date: 2021-03-18 10:13:24
 cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/flutter.png
-tags: 
-- Flutter
-categories: 
-- 技术教程
+columnId: 'flutter'
+order: 13
 ---
 
 ## 需求分析

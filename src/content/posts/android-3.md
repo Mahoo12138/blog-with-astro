@@ -2,12 +2,9 @@
 title: 安卓开发学习之 Material Design
 date: 2019-08-15 14:42:43
 cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/android.png
-categories: 
-- 学习笔记
-tags:
-- Android
-- Material Design
 topic: android
+columnId: 'android'
+order: 4
 ---
 
 ## 添加库依赖

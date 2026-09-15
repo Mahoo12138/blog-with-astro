@@ -2,12 +2,8 @@
 title: 前端学习之 React 中的 Redux 使用
 date: 2020-09-27 22:52:12
 cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/react.png
-categories: 
-- 学习笔记
-tags:
-- React
-- 前端
-- Redux
+columnId: 'react'
+order: 9
 ---
 
 ##  Redux 简介

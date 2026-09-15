@@ -2,11 +2,9 @@
 title: 安卓开发学习之掉坑记录集合
 date: 2019-07-25 12:48:43
 cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/android.png
-categories: 
-- 学习笔记
-tags:
-- Android
 topic: android
+columnId: 'android'
+order: 2
 ---
 
 ## Android8.0及以上版本自定义广播无法接收问题

@@ -2,12 +2,8 @@
 title: 前端学习之 React 中的 CSS 动画效果
 date: 2020-09-27 22:52:12
 cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/react.png
-categories: 
-- 学习笔记
-tags:
-- React
-- 前端
-- CSS
+columnId: 'react'
+order: 8
 ---
 
 ## CSS 过渡动画

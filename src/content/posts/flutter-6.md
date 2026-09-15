@@ -2,10 +2,8 @@
 title: Flutter 入门学习之按钮
 date: 2021-01-07 10:13:24
 cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/flutter.png
-tags: 
-- Flutter
-categories: 
-- 学习笔记
+columnId: 'flutter'
+order: 6
 ---
 
 按钮的使用大致相同，无非样式和各种交互的回调，这里以 TextButton 为例：

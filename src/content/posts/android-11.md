@@ -2,12 +2,9 @@
 title: 安卓开发学习之 Gradle 摸爬打滚记录
 date: 2024-05-09 23:09:45
 cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/android.png
-categories: 
-- 技术教程
-tags:
-- Android
-- Gradle
 topic: android
+columnId: 'android'
+order: 11
 ---
 
 ## 安卓开发学习之 Gradle 摸爬打滚记录

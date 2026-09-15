@@ -5,7 +5,7 @@ import StellarNavTabs from '../../components/StellarNavTabs.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
 import StellarShell from '../../layouts/StellarShell.astro';
 import * as styles from '../../styles/taxonomy.css';
-import { buildColumnBuckets, buildTaxonomyBuckets, sortBlogPosts } from '../../utils/content';
+import { buildColumnBuckets, buildTaxonomyBuckets, sortBlogPosts, taxonomyEntryCount } from '../../utils/content';
 
 const posts = sortBlogPosts(await getCollection('posts'));
 // 章节的 categories 已移到专栏上，必须同时看专栏，否则「学习笔记」会少掉整批专栏
@@ -31,7 +31,7 @@ const categories = buildTaxonomyBuckets(posts, 'categories', columns);
 									<span class={styles.catText}>{category.label}</span>
 								</span>
 								{/* 计数含专栏：与分类页里实际看到的条目数一致（文章 + 专栏） */}
-								<span class={styles.catBadge}>({category.posts.length + category.columns.length})</span>
+								<span class={styles.catBadge}>({taxonomyEntryCount(category)})</span>
 							</a>
 						</div>
 					))

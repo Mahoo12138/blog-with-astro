@@ -239,6 +239,17 @@ export function buildTaxonomyBuckets(posts: BlogPost[], key: TaxonomyKey, column
 	);
 }
 
+/**
+ * 分类 / 标签桶的「条目数」= 文章数 + 专栏数。
+ *
+ * 章节的 tags / categories 已移到专栏上，一个专栏在分类页 / 标签页上只算**一条**
+ * （不管它有多少章）。凡是展示或排序这个数量的地方都必须走本函数，
+ * 否则侧栏与分类索引会出现两个不一样的数字（实测踩过：侧栏 63 / 索引 65）。
+ */
+export function taxonomyEntryCount(bucket: TaxonomyBucket) {
+	return bucket.posts.length + bucket.columns.length;
+}
+
 export function buildColumnBuckets(posts: BlogPost[], columns: ColumnEntry[]) {
 	const postsByColumn = new Map<string, BlogPost[]>();
 

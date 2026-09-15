@@ -1,7 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import type { WidgetProps } from './types';
-import { buildColumnBuckets, buildTaxonomyBuckets, columnPosts, sortBlogPosts, standalonePosts } from '../../utils/content';
+import { buildColumnBuckets, buildTaxonomyBuckets, columnPosts, sortBlogPosts, standalonePosts, taxonomyEntryCount } from '../../utils/content';
 import * as leftStyles from '../StellarLeftSidebar.css';
 import * as rightStyles from '../StellarRightSidebar.css';
 import * as styles from './archives-stats.css';
@@ -79,7 +79,7 @@ const headerClass = side === 'left' ? leftStyles.widgetTitle : rightStyles.widge
 							<span class={styles.rankDot} aria-hidden="true"></span>
 							<span class={styles.rankName}>{bucket.label}</span>
 						</span>
-						<span class={styles.rankCount}>{bucket.posts.length}</span>
+						<span class={styles.rankCount}>{taxonomyEntryCount(bucket)}</span>
 					</li>
 				))}
 			</ul>
@@ -95,7 +95,7 @@ const headerClass = side === 'left' ? leftStyles.widgetTitle : rightStyles.widge
 							<span class={styles.rankDot} aria-hidden="true"></span>
 							<span class={styles.rankName}>{bucket.label}</span>
 						</span>
-						<span class={styles.rankCount}>{bucket.posts.length}</span>
+						<span class={styles.rankCount}>{taxonomyEntryCount(bucket)}</span>
 					</li>
 				))}
 			</ul>

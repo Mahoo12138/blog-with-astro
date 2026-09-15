@@ -2,7 +2,7 @@
 title: 记录一次 Ubuntu 依赖升级引发的 AX210 网卡故障
 date: 2026-07-05 20:38:54
 categories: 
-- 经验教程
+- 技术教程
 tags:
 - AX210
 ---

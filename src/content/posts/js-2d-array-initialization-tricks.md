@@ -5,6 +5,8 @@ author: Mahoo12138
 cover: https://cdn.jsdelivr.net/gh/mahoo12138/js-css-cdn/hexo-images/cover/hexo.png
 tags:
   - JavaScript
+categories:
+- 学习笔记
 ---
 
 ## 问题场景

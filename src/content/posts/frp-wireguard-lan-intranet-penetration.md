@@ -1,8 +1,8 @@
 ---
 title: Frp + WireGuard 组网实现内网穿透
 date: 2024-06-10 15:37:30
-category:
- - 技术教程
+categories:
+- 技术教程
 tags:
  - 内网穿透
 ---

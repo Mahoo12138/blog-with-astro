@@ -55,20 +55,46 @@ function readColumnChapterIds() {
 
 /** @param {string} value */
 const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-const columnChapterIds = readColumnChapterIds();
-const columnChapterStubPattern = columnChapterIds.length
-	? new RegExp(`^/post/(?:${columnChapterIds.map(escapeRegExp).join('|')})/?$`)
-	: null;
+
+/**
+ * 专栏章节旧地址 /post/<id>/ 只是跳转桩页，不该进 sitemap。
+ * 章节 id 只能从内容里读出来，但**绝不能在配置顶层读** ——
+ *
+ * Astro 会哈希整个 config 对象来判断「配置是否变化」，变化就清空内容层重新同步。
+ * 若 config 里带上内容派生值（这里是一串章节 id），那么**每次改动文章的 columnId
+ * 都会让哈希变化**，于是：
+ *   - dev 启动时触发一次全量「Clearing content store」+ 冷同步，明显变慢
+ *   - 冷同步过程中会冒出瞬时的
+ *     `[ERROR] [glob-loader] Error rendering X.md: Cannot read properties of undefined (reading 'data')`
+ *     （实测：清空内容层时 2 条、且每次运行报的文件名都不同；同步随后正常完成、页面照常 200）
+ *
+ * 改成惰性求值：第一次调用 filter 时才读盘，config 对象里只留一个函数，
+ * 哈希不再随内容变化。详见项目记忆「构建与验证」。
+ */
+/** @type {RegExp | null | undefined} */
+let columnChapterStubPatternCache;
+function columnChapterStubPattern() {
+	if (columnChapterStubPatternCache === undefined) {
+		const ids = readColumnChapterIds();
+		columnChapterStubPatternCache = ids.length
+			? new RegExp(`^/post/(?:${ids.map(escapeRegExp).join('|')})/?$`)
+			: null;
+	}
+	return columnChapterStubPatternCache;
+}
 
 // 不参与搜索引擎收录的功能页 / 私人页（与页面上的 robots noindex 保持一致）
-const SITEMAP_EXCLUDE = [
-	/\/search\/?$/,
-	/\/mdx-components\/?$/,
-	/\/love\/?$/,
-	/\/privacy\/?$/,
-	/\/terms\/?$/,
-	...(columnChapterStubPattern ? [columnChapterStubPattern] : []),
-];
+const SITEMAP_EXCLUDE = [/\/search\/?$/, /\/mdx-components\/?$/, /\/love\/?$/, /\/privacy\/?$/, /\/terms\/?$/];
+
+/** @param {string} page */
+function sitemapFilter(page) {
+	const pathname = new URL(page).pathname;
+	if (SITEMAP_EXCLUDE.some((pattern) => pattern.test(pathname))) {
+		return false;
+	}
+	const stubPattern = columnChapterStubPattern();
+	return !stubPattern || !stubPattern.test(pathname);
+}
 
 // https://astro.build/config
 export default defineConfig({
@@ -78,7 +104,7 @@ export default defineConfig({
 		mdx(),
 		react(),
 		sitemap({
-			filter: (page) => !SITEMAP_EXCLUDE.some((pattern) => pattern.test(new URL(page).pathname)),
+			filter: sitemapFilter,
 		}),
 		pagefind(),
 	],

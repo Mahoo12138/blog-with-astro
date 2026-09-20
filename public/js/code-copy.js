@@ -26,6 +26,24 @@
 	 */
 	document.documentElement.classList.add('has-js');
 
+	/**
+	 * ClientRouter（视图过渡）下必须把 has-js 带进新文档，否则按钮会「凭空消失」。
+	 *
+	 * 原因：Astro 切页时会调用 swapRootAttributes（见
+	 * node_modules/astro/dist/transitions/swap-functions.js），它先把当前
+	 * <html> 的属性**逐个 removeAttribute 掉**，再套用新文档 <html> 的属性；
+	 * 而构建产物里的 <html> 是 `<html lang="zh-CN">`，从不带 has-js。
+	 * 结果：整页刷新能看到复制按钮，一旦从首页/归档/列表点进文章（客户端跳转），
+	 * has-js 被抹掉 → 按钮退回 display:none，页面上就只剩光秃秃的语言标签。
+	 *
+	 * 和 BaseHead 里保 data-theme 的做法同源：在 swap 之前把运行态写进
+	 * event.newDocument，新文档挂上来时就已带着 has-js。放在 before-swap
+	 * 而不是 page-load，是因为后者在换页之后才补，会看得见按钮闪一下。
+	 */
+	document.addEventListener('astro:before-swap', function (event) {
+		event.newDocument.documentElement.classList.add('has-js');
+	});
+
 	// navigator.clipboard 只在安全上下文（HTTPS / localhost）可用，
 	// 保留 execCommand 兜底，避免 http 环境下按钮完全失效。
 	function writeClipboard(text) {

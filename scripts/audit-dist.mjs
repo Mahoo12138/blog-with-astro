@@ -8,9 +8,9 @@
  *   3. dist 总量预算
  *   4. 关键隐私/收录断言（love 页不出现在索引与 sitemap）
  *   5. 无障碍断言（每页都存在 skip-link 与 #main-content 落点、有且仅有一个 h1）
- *   6. 代码块增强断言（每个代码块都套了外壳、页面引入了复制脚本）
+ *   6. 代码块增强断言（每个代码块都套了外壳、页面引入了复制脚本、复制脚本带 ClientRouter 续期）
  *   7. 专栏分流断言（章节旧地址只能是跳转桩页、桩页跳转目标必须存在、博客流最多一条专栏链接、
- *      桩页不得进入搜索索引）
+ *      桩页不得进入搜索索引、RSS 只含独立文章）
  *   8. 内容卫生断言（分类词表口径、文件名不可见字符、已发布空正文）
  *   9. 模板泄漏断言（`{expr}` 不得作为字面文本出现在 HTML 里）
  *  10. 数学渲染断言（标了 mathjax 的必须渲染出 KaTeX；没标的不得出现 KaTeX）
@@ -293,6 +293,25 @@ if (missingScript.length) {
 	for (const p of missingScript.slice(0, 10)) failures.push(`    ${p}`);
 }
 
+/**
+ * c) 复制按钮的显示由 `<html class="has-js">` 控制，而 ClientRouter 换页时
+ *    Astro 会把当前 <html> 的属性**逐个删掉**再套用新文档的
+ *    （node_modules/astro/dist/transitions/swap-functions.js 的 swapRootAttributes），
+ *    新文档的 <html> 是 `<html lang="zh-CN">`、从不带 has-js。
+ *
+ *    于是 code-copy.js 里那段 `astro:before-swap` 续期逻辑就成了按钮的命门：
+ *    少了它，整页刷新一切正常、从首页/归档点进文章按钮却凭空消失 ——
+ *    这正是本项目踩过的坑，而且纯静态断言看不出画面差异，只能靠源码特征守住。
+ */
+const copyScriptPath = path.join(dist, 'js', 'code-copy.js');
+if (!existsSync(copyScriptPath)) {
+	failures.push('产物缺少 js/code-copy.js（复制按钮的行为脚本）');
+} else if (!(await readFile(copyScriptPath, 'utf8')).includes('astro:before-swap')) {
+	failures.push(
+		'js/code-copy.js 缺少 astro:before-swap 续期：ClientRouter 切页会清空 <html> 的 class，复制按钮会在客户端跳转后消失',
+	);
+}
+
 /* ---------- 7. 专栏分流断言 ---------- */
 /**
  * 博客与专栏分流之后，有三条约束是「改坏了也不会报错、只会悄悄退化」的：
@@ -308,6 +327,13 @@ if (missingScript.length) {
  *   c) 博客流第一页最多只能有一条指向专栏章节的链接（即「专栏最新更新」展示位）。
  *      这是用户提的核心诉求：学习某个主题会连续写十几篇笔记，
  *      一旦有人把专栏章节重新混进博客流，首页立刻被同一个系列刷屏。
+ *
+ *   d) 跳转桩页不得进入搜索索引（见下方对应注释）。
+ *
+ *   e) **RSS 只能包含独立文章**，不得出现专栏章节。
+ *      与 c 是同一诉求的另一面：博客流被刷屏读者还能滚走，RSS 被刷屏则会把
+ *      十几条同系列条目直接推进订阅器。而且 rss.xml 是纯文本产物，
+ *      页面检查与链接检查都覆盖不到它 —— 只能在这里正面断言。
  */
 const postsDir = path.join(root, 'src', 'content', 'posts');
 const columnChapterIds = [];
@@ -402,6 +428,45 @@ if (existsSync(pagefindEntry)) {
 	if (pageCount > realPages) {
 		failures.push(
 			`搜索索引包含 ${pageCount} 页，超过非桩页数 ${realPages} —— 跳转桩页疑似被索引（桩页应保持 noindex）`,
+		);
+	}
+}
+
+/**
+ * e) RSS 只能包含独立文章。
+ *
+ * 判据一：RSS 里的 <link> 不得命中章节 id（那正是 /post/<id>/ 桩页地址）。
+ * 判据二：条数必须等于「已发布的独立文章数」—— 少了说明有文章被静默漏掉，
+ *        而 RSS 少几篇没有任何页面会表现出来。
+ */
+const rssPath = path.join(dist, 'rss.xml');
+if (existsSync(rssPath)) {
+	const rss = await readFile(rssPath, 'utf8');
+	// 第一条 <link> 是频道自身地址，其余才是条目
+	const itemLinks = [...rss.matchAll(/<link>([^<]+)<\/link>/g)].map((m) => m[1]).slice(1);
+	const chapterSet = new Set(columnChapterIds);
+	const leaked = itemLinks.filter((link) => chapterSet.has(link.replace(/\/+$/, '').split('/').pop()));
+
+	if (leaked.length) {
+		failures.push(`RSS 里出现专栏章节 ${leaked.length} 条（RSS 只应包含独立文章）:`);
+		for (const link of leaked.slice(0, 10)) failures.push(`    ${link}`);
+	}
+
+	let publishedStandalone = 0;
+	if (existsSync(postsDir)) {
+		for (const name of await readdir(postsDir)) {
+			if (!/\.mdx?$/.test(name)) continue;
+			const source = await readFile(path.join(postsDir, name), 'utf8');
+			const fm = /^---\r?\n([\s\S]*?)\r?\n---/.exec(source);
+			if (!fm) continue;
+			if (/^draft:\s*true\b/m.test(fm[1])) continue;
+			if (/^columnId:\s*\S/m.test(fm[1])) continue;
+			publishedStandalone += 1;
+		}
+	}
+	if (itemLinks.length !== publishedStandalone) {
+		failures.push(
+			`RSS 条目数 ${itemLinks.length} 与已发布独立文章数 ${publishedStandalone} 不一致（少了说明有文章被静默漏掉）`,
 		);
 	}
 }

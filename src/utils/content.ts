@@ -142,6 +142,22 @@ export function slugifySegment(value: string) {
 		.replace(/["'’]+/g, '')
 		.replace(/[^\p{Letter}\p{Number}]+/gu, '-')
 		.replace(/^-+|-+$/g, '');
+
+	// 含 CJK / 假名 / 谚文时直接用原 slug，**不再剥成 ASCII 残留**。
+	//
+	// 旧逻辑是「优先取 ASCII 残留，为空才回退」，这对混合名会削掉含义，
+	// 且实测造成**真实冲突**（两个不同标签被静默合并成同一个桶）：
+	//   CSS布局  → css   ← 与 CSS 撞车，于是 /tags/css/ 里同时装着
+	//                       标 `CSS` 的 React 专栏和标 `CSS布局` 的前端入门专栏
+	//   51单片机 → 51    ← 退化成 /tags/51/
+	// 纯 CJK 名本来就一直是 CJK URL（前端 / 数据结构与算法 / 随笔杂谈），
+	// 所以这里与既有行为一致；只有纯 ASCII（含带变音符的拉丁文，如 café → cafe）
+	// 才继续走 asciiSlug 做折叠。
+	const hasNonLatin = /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uac00-\ud7af]/.test(slug);
+	if (hasNonLatin) {
+		return slug;
+	}
+
 	const asciiSlug = slug
 		.normalize('NFKD')
 		.replace(/[\u0300-\u036f]/g, '')

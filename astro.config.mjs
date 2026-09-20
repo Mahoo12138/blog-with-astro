@@ -10,19 +10,18 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { defineConfig } from 'astro/config';
 import { vanillaExtractPlugin } from '@vanilla-extract/vite-plugin';
 import { rehypeCodeBlock } from './src/plugins/rehype-code-block.mjs';
+import { remarkMathGate } from './src/plugins/remark-math-gate.mjs';
 
-// Only run math plugins on posts whose frontmatter sets mathjax: true,
-// so plain `$` in code/prose in other posts is left untouched.
-function whenMathjax(/** @type {any} */ plugin) {
-	return function (/** @type {any[]} */ ...options) {
-		const transformer = plugin(...options);
-		return function (/** @type {any} */ tree, /** @type {any} */ file) {
-			if (file?.data?.astro?.frontmatter?.mathjax === true) {
-				return transformer(tree, file);
-			}
-		};
-	};
-}
+// 数学公式只在 frontmatter 标了 mathjax: true 的文章里渲染。
+//
+// ⚠️ 这里**不能**再用「按 frontmatter 条件挂载插件」的写法（曾经有一个 whenMathjax 包装器）。
+// remark-math 是处理器级 attacher：它把 $…$ 语法注册到 processor 上且不返回 transformer，
+// 无法按文档启用。那个包装器用裸调用触发了 attacher，丢了 this，导致 remark-math 抛
+// `Cannot read properties of undefined (reading 'data')`——异常被 glob loader 吞成一行
+// `[ERROR] [glob-loader]`，同时**数学渲染全站静默失效**。
+//
+// 正确做法：语法无条件注册（remarkMath），再由 remarkMathGate 在解析之后按 frontmatter
+// 决定保留还是把数学节点还原成原文。详见 src/plugins/remark-math-gate.mjs 顶部注释。
 
 /**
  * 找出属于专栏的文章 id。
@@ -109,12 +108,17 @@ export default defineConfig({
 		pagefind(),
 	],
 	markdown: {
-		remarkPlugins: [whenMathjax(remarkMath)],
+		// remarkMath 无条件挂载（语法必须始终注册，见文件顶部说明）；
+		// remarkMathGate 负责把「非 mathjax 文章」的数学节点还原回原文。
+		remarkPlugins: [remarkMath, remarkMathGate],
 		// rehypeCodeBlock 给代码块套外壳（语言标签 + 复制按钮）。
 		// 它无条件执行，且依赖 Shiki 已跑完 —— Astro 的管线里 rehypeShiki
 		// 本就在用户 rehypePlugins 之前，所以拿到的是带 data-language 的高亮结果。
 		// 详见 src/plugins/rehype-code-block.mjs 顶部注释。
-		rehypePlugins: [whenMathjax(rehypeKatex), rehypeCodeBlock],
+		//
+		// rehypeKatex 可以无条件挂载：经过 remarkMathGate 之后，只有 mathjax: true
+		// 的文章里还存在数学节点，其余文章已经没有可渲染的数学节点了。
+		rehypePlugins: [rehypeKatex, rehypeCodeBlock],
 		shikiConfig: {
 			// 双主题（light + dark）时 Shiki 会为每个 token 输出
 			//   style="color:#xxx;--shiki-dark:#yyy"

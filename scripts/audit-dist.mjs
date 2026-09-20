@@ -2,7 +2,7 @@
 /**
  * 构建产物体检脚本：对 dist/ 做正面断言，把「改坏了也不会报错、只会悄悄退化」的约定固定下来。
  *
- * 目前 10 组断言：
+ * 目前 11 组断言：
  *   1. 站内链接可达性（扫描 dist HTML 内部 href，断言目标存在）
  *   2. 图片体积预算（单文件不超过 200KB）
  *   3. dist 总量预算
@@ -12,13 +12,17 @@
  *   7. 专栏分流断言（章节旧地址只能是跳转桩页、桩页跳转目标必须存在、博客流最多一条专栏链接）
  *   8. 内容卫生断言（分类词表口径、文件名不可见字符、已发布空正文）
  *   9. 模板泄漏断言（`{expr}` 不得作为字面文本出现在 HTML 里）
- *  10. 报告
+ *  10. 数学渲染断言（标了 mathjax 的必须渲染出 KaTeX；没标的不得出现 KaTeX）
+ *  11. 报告
  *
  * 每加一条断言都应做**有效性自检**：人为制造一次违规、确认审计真的报错，再还原。
  * 否则很容易写出「永远通过」的假护栏（本项目已实测过若干次这种自检）。
  *
- * 用法: node scripts/audit-dist.mjs [--budget-mb=15] [--image-kb=200]
+ * 用法: node scripts/audit-dist.mjs [--budget-mb=15] [--image-kb=200] [--dist=./dist]
  * 退出码非 0 表示有断言失败，可直接用于 CI。整体验证走 `pnpm verify`。
+ *
+ * `--dist` 用于**护栏有效性自检**：把审计指向一份合成的产物目录，
+ * 人为制造一次违规，确认审计真的报错（本项目已实测过若干次这种自检）。
  */
 import { readdir, readFile, stat } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
@@ -26,7 +30,6 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const dist = path.join(root, 'dist');
 
 const args = Object.fromEntries(
 	process.argv.slice(2).map((arg) => {
@@ -34,6 +37,9 @@ const args = Object.fromEntries(
 		return [k, v];
 	}),
 );
+
+// 默认仍是真实产物目录；`--dist` 只服务于护栏自检，不影响 src/ 的读取
+const dist = path.resolve(root, args.dist ?? 'dist');
 /**
  * 体积预算。
  *
@@ -519,7 +525,103 @@ if (leaked.length) {
 	for (const p of leaked.slice(0, 10)) failures.push(`    ${p}`);
 }
 
-/* ---------- 10. 报告 ---------- */
+/* ---------- 10. 数学渲染断言 ---------- */
+/**
+ * 数学公式**只能**靠 frontmatter 的 `mathjax: true` 开启：remark-math 是处理器级
+ * 插件（无法按文档挂载），所以「不渲染」是由 src/plugins/remark-math-gate.mjs
+ * 在解析之后把数学节点还原成原文实现的。
+ *
+ * 这两条断言守的是一次**真实事故**（2026-09-17）：astro.config.mjs 里的
+ * whenMathjax 包装器用裸调用触发 remark-math 的 attacher、丢了 `this`，
+ * 导致 remark-math **从未注册成功** —— 全站公式静默失效（`$$…$$` 原样漏进 HTML），
+ * 而页面照常 200、构建照常成功，只有一行被 glob loader 吞掉的 ERROR。
+ * 没有任何既有断言能发现它，所以补上：
+ *
+ *   a) 标了 mathjax 且正文确实含公式的文章，页面必须渲染出 KaTeX
+ *   b) 没标 mathjax 的文章不得出现 KaTeX（守住 gate，防止哪天被顺手摘掉）
+ *
+ * 判据 `hasMathDelimiter` 已用当前内容自检：22 篇标了 mathjax 的文章里，
+ * 它**精确命中**真正含公式的 6 篇（51mcu-2 / 51mcu-6 / dsa-1 / stm32-3 / stm32-4 / stm32-8），
+ * 不会把 `markdown.md` 那种「正文里要展示 $$ 字面示例」的文章误判进来。
+ */
+const KATEX_TAG = /class="katex/;
+
+/** 取 frontmatter 里的单值字段（去引号） */
+function frontmatterScalar(frontmatter, key) {
+	const m = new RegExp(`^${key}\\s*:\\s*(.+?)\\s*$`, 'm').exec(frontmatter);
+	return m ? m[1].replace(/^['"]|['"]$/g, '').trim() : undefined;
+}
+
+/** 正文是否含数学分隔符：块级 `$$`，或行内 `$…$`（贴近 micromark：开闭两侧不能是空白） */
+function hasMathDelimiter(body) {
+	return /\$\$/.test(body) || /\$[^\s$][^$\n]*[^\s$]\$/.test(body);
+}
+
+/**
+ * 文章 id → 产物页面路径。
+ * 专栏章节的真实页面在 /columns/<columnId>/<id>/，而 /post/<id>/ 只是跳转桩页
+ * —— 桩页的真实目标直接从它的 refresh 头里取，避免猜 columnId 与列目录名是否同名。
+ */
+async function postPagePaths(id, columnId) {
+	const stub = path.join(dist, 'post', id, 'index.html');
+	const out = [];
+	if (columnId) {
+		if (existsSync(stub)) {
+			const target = /http-equiv="refresh"\s+content="0;url=([^"]+)"/.exec(
+				await readFile(stub, 'utf8'),
+			)?.[1];
+			if (target) {
+				out.push(path.join(dist, ...target.replace(/^\/|\/$/g, '').split('/'), 'index.html'));
+			}
+		}
+		out.push(path.join(dist, 'columns', columnId, id, 'index.html'));
+	} else {
+		out.push(stub);
+	}
+	return out.filter((p) => existsSync(p));
+}
+
+const mathNotRendered = [];
+const mathLeaked = [];
+let mathChecked = 0;
+if (existsSync(postsDir)) {
+	for (const name of await readdir(postsDir)) {
+		if (!/\.mdx?$/.test(name)) continue;
+		const source = await readFile(path.join(postsDir, name), 'utf8');
+		const match = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/.exec(source);
+		if (!match) continue;
+		const [, frontmatter, body] = match;
+		if (!hasMathDelimiter(body)) continue;
+
+		const id = name.replace(/\.mdx?$/, '');
+		const flagged = /^mathjax:\s*true\b/m.test(frontmatter);
+		const pages = await postPagePaths(id, frontmatterScalar(frontmatter, 'columnId'));
+		// 页面本身缺失由第 1 组链接断言负责，这里不重复报
+		if (!pages.length) continue;
+
+		const where = pages.map((p) => path.relative(dist, p)).join(' / ');
+		const rendered = (await Promise.all(pages.map((p) => readFile(p, 'utf8')))).some((html) =>
+			KATEX_TAG.test(html),
+		);
+		if (flagged && !rendered) mathNotRendered.push(`${name}（${where}）`);
+		if (!flagged && rendered) mathLeaked.push(`${name}（${where}）`);
+		if (flagged) mathChecked += 1;
+	}
+}
+if (mathNotRendered.length) {
+	failures.push(
+		`标了 mathjax 的文章未渲染出公式 ${mathNotRendered.length} 篇（remark-math / rehype-katex 可能未生效）:`,
+	);
+	for (const p of mathNotRendered.slice(0, 10)) failures.push(`    ${p}`);
+}
+if (mathLeaked.length) {
+	failures.push(
+		`未标 mathjax 的文章却渲染出了公式 ${mathLeaked.length} 篇（remark-math-gate 可能被摘掉）:`,
+	);
+	for (const p of mathLeaked.slice(0, 10)) failures.push(`    ${p}`);
+}
+
+/* ---------- 11. 报告 ---------- */
 const fmt = (b) => `${(b / 1024 / 1024).toFixed(2)} MB`;
 console.log('📦 构建产物体检');
 console.log(`   文件数: ${files.length}`);
@@ -530,6 +632,7 @@ for (const [ext, { count, bytes }] of [...byExt.entries()].sort((a, b) => b[1].b
 }
 console.log(`   站内链接: 检查 ${seen.size} 条`);
 console.log(`   专栏章节: ${columnChapterIds.length} 个（旧地址均为跳转桩页）`);
+console.log(`   数学公式: 校验 ${mathChecked} 篇（标了 mathjax 且正文含公式）`);
 
 if (warnings.length) {
 	console.log('\n⚠️  警告:');

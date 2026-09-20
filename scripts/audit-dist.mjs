@@ -9,7 +9,8 @@
  *   4. 关键隐私/收录断言（love 页不出现在索引与 sitemap）
  *   5. 无障碍断言（每页都存在 skip-link 与 #main-content 落点、有且仅有一个 h1）
  *   6. 代码块增强断言（每个代码块都套了外壳、页面引入了复制脚本）
- *   7. 专栏分流断言（章节旧地址只能是跳转桩页、桩页跳转目标必须存在、博客流最多一条专栏链接）
+ *   7. 专栏分流断言（章节旧地址只能是跳转桩页、桩页跳转目标必须存在、博客流最多一条专栏链接、
+ *      桩页不得进入搜索索引）
  *   8. 内容卫生断言（分类词表口径、文件名不可见字符、已发布空正文）
  *   9. 模板泄漏断言（`{expr}` 不得作为字面文本出现在 HTML 里）
  *  10. 数学渲染断言（标了 mathjax 的必须渲染出 KaTeX；没标的不得出现 KaTeX）
@@ -370,6 +371,38 @@ if (existsSync(blogFeedFirstPage)) {
 			`博客流第一页出现 ${chapterLinks.size} 条专栏章节链接（最多允许 1 条「专栏最新更新」展示位）`,
 		);
 		for (const link of [...chapterLinks].slice(0, 10)) failures.push(`    ${link}`);
+	}
+}
+
+/**
+ * c) 跳转桩页**不得进入搜索索引**。
+ *
+ * 桩页带 `noindex`，Pagefind 会因此跳过它们（实测 300 页 → 索引 218 页，
+ * 78 个桩页全部不在索引里）。但这条**依赖桩页保持 noindex** —— 一旦有人去掉它，
+ * 桩页就会以空内容进索引：用户搜到一堆点进去只会被弹走的空结果。
+ * 这类退化不会让构建失败，链接检查也发现不了（桩页里的链接本身是有效的）。
+ *
+ * 判定：用 Pagefind 自己的元数据（pagefind-entry.json 的 page_count）与非桩页数比较。
+ * 桩页若被索引，page_count 会逼近 HTML 总数从而超过非桩页数。
+ * **刻意不断言「等于非桩页数 − 常数」** —— 那个常数（实测为 4，是被 data-pagefind-ignore
+ * 或集成默认排除的页面）会随站点结构漂移，写成等式属于脆弱断言。
+ */
+const pagefindEntry = path.join(dist, 'pagefind', 'pagefind-entry.json');
+if (existsSync(pagefindEntry)) {
+	const entry = JSON.parse(await readFile(pagefindEntry, 'utf8'));
+	const pageCount = Object.values(entry.languages ?? {})[0]?.page_count ?? 0;
+
+	let realPages = 0;
+	for (const file of htmlFiles) {
+		// 桩页判据与上面一致：看头部有没有 meta refresh
+		const head = (await readFile(file, 'utf8')).slice(0, 600);
+		if (!head.includes('http-equiv="refresh"')) realPages += 1;
+	}
+
+	if (pageCount > realPages) {
+		failures.push(
+			`搜索索引包含 ${pageCount} 页，超过非桩页数 ${realPages} —— 跳转桩页疑似被索引（桩页应保持 noindex）`,
+		);
 	}
 }
 

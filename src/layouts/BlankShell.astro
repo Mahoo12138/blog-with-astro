@@ -1,6 +1,7 @@
 ---
 import BaseHead from '../components/BaseHead.astro';
 import SkipLink from '../components/SkipLink.astro';
+import TopProgressBar from '../components/TopProgressBar.astro';
 import * as styles from './BlankShell.css';
 
 interface Props {
@@ -19,6 +20,7 @@ const { title, description, lang = 'zh-CN', noindex = false } = Astro.props;
 		<BaseHead title={title} description={description} noindex={noindex} />
 	</head>
 	<body class={styles.body}>
+		<TopProgressBar />
 		<SkipLink />
 		<main id="main-content" class={styles.main} data-pagefind-ignore tabindex="-1">
 			<slot />

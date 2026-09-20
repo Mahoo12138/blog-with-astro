@@ -111,12 +111,19 @@ const safeStringify = (value: unknown) => JSON.stringify(value).replace(/</g, '\
 	<link rel="stylesheet" href={siteFontConfig.googleFontsUrl} />
 </noscript>
 
-{/* 代码块复制按钮的行为。
-    走外部静态文件而不是 is:inline：实测内联版 4.86KB × 236 页 = 1.09MB，
-    而其中 130 页根本没有代码块；外部文件全站只下载一次并可被缓存。
+{/* 公共交互脚本（都是 defer，执行时机在 DOM 解析完之后，不阻塞首屏）。
+    两个脚本都走外部静态文件而不是 is:inline：实测 code-copy.js 内联版
+    4.86KB × 236 页 = 1.09MB，而其中很多页根本用不上；外部文件全站只下载
+    一次并可被浏览器缓存。top-progress.js 同理（它是全站每页都要用，
+    内联就是纯重复）。
+
+    一次并可被浏览器缓存。
+
+    代码块复制按钮：
     defer 保证在 DOM 就绪后执行，不阻塞解析。
     无 JS 时按钮不可用，其隐藏逻辑放在 codeBlock.css.ts 里用
     html.no-js 兜底（见该文件注释）。 */}
+<script src="/js/top-progress.js" defer></script>
 <script src="/js/code-copy.js" defer></script>
 
 <!-- Canonical URL -->

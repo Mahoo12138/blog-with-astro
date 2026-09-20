@@ -1,0 +1,33 @@
+---
+/**
+ * 顶部页面加载进度条。
+ *
+ * 这里只渲染空壳，动画与事件接线在 public/js/top-progress.js（BaseHead 里 defer 引入）。
+ * 拆成两半的理由和 code-copy.js 一致：驱动逻辑内联的话每页 HTML 都要重复一份，
+ * 而放到 public/ 下是全站一份、可长期缓存的静态文件。
+ *
+ * 两个实现要点：
+ *
+ * 1. 必须放在 <body> 的第一个子元素位置。脚本是 defer 的，执行时 DOM 已解析完，
+ *    位置其实不影响功能，但先渲染出来能让首帧就带上进度条，也避免它在语义上
+ *    夹在导航和正文之间。
+ *
+ * 2. data-astro-transition-persist 是关键。ClientRouter 换页时会替换整个 <body>，
+ *    带 persist 的节点会被搬到新文档里，节点本身连同它的行内 width 不被重建 ——
+ *    否则跨页导航会出现「条闪一下归零、再重新长起来」的断裂感。
+ *    代价是目标页面也必须渲染同一个 persist id（三个 Shell 都渲染了，所以全覆盖）。
+ */
+import * as styles from './TopProgressBar.css';
+---
+
+<div
+	class={styles.container}
+	data-top-progress
+	data-state="idle"
+	data-astro-transition-persist="top-progress"
+	aria-hidden="true"
+>
+	<div class={styles.bar} data-top-progress-bar>
+		<div class={styles.headGlow}></div>
+	</div>
+</div>

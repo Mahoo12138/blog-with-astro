@@ -5,6 +5,7 @@ import StellarLeftSidebar from '../components/StellarLeftSidebar.astro';
 import StellarIcon from '../components/StellarIcon.astro';
 import StellarPageFooter from '../components/StellarPageFooter.astro';
 import StellarRightSidebar from '../components/StellarRightSidebar.astro';
+import TopProgressBar from '../components/TopProgressBar.astro';
 import SkipLink from '../components/SkipLink.astro';
 import { resolveShellConfig, type MenuId, type SidebarValue, type SiteTreeKey } from '../config/stellar';
 import type { ColumnSidebarContext } from '../components/sidebar/types';
@@ -43,6 +44,7 @@ const hasRightbarContent = shellConfig.rightbar.length > 0 || hasRightbar;
 		<BaseHead title={title} description={description} image={image} type={type} publishedTime={publishedTime} modifiedTime={modifiedTime} noindex={noindex} />
 	</head>
 	<body class={styles.body}>
+		<TopProgressBar />
 		<SkipLink />
 		<div class={styles.background} aria-hidden="true">
 			<div class={styles.glowLeft}></div>

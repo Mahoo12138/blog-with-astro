@@ -3,6 +3,7 @@ import BaseHead from '../components/BaseHead.astro';
 import StellarIcon from '../components/StellarIcon.astro';
 import StellarLeftSidebar from '../components/StellarLeftSidebar.astro';
 import StellarPageFooter from '../components/StellarPageFooter.astro';
+import TopProgressBar from '../components/TopProgressBar.astro';
 import SkipLink from '../components/SkipLink.astro';
 import { resolveShellConfig, type MenuId, type SidebarValue, type SiteTreeKey } from '../config/stellar';
 import * as styles from './WideShell.css';
@@ -30,6 +31,7 @@ const shellConfig = resolveShellConfig(siteTree, { menuId, leftbar });
 		<BaseHead title={title} description={description} noindex={noindex} />
 	</head>
 	<body class={styles.body}>
+		<TopProgressBar />
 		<SkipLink />
 		<div class={styles.background} aria-hidden="true">
 			<div class={styles.glowLeft}></div>

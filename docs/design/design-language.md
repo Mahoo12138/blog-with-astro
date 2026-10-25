@@ -155,4 +155,31 @@ meta   → 0.7rem 右对齐、贴容器右缘 −16px
 
 ---
 
+## 八 · 示意图标准（Diagram v1）
+
+真源：`src/components/mdx/diagram.css.ts`（视觉与几何）· `src/components/mdx/Diagram.astro`（声明式 API）。
+课时里所有示意图一律用它，不再手写内联 SVG。
+
+- **骨架**：单一 SVG `viewBox` = 设计尺寸；节点用 `<foreignObject>` 装 HTML（可换行、吃 token），随画布等比缩放。
+- **语义角色 → 色**：`instr`（info 蓝）/ `gap`（warning 琥珀）/ `target`（success 青绿）/ `formula`（中性强调）/ `neutral`。全部走 `tone.*`，明暗自动切换；**MDX 里禁止写死 hex**。
+- **盒子**：`radius.md` + 1px 边（fg 34%）+ fg 10% 淡底；标题 11px/700、副题 10px，居中。
+- **箭头**：1.7px + 6×7 实心三角；只写 `from / at / to / fromX / toX / dir / len`，端点由节点几何计算 —— **禁止手写箭头坐标**。
+- **字节布局**：`pxPerByte + x0` 配合 `span:[start,end]`，盒宽与边界成正比，`P / P+4` 等锚点天然落在字节边界。
+- **可读性**：`max-width = 1.3× 设计宽`、`min-width = 0.88× 设计宽`；不足则横向滚动 + 右缘渐隐。
+
+```mdx
+<Diagram label="…" width={510} height={266} pxPerByte={60} x0={238}
+  nodes={[
+    { id: 'instr', span: [-3, 0], y: 10, h: 50, role: 'instr', title: '…', sub: '…' },
+    { id: 'gap', span: [0, 4], y: 10, h: 50, role: 'gap', title: '…', sub: '…' },
+  ]}
+  arrows={[
+    { from: 'gap', at: 'left', len: 16, label: 'P', labelAlign: 'middle' },
+    { from: 'gap', at: 'right', len: 16, label: 'P + 4', labelAlign: 'end' },
+  ]}
+/>
+```
+
+---
+
 *修订约定：新范式先进 `/kit` 与本文，再进页面；漂移的旧样式记为历史债，不扩散。*
